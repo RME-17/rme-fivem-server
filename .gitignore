@@ -1,0 +1,25 @@
+﻿# FiveM / txAdmin local files
+cache/
+logs/
+crashes/
+txData/
+
+# Never upload real secrets
+server.cfg
+*.key
+.env
+
+# Database / backups
+*.sql
+*.db
+*.sqlite
+*.bak
+
+# Windows junk
+Thumbs.db
+Desktop.ini
+
+# Node junk
+node_modules/
+dist/
+build/
