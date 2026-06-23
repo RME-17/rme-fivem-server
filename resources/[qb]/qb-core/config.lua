@@ -7,10 +7,10 @@ QBCore.Config.UpdateInterval = 5                             -- how often to upd
 QBCore.Config.StatusInterval = 5000                          -- how often to check hunger/thirst status in milliseconds
 
 QBCore.Config.Money = {}
-QBCore.Config.Money.MoneyTypes = { cash = 500, bank = 5000, crypto = 0 } -- type = startamount - Add or remove money types for your server (for ex. blackmoney = 0), remember once added it will not be removed from the database!
+QBCore.Config.Money.MoneyTypes = { cash = 10000, bank = 100000, crypto = 0 } -- type = startamount - Add or remove money types for your server (for ex. blackmoney = 0), remember once added it will not be removed from the database!
 QBCore.Config.Money.DontAllowMinus = { 'cash', 'crypto' }                -- Money that is not allowed going in minus
 QBCore.Config.Money.MinusLimit = -5000                                   -- The maximum amount you can be negative
-QBCore.Config.Money.PayCheckTimeOut = 10                                 -- The time in minutes that it will give the paycheck
+QBCore.Config.Money.PayCheckTimeOut = 15                                 -- The time in minutes that it will give the paycheck
 QBCore.Config.Money.PayCheckSociety = false                              -- If true paycheck will come from the society account that the player is employed at, requires qb-management
 
 QBCore.Config.Player = {}
