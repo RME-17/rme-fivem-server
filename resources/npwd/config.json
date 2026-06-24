@@ -31,15 +31,7 @@
     "phoneNumberColumn": "phone_number"
   },
   "images": {
-    "url": "https://api.fivemanage.com/api/image",
-    "type": "image",
-    "imageEncoding": "webp",
-    "contentType": "multipart/form-data",
-    "useContentType": false,
-    "authorizationHeader": "Authorization",
-    "authorizationPrefix": "",
-    "useAuthorization": true,
-    "returnedDataIndexes": ["url"]
+    "useWebhook": true
   },
   "imageSafety": {
     "filterUnsafeImageUrls": true,
@@ -64,7 +56,9 @@
   },
   "profanityFilter": {
     "enabled": false,
-    "badWords": ["esx"]
+    "badWords": [
+      "esx"
+    ]
   },
   "twitter": {
     "showNotifications": true,
@@ -103,6 +97,8 @@
     "enabled": false,
     "authorizationHeader": "Authorization",
     "url": "https://api.fivemanage/api/audio",
-    "returnedDataIndexes": ["url"]
+    "returnedDataIndexes": [
+      "url"
+    ]
   }
 }
