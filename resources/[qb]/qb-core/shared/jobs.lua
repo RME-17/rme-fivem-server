@@ -34,7 +34,7 @@ QBCore.Shared.Jobs = {
 			['1'] = { name = 'Paramedic', payment = 150 },
 			['2'] = { name = 'Doctor', payment = 200 },
 			['3'] = { name = 'Surgeon', payment = 250 },
-			['4'] = { name = 'Chief', isboss = true, payment = 300 },
+			['4'] = { name = 'Medical Director', isboss = true, payment = 300 },
 		},
 	},
 	realestate = {
