@@ -24,8 +24,8 @@
   },
   "database": {
     "useIdentifierPrefix": false,
-    "playerTable": "users",
-    "identifierColumn": "identifier",
+    "playerTable": "players",
+    "identifierColumn": "license",
     "identifierType": "license",
     "profileQueries": true,
     "phoneNumberColumn": "phone_number"
