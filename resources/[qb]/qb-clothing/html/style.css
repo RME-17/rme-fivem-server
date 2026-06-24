@@ -1,592 +1,332 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
-.container {
-    height: 100vh;
-}
-
-::-webkit-inner-spin-button {
-    display: none;
-}
-
-.clothing-menu-container {
-    display: none;
-    margin-top: .5vh;
-    margin-right: 5vh;
-    position: absolute;
-    height: 99vh;
-    width: 38vh;
-    background-color: rgb(23 23 23 / 80%);
-    right: -25vw;
-    border-radius: 1.3vh;
-}
-
-.clothing-menu-header {
-    position: relative;
-    height: 6vh;
-    width: 100%;
-    top: .9vh;
-}
-
-.clothing-menu-header-btn {
-    position: relative;
-    height: 80%;
-    top: 3.5vh;
-    float: left;
-    color: #ededed;
-    text-align: center;
-    line-height: 3.5vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-header-btn:hover {
-    color: #444444;
-    cursor: pointer;
-}
-
-.selected {
-    color: #dc143c;
-}
-
-.clothing-menu-header-btn>p {
-    font-family: 'Poppins', sans-serif;
-    text-transform: uppercase;
-    font-size: 1vh;
-    letter-spacing: 0.1vh;
-    margin-bottom: -10px;
-}
-
-.clothing-menu-header-cameras {
-    position: absolute;
-    height: 5.5vh;
-    width: 102%;
-    top: -2.3vh;
-}
-
-.clothing-menu-header-camera-btn {
-    position: relative;
-    height: 55%;
-    top: 3.2vh;
-    width: 24%;
-    float: left;
-    color: #ededed;
-    text-align: center;
-    line-height: 3.7vh;
-    transition: all 1s linear;
-}
-
-.selected-cam {
-    color: #dc143c;
-}
-
-.clothing-menu-header-camera-btn:hover {
-    color: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-header-camera-btn>i {
-    font-size: 1.4vh;
-}
-
-.clothing-menu-roomOutfits-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 87vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-.clothing-menu-myOutfits-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 77vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-.clothing-menu-outfit-option-button {
-    position: relative;
-    text-align: center;
-    line-height: 4.8vh;
-    width: 60%;
-    height: 40%;
-    margin: 0 auto;
-    top: 2.3vh;
-    background-color: #dc143c;
-    border-radius: 0.75vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-outfit-option-button:hover {
-    background-color: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-outfit-option-button>p {
-    color: #ededed;
-    text-transform: uppercase;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.1vh;
-    font-size: 1vh;
-}
-
-.clothing-menu-myOutfit-option-button {
-    position: absolute;
-    text-align: center;
-    line-height: 4.8vh;
-    width: 40%;
-    height: 40%;
-    left: 2vh;
-    top: 5.1vh;
-    background-color: #dc143c;
-    border-radius: 0.4vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-myOutfit-option-button:hover {
-    background-color: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-myOutfit-option-button>p {
-    color: #ededed;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.1vh;
-    font-size: 1.3vh;
-}
-
-.clothing-menu-myOutfit-option-button-remove {
-    position: absolute;
-    text-align: center;
-    line-height: 4.8vh;
-    width: 40%;
-    height: 40%;
-    right: 2vh;
-    top: 5.1vh;
-    background-color: #dc143c;
-    border-radius: 0.4vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-myOutfit-option-button-remove:hover {
-    background-color: #444444;
-}
-
-.clothing-menu-myOutfit-option-button-remove>p {
-    color: #ededed;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.1vh;
-    font-size: 1.3vh;
-}
-
-.clothing-menu-character-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 86vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-.clothing-menu-clothing-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 86vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-.clothing-menu-accessoires-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 86vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-.clothing-menu-hair-container {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0.3vh;
-    right: 0;
-    top: 9vh;
-    height: 86vh;
-    width: 92%;
-    overflow-y: scroll !important;
-}
-
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
-    background-color: rgb(245 245 245 / 0%);
-}
-
-::-webkit-scrollbar {
-    width: 0.6vh;
-    background-color: rgb(245 245 245 / 0%);
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #dc143c;
-}
-
-.clothing-menu-option {
-    position: relative;
-    width: 100%;
-    height: 14%;
-}
-
-.clothing-menu-option-header {
-    color: #ededed;
-    padding: 0.8vh;
-    width: 100%;
-    margin-top: -0.5em;
-    margin-bottom: -15px;
-}
-
-.clothing-menu-option-header>p {
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    text-transform: uppercase;
-    font-size: 1.4vh;
-    letter-spacing: 0.1vh;
-}
-
-.clothing-menu-option-item {
-    position: relative;
-    float: left;
-    height: 50%;
-    width: 40%;
-    margin-left: 2.4vh;
-    margin-top: 2vh;
-}
-
-.clothing-menu-option-item-left {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 50%;
-    width: 33%;
-    background-color: #dc143c;
-    color: #e9e9e9;
-    text-align: center;
-    line-height: 3.6vh;
-    border-radius: .3vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-option-item-left:hover {
-    background-color: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-option-item-right {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 50%;
-    width: 33%;
-    background-color: #dc143c;
-    color: #e9e9e9;
-    text-align: center;
-    line-height: 3.6vh;
-    border-radius: .3vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-option-item-right:hover {
-    background-color: #444444;
-    cursor: pointer;
-}
-
-.item-number {
-    position: absolute;
-    width: 25%;
-    height: 60%;
-    top: 2.8vh;
-    left: 5vh;
-    background: none;
-    border: none;
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 1vh;
-    letter-spacing: 0.1vh;
-    color: white;
-    outline: none;
-    transition: all 0.1s linear;
-}
-
-.clothing-menu-option-item-header {
-    position: absolute;
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 1vh;
-    letter-spacing: 0.1vh;
-    color: #ededed;
-}
-
-.clothing-menu-option-item-header>p {
-    font-family: 'Poppins', sans-serif;
-    padding: 0.2vh;
-}
-
-.clothing-menu-option-buttons {
-    position: absolute;
-    bottom: 0vh;
-    width: 100%;
-    height: 3vh;
-}
-
-.clothing-menu-option-button {
-    position: relative;
-    float: right;
-    height: 100%;
-    width: 33.33%;
-    background-color: #dc143c;
-    transition: all 1s linear;
-}
-
-.clothing-menu-option-button:hover {
-    background-color: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-option-button>p {
-    line-height: 3.1vh;
-    font-size: 1.3vh;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.1vh;
-    text-transform: uppercase;
-    color: #ededed;
-    text-align: center;
-}
-
-.clothing-menu-save-outfit-name {
-    display: none;
-    position: relative;
-    width: 30vh;
-    height: 18vh;
-    background-color: rgb(23 23 23 / 80%);
-    margin: 0 auto;
-    top: 40%;
-    border-radius: 0.7vh;
-}
-
-.clothing-menu-save-outfit-name-buttons {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 17%;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-}
-
-.clothing-menu-save-outfit-name-button {
-    position: relative;
-    background: #dc143c;
-    width: 50%;
-    height: 100%;
-    float: left;
-    text-align: center;
-    line-height: 3vh;
-    transition: all 1s linear;
-}
-
-.clothing-menu-save-outfit-name-button:hover {
-    background: #444444;
-    cursor: pointer;
-}
-
-.clothing-menu-save-outfit-name-button>p {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.1vh;
-    letter-spacing: 0.1vh;
-    text-transform: uppercase;
-    color: white;
-    font-weight: bold;
-}
-
-.clothing-menu-save-outfit-name-header {
-    position: relative;
-    width: 100%;
-    height: 20%;
-    text-align: center;
-    line-height: 5vh;
-}
-
-.clothing-menu-save-outfit-name-header>p {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.7vh;
-    letter-spacing: 0.1vh;
-    text-transform: uppercase;
-    color: #ededed;
-    font-weight: bold;
-}
-
-#outfit-name {
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    bottom: 40%;
-    background: none;
-    border: none;
-    outline: none;
-    width: 60%;
-    height: 27%;
-    text-align: center;
-    background: #444444;
-    transition: all 1s linear;
-    border-radius: .7vh;
-}
-
-#outfit-name {
-    color: #ededed;
-    font-family: sans-serif;
-    font-size: 1.75vh;
-    letter-spacing: 0.1vh;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-#outfit-name::placeholder {
-    color: rgba(255, 255, 255, 0.404);
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.7vh;
-    letter-spacing: 0.1vh;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-.change-camera-buttons {
-    display: none;
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    height: 7vh;
-    width: 20vh;
-}
-
-.change-camera-button {
-    position: relative;
-    height: 80%;
-    width: 50%;
-    float: left;
-    background-color: rgb(23 23 23 / 80%);
-    text-align: center;
-    transition: 0.08s;
-}
-
-.change-camera-button:hover {
-    background: #dc143c;
-    cursor: pointer;
-}
-
-.change-camera-button>i {
-    font-size: 3vh;
-    color: #ededed;
-    line-height: 5.5vh;
-}
-
-.change-camera-footer {
-    position: absolute;
-    bottom: 0;
-    text-align: center;
-    width: 100%;
-    height: 20%;
-    background: #dc143c;
-    line-height: 1.5vh;
-    border-bottom-left-radius: .8vh;
-    border-bottom-right-radius: .8vh;
-}
-
-.change-camera-footer>p {
-    font-family: 'Poppins', sans-serif;
-    font-weight: bold;
-    font-size: 0.8vh;
-    text-transform: uppercase;
-    color: #ededed;
-    letter-spacing: 0.1vh;
-}
-
-.slidecontainer {
-    width: 100%;
-}
-
-.slider {
-    appearance: none;
-    width: 100%;
-    height: 25px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    transition: opacity .2s;
-}
-
-.slider {
-    position: absolute;
-    left: 0!important;
-    top: 1.5em!important;
-}
-
-.slider:hover {
-    opacity: 1;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    background: #dc143c;
-    cursor: pointer;
-}
-
-.facemix-labels {
-    display: block;
-}
-
-.facemix-label-left {
-    font-size: xx-small;
-    position: absolute;
-    text-transform: uppercase;
-    letter-spacing: 0.1vh;
-    color: #ededed;
-    bottom: 0px;
-    left: 0px;
-}
-
-.facemix-label-right {
-    font-size: xx-small;
-    position: absolute;
-    text-transform: uppercase;
-    letter-spacing: 0.1vh;
-    color: #ededed;
-    bottom: 0px;
-    right: 0px;
-}
+/* ====================================================================
+   RETRON RP — qb-clothing modern UI reskin
+   Structure/classes/IDs unchanged (script.js compatible).
+   Poppins bundled locally (no CDN).
+==================================================================== */
+
+@font-face{font-family:'Poppins';font-style:normal;font-weight:300;src:url('./poppins-300.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:400;src:url('./poppins-400.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:500;src:url('./poppins-500.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;src:url('./poppins-600.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:700;src:url('./poppins-700.woff2') format('woff2');font-display:swap}
+
+:root{
+  --accent:#e11d33;
+  --accent-soft:rgba(225,29,51,.22);
+  --accent-grad:linear-gradient(135deg,#ff3146,#c20e26);
+  --border:rgba(255,255,255,.09);
+  --card:rgba(255,255,255,.045);
+  --card-hover:rgba(255,255,255,.09);
+  --text:#f3f3f5;
+  --muted:#9b9ba6;
+  --font:'Poppins','Segoe UI',Roboto,system-ui,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:transparent;overflow:hidden}
+.container{height:100vh;font-family:var(--font)}
+
+::-webkit-inner-spin-button{display:none}
+::-webkit-scrollbar{width:.7vh}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--accent-grad);border-radius:1vh}
+
+/* ===== Main panel ===== */
+.clothing-menu-container{
+  display:none;
+  margin-top:.5vh;
+  margin-right:5vh;
+  position:absolute;
+  height:99vh;
+  width:44vh;
+  right:-25vw;
+  color:var(--text);
+  background:linear-gradient(180deg,rgba(24,24,28,.9) 0%,rgba(13,13,16,.93) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  backdrop-filter:blur(20px) saturate(140%);
+  border:1px solid var(--border);
+  border-radius:1.6vh;
+  box-shadow:0 2vh 6vh rgba(0,0,0,.6);
+}
+
+/* ===== Camera-angle icons (top row) ===== */
+.clothing-menu-header-cameras{
+  position:absolute;
+  top:1.3vh;
+  left:0;
+  width:100%;
+  height:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1vh;
+  z-index:2;
+}
+.clothing-menu-header-camera-btn{
+  position:relative;
+  top:auto;width:3.7vh;height:3.7vh;float:none;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);
+  line-height:normal;
+  border-radius:50%;
+  background:var(--card);
+  border:1px solid var(--border);
+  transition:all .18s ease;
+}
+.clothing-menu-header-camera-btn:hover{color:#fff;background:var(--card-hover);cursor:pointer}
+.clothing-menu-header-camera-btn>i{font-size:1.7vh}
+.selected-cam{color:#fff!important;background:var(--accent-grad)!important;border-color:transparent!important}
+
+/* ===== Category tabs (Clothing / Accessories ...) injected by JS ===== */
+.clothing-menu-header{
+  position:relative;
+  top:5.4vh;
+  width:100%;
+  height:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5vh;
+  padding:0 1.4vh;
+}
+.clothing-menu-header-btn{
+  position:relative;
+  top:auto;height:auto;float:none;
+  flex:1;
+  color:var(--muted);
+  text-align:center;
+  line-height:normal;
+  padding:.85vh .4vh;
+  border-radius:1vh;
+  transition:all .18s ease;
+}
+.clothing-menu-header-btn:hover{color:var(--text);background:var(--card);cursor:pointer}
+.clothing-menu-header-btn.selected{background:var(--accent-grad);box-shadow:0 .5vh 1.4vh var(--accent-soft)}
+.clothing-menu-header-btn.selected p,.clothing-menu-header-btn.selected{color:#fff}
+.selected{color:#fff}
+.clothing-menu-header-btn>p{
+  font-family:var(--font);
+  text-transform:uppercase;
+  font-size:1.15vh;
+  font-weight:600;
+  letter-spacing:.12vh;
+  margin:0;
+}
+
+/* ===== Scroll containers ===== */
+.clothing-menu-character-container,
+.clothing-menu-clothing-container,
+.clothing-menu-accessoires-container,
+.clothing-menu-hair-container,
+.clothing-menu-roomOutfits-container{
+  display:none;position:absolute;left:0;right:0;margin:0 auto;
+  top:9vh;height:83vh;width:90%;
+  padding-right:.4vh;
+  overflow-y:scroll !important;
+}
+.clothing-menu-myOutfits-container{
+  display:none;position:absolute;left:0;right:0;margin:0 auto;
+  top:9vh;height:80vh;width:90%;
+  padding-right:.4vh;
+  overflow-y:scroll !important;
+}
+
+/* ===== Option card ===== */
+.clothing-menu-option{
+  position:relative;
+  width:100%;
+  height:auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:1.1vh;
+  padding:1vh 1.2vh 1.2vh;
+  margin-bottom:1vh;
+  transition:background .18s ease,border-color .18s ease;
+}
+.clothing-menu-option:hover{background:var(--card-hover);border-color:rgba(225,29,51,.35)}
+.clothing-menu-option-header{
+  color:var(--text);
+  padding:0;width:100%;margin:0 0 .5vh;
+  display:flex;align-items:center;gap:.7vh;
+}
+.clothing-menu-option-header::before{
+  content:"";display:inline-block;
+  width:.45vh;height:1.6vh;border-radius:1vh;
+  background:var(--accent-grad);
+}
+.clothing-menu-option-header>p{
+  text-align:left;
+  font-family:var(--font);
+  text-transform:uppercase;
+  font-size:1.25vh;font-weight:600;letter-spacing:.14vh;
+  color:#fff;margin:0;
+}
+
+/* option row (label + stepper) */
+.clothing-menu-option-item{
+  position:relative;float:none;
+  height:auto;width:100%;margin:0;margin-top:.7vh;
+  display:flex;align-items:center;justify-content:space-between;gap:1vh;
+}
+.clothing-menu-option-item-header{
+  position:relative;
+  text-transform:uppercase;font-weight:500;
+  font-size:1.05vh;letter-spacing:.1vh;color:var(--muted);
+  flex:1;min-width:0;
+}
+.clothing-menu-option-item-header>p{
+  font-family:var(--font);padding:0;margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* stepper arrows */
+.clothing-menu-option-item-left,
+.clothing-menu-option-item-right{
+  position:relative;bottom:auto;left:auto;right:auto;
+  height:3.2vh;width:3.2vh;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);line-height:normal;
+  border-radius:.8vh;transition:all .15s ease;
+}
+.clothing-menu-option-item-left:hover,
+.clothing-menu-option-item-right:hover{
+  background:var(--accent-grad);border-color:transparent;color:#fff;cursor:pointer;
+  transform:translateY(-1px);box-shadow:0 .4vh 1vh var(--accent-soft);
+}
+.clothing-menu-option-item-left>i,
+.clothing-menu-option-item-right>i{font-size:1.4vh}
+
+/* value chip */
+.item-number{
+  position:relative;top:auto;left:auto;
+  width:5.6vh;height:3.2vh;flex:0 0 auto;
+  background:rgba(0,0,0,.35);
+  border:1px solid var(--border);
+  border-radius:.8vh;
+  text-align:center;
+  font-family:var(--font);font-weight:600;font-size:1.2vh;letter-spacing:.05vh;
+  color:#fff;outline:none;transition:all .15s ease;
+}
+.item-number:focus{border-color:var(--accent);box-shadow:0 0 0 .3vh var(--accent-soft)}
+
+/* ===== Face-mix sliders (character creation) ===== */
+#facemix .clothing-menu-option-item{flex-direction:column;align-items:stretch;gap:.4vh;padding-bottom:1.8vh}
+#facemix .clothing-menu-option-item-header{flex:0 0 auto}
+input.slider{
+  -webkit-appearance:none;appearance:none;
+  position:relative;left:auto!important;top:auto!important;
+  width:100%!important;height:.7vh!important;
+  background:rgba(255,255,255,.15)!important;
+  border:none!important;border-radius:1vh;
+  outline:none;opacity:1;margin:.4vh 0;
+}
+input.slider:hover{opacity:1}
+input.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:2vh;height:2vh;border-radius:50%;
+  background:var(--accent-grad);border:2px solid #fff;
+  box-shadow:0 .3vh .8vh rgba(0,0,0,.5);cursor:pointer;
+}
+.facemix-labels{display:flex;justify-content:space-between;position:relative;margin-top:.2vh}
+.facemix-label-left,.facemix-label-right{
+  position:relative;bottom:auto;left:auto;right:auto;
+  font-size:.9vh;text-transform:uppercase;letter-spacing:.1vh;color:var(--muted);
+}
+
+/* ===== Footer buttons ===== */
+.clothing-menu-option-buttons{
+  position:absolute;bottom:0;left:0;width:100%;height:6vh;
+  display:flex;gap:.8vh;padding:1vh;
+  background:linear-gradient(0deg,rgba(0,0,0,.5),transparent);
+  border-bottom-left-radius:1.6vh;border-bottom-right-radius:1.6vh;
+}
+.clothing-menu-option-button{
+  position:relative;float:none;height:100%;width:auto;flex:1;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:1vh;transition:all .16s ease;
+}
+.clothing-menu-option-button:hover{background:var(--card-hover);cursor:pointer;transform:translateY(-1px)}
+.clothing-menu-option-button>p{
+  line-height:normal;font-size:1.1vh;font-family:var(--font);font-weight:600;
+  letter-spacing:.08vh;text-transform:uppercase;color:var(--text);text-align:center;margin:0;
+}
+#save-menu{background:var(--accent-grad);border-color:transparent}
+#save-menu>p{color:#fff}
+#save-menu:hover{box-shadow:0 .5vh 1.5vh var(--accent-soft)}
+#cancel-menu:hover{border-color:rgba(255,255,255,.25)}
+#save-outfit{border-color:rgba(225,29,51,.4)}
+#save-outfit>p{color:#ff6273}
+
+/* ===== Saved-outfit list buttons ===== */
+.clothing-menu-outfit-option-button{
+  position:relative;text-align:center;line-height:normal;
+  width:90%;height:auto;margin:1.2vh auto 0;padding:1.3vh;
+  background:var(--accent-grad);border-radius:1vh;transition:all .16s ease;
+}
+.clothing-menu-outfit-option-button:hover{filter:brightness(1.1);cursor:pointer;transform:translateY(-1px)}
+.clothing-menu-outfit-option-button>p{color:#fff;text-transform:uppercase;font-family:var(--font);font-weight:600;letter-spacing:.1vh;font-size:1.1vh;margin:0}
+
+.clothing-menu-myOutfit-option-button,
+.clothing-menu-myOutfit-option-button-remove{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  text-align:center;line-height:normal;
+  width:44%;height:auto;margin:1vh 2%;padding:1.2vh .5vh;
+  border-radius:1vh;transition:all .16s ease;vertical-align:middle;
+}
+.clothing-menu-myOutfit-option-button{background:var(--accent-grad)}
+.clothing-menu-myOutfit-option-button-remove{background:rgba(255,255,255,.08);border:1px solid var(--border)}
+.clothing-menu-myOutfit-option-button:hover{filter:brightness(1.1);cursor:pointer;transform:translateY(-1px)}
+.clothing-menu-myOutfit-option-button-remove:hover{background:rgba(255,255,255,.16);cursor:pointer}
+.clothing-menu-myOutfit-option-button>p,
+.clothing-menu-myOutfit-option-button-remove>p{color:#fff;font-weight:600;text-transform:uppercase;font-family:var(--font);letter-spacing:.08vh;font-size:1.1vh;margin:0}
+
+/* ===== Ped rotate buttons ===== */
+.change-camera-buttons{display:none;position:absolute;margin:0 auto;left:0;right:0;height:7vh;width:20vh}
+.change-camera-button{
+  position:relative;height:80%;width:50%;float:left;text-align:center;transition:.12s;
+  background:rgba(18,18,20,.85);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+}
+.change-camera-button:hover{background:var(--accent-grad);border-color:transparent;cursor:pointer}
+.change-camera-button>i{font-size:2.6vh;color:var(--text);line-height:5vh}
+.change-camera-footer{
+  position:absolute;bottom:0;text-align:center;width:100%;height:24%;
+  background:var(--accent-grad);line-height:1.5vh;
+  border-bottom-left-radius:.8vh;border-bottom-right-radius:.8vh;
+}
+.change-camera-footer>p{font-family:var(--font);font-weight:600;font-size:.8vh;text-transform:uppercase;color:#fff;letter-spacing:.1vh;margin:0}
+
+/* ===== Save-outfit name modal ===== */
+.clothing-menu-save-outfit-name{
+  display:none;position:relative;width:34vh;height:20vh;margin:0 auto;top:40%;
+  background:linear-gradient(180deg,rgba(26,26,30,.98),rgba(14,14,16,.98));
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border:1px solid var(--border);border-radius:1.4vh;
+  box-shadow:0 2vh 6vh rgba(0,0,0,.6);
+}
+.clothing-menu-save-outfit-name-header{position:relative;width:100%;height:24%;text-align:center;line-height:6vh}
+.clothing-menu-save-outfit-name-header>p{font-family:var(--font);font-size:1.5vh;letter-spacing:.1vh;text-transform:uppercase;color:#fff;font-weight:600;margin:0}
+#outfit-name{
+  position:absolute;margin:0 auto;left:0;right:0;bottom:38%;
+  width:74%;height:24%;text-align:center;
+  background:rgba(0,0,0,.4);border:1px solid var(--border);outline:none;
+  border-radius:1vh;color:#fff;font-family:var(--font);
+  font-size:1.5vh;letter-spacing:.1vh;text-transform:uppercase;font-weight:600;
+  transition:all .16s ease;
+}
+#outfit-name:focus{border-color:var(--accent);box-shadow:0 0 0 .3vh var(--accent-soft)}
+#outfit-name::placeholder{color:rgba(255,255,255,.4);font-family:var(--font);font-size:1.4vh;letter-spacing:.1vh;text-transform:uppercase;font-weight:500}
+.clothing-menu-save-outfit-name-buttons{position:absolute;bottom:0;width:100%;height:22%;margin:0 auto;left:0;right:0;display:flex;gap:.8vh;padding:.8vh}
+.clothing-menu-save-outfit-name-button{
+  position:relative;float:none;width:auto;height:100%;flex:1;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:1vh;line-height:normal;transition:all .16s ease;
+}
+.clothing-menu-save-outfit-name-button:hover{background:var(--card-hover);cursor:pointer;transform:translateY(-1px)}
+.clothing-menu-save-outfit-name-button>p{font-family:var(--font);font-size:1.1vh;letter-spacing:.08vh;text-transform:uppercase;color:#fff;font-weight:600;margin:0}
+#save-outfit-save{background:var(--accent-grad);border-color:transparent}

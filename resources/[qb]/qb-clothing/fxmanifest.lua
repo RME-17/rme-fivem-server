@@ -33,6 +33,11 @@ files {
     'html/script.js',
     'html/jquery-3.6.0.min.js',
     'html/fontawesome.min.css',
+    'html/poppins-300.woff2',
+    'html/poppins-400.woff2',
+    'html/poppins-500.woff2',
+    'html/poppins-600.woff2',
+    'html/poppins-700.woff2',
     'html/webfonts/*.woff2',
     'html/webfonts/*.woff',
     'html/webfonts/*.ttf'
