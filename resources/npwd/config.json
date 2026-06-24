@@ -23,7 +23,7 @@
     "payFunction": "HasPhone"
   },
   "database": {
-    "useIdentifierPrefix": false,
+    "useIdentifierPrefix": true,
     "playerTable": "players",
     "identifierColumn": "license",
     "identifierType": "license",
