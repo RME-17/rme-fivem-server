@@ -92,7 +92,9 @@
   },
   "defaultContacts": [],
   "disabledApps": [],
-  "apps": [],
+  "apps": [
+    "npwd_bankingapp"
+  ],
   "voiceMessage": {
     "enabled": false,
     "authorizationHeader": "Authorization",
