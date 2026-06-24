@@ -2232,3 +2232,15 @@ CreateThread(function()
         end
     end
 end)
+
+-- Open phone when used from inventory (added by RME)
+RegisterNetEvent('qb-phone:client:UsePhoneItem', function()
+    local PlayerData = QBCore.Functions.GetPlayerData()
+    if not PhoneData.isOpen and LocalPlayer.state.isLoggedIn then
+        if not PlayerData.metadata['ishandcuffed'] and not PlayerData.metadata['inlaststand'] and not PlayerData.metadata['isdead'] and not IsPauseMenuActive() then
+            OpenPhone()
+        else
+            QBCore.Functions.Notify('Action not available at the moment..', 'error')
+        end
+    end
+end)

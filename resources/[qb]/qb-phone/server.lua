@@ -1102,3 +1102,10 @@ QBCore.Commands.Add('bill', 'Bill A Player', { { name = 'id', help = 'Player ID'
         TriggerClientEvent('QBCore:Notify', source, 'No Access', 'error')
     end
 end)
+
+-- Use phone from inventory (added by RME)
+QBCore.Functions.CreateUseableItem('phone', function(source)
+    local Player = QBCore.Functions.GetPlayer(source)
+    if not Player then return end
+    TriggerClientEvent('qb-phone:client:UsePhoneItem', source)
+end)
