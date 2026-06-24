@@ -254,6 +254,56 @@ CreateThread(function()
     end
 end)
 
+-- [RME] Armory purchase (server-authoritative: re-checks job, on-duty, grade, money)
+RegisterNetEvent('rme-policejob:server:buyArmoryItem', function(index)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    if Player.PlayerData.job.name ~= 'police' then return end
+    if not Player.PlayerData.job.onduty then
+        TriggerClientEvent('QBCore:Notify', src, 'You must be on duty', 'error')
+        return
+    end
+    local item = Config.ArmoryItems[index]
+    if not item then return end
+    if Player.PlayerData.job.grade.level < item.minGrade then
+        TriggerClientEvent('QBCore:Notify', src, 'Insufficient rank for this item', 'error')
+        return
+    end
+
+    local price = item.price or 0
+    local paidAccount = nil
+    if price > 0 then
+        local cash = Player.PlayerData.money['cash'] or 0
+        local bank = Player.PlayerData.money['bank'] or 0
+        if cash >= price then
+            paidAccount = 'cash'
+        elseif bank >= price then
+            paidAccount = 'bank'
+        else
+            TriggerClientEvent('QBCore:Notify', src, 'Not enough money ($' .. price .. ')', 'error')
+            return
+        end
+        if not Player.RemoveMoney(paidAccount, price, 'police-armory') then
+            TriggerClientEvent('QBCore:Notify', src, 'Payment failed', 'error')
+            return
+        end
+    end
+
+    local added = exports['qb-inventory']:AddItem(src, item.name, item.amount, false, {}, 'police-armory')
+    if not added then
+        if price > 0 and paidAccount then
+            Player.AddMoney(paidAccount, price, 'police-armory-refund')
+        end
+        TriggerClientEvent('QBCore:Notify', src, 'Not enough inventory space', 'error')
+        return
+    end
+
+    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item.name], 'add', item.amount)
+    local costLabel = price > 0 and (' ($' .. price .. ' from ' .. paidAccount .. ')') or ' (free)'
+    TriggerClientEvent('QBCore:Notify', src, 'Received ' .. item.label .. costLabel, 'success')
+end)
+
 -- Items
 
 QBCore.Functions.CreateUseableItem('handcuffs', function(source)

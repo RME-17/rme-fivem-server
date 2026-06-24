@@ -8,6 +8,26 @@ Config.WhitelistedVehicles = {}
 Config.PoliceHelicopter = 'POLMAV'
 Config.FuelResource = 'LegacyFuel' -- supports any that has a GetFuel() and SetFuel() export
 
+-- [RME] Police Armory (grade-gated, paid). Server re-validates grade + charges on every take.
+-- minGrade: 0 Recruit, 1 Officer, 2 Sergeant, 3 Lieutenant, 4 Chief. price from cash (bank fallback); 0 = free.
+Config.ArmoryPayAccount = 'cash'
+Config.ArmoryItems = {
+    { name = 'weapon_nightstick',   label = 'Nightstick',    price = 0,    amount = 1, minGrade = 0 },
+    { name = 'weapon_flashlight',   label = 'Flashlight',    price = 0,    amount = 1, minGrade = 0 },
+    { name = 'weapon_stungun',      label = 'Taser',         price = 0,    amount = 1, minGrade = 0 },
+    { name = 'handcuffs',           label = 'Handcuffs',     price = 0,    amount = 1, minGrade = 0 },
+    { name = 'radio',               label = 'Radio',         price = 0,    amount = 1, minGrade = 0 },
+    { name = 'empty_evidence_bag',  label = 'Evidence Bag',  price = 0,    amount = 5, minGrade = 0 },
+    { name = 'armor',               label = 'Body Armor',    price = 250,  amount = 1, minGrade = 0 },
+    { name = 'weapon_combatpistol', label = 'Combat Pistol', price = 750,  amount = 1, minGrade = 1 },
+    { name = 'weapon_pumpshotgun',  label = 'Pump Shotgun',  price = 1500, amount = 1, minGrade = 1 },
+    { name = 'heavyarmor',          label = 'Heavy Armor',   price = 500,  amount = 1, minGrade = 1 },
+    { name = 'weapon_smg',          label = 'SMG',           price = 2500, amount = 1, minGrade = 2 },
+    { name = 'weapon_smokegrenade', label = 'Smoke Grenade', price = 300,  amount = 1, minGrade = 2 },
+    { name = 'police_stormram',     label = 'Stormram',      price = 1000, amount = 1, minGrade = 2 },
+    { name = 'weapon_carbinerifle', label = 'Carbine Rifle', price = 4000, amount = 1, minGrade = 3 },
+}
+
 Config.AmmoLabels = {
     AMMO_PISTOL = '9x19mm parabellum bullet',
     AMMO_SMG = '9x19mm parabellum bullet',
@@ -27,20 +47,30 @@ Config.Objects = {
 
 Config.Locations = {
     duty = {
-        vector3(440.085, -974.924, 30.689),
-        vector3(-449.811, 6012.909, 31.815),
+        vector3(440.085, -974.924, 30.689),    -- MRPD
+        vector3(-449.811, 6012.909, 31.815),   -- Paleto
+        vector3(1853.1, 3689.6, 34.27),        -- Sandy Shores
+    },
+    armory = {                                  -- [RME] grade-gated armory points
+        vector3(461.39, -982.86, 30.71),       -- MRPD
+        vector3(-447.4, 6008.5, 31.72),        -- Paleto
+        vector3(1855.8, 3683.9, 34.27),        -- Sandy Shores
     },
     vehicle = {
-        vector4(448.159, -1017.41, 28.562, 90.654),
-        vector4(471.13, -1024.05, 28.17, 274.5),
-        vector4(-455.39, 6002.02, 31.34, 87.93),
+        vector4(448.159, -1017.41, 28.562, 90.654),   -- MRPD
+        vector4(471.13, -1024.05, 28.17, 274.5),      -- MRPD
+        vector4(-455.39, 6002.02, 31.34, 87.93),      -- Paleto
+        vector4(1862.4, 3699.5, 33.45, 30.0),         -- Sandy Shores
     },
     stash = {
-        vector3(453.075, -980.124, 30.889),
+        vector3(453.075, -980.124, 30.889),    -- MRPD
+        vector3(-441.6, 5999.6, 31.72),        -- Paleto
+        vector3(1857.3, 3691.5, 34.27),        -- Sandy Shores
     },
     impound = {
-        vector3(436.68, -1007.42, 27.32),
-        vector3(-436.14, 5982.63, 31.34),
+        vector3(436.68, -1007.42, 27.32),      -- MRPD
+        vector3(-436.14, 5982.63, 31.34),      -- Paleto
+        vector3(1849.3, 3673.5, 33.45),        -- Sandy Shores
     },
     helicopter = {
         vector4(449.168, -981.325, 43.691, 87.234),
@@ -53,14 +83,17 @@ Config.Locations = {
         vector3(460.9667, -989.180, 24.92),
     },
     evidence = {
-        vector3(442.1722, -996.067, 30.689),
-        vector3(451.7031, -973.232, 30.689),
-        vector3(455.1456, -985.462, 30.689),
+        vector3(442.1722, -996.067, 30.689),   -- MRPD
+        vector3(451.7031, -973.232, 30.689),   -- MRPD
+        vector3(455.1456, -985.462, 30.689),   -- MRPD
+        vector3(-443.9, 6015.5, 31.72),        -- Paleto
+        vector3(1851.0, 3687.0, 34.27),        -- Sandy Shores
     },
     stations = {
         { label = 'Police Station',        coords = vector4(428.23, -984.28, 29.76, 3.5) },
         { label = 'Prison',                coords = vector4(1845.903, 2585.873, 45.672, 272.249) },
         { label = 'Police Station Paleto', coords = vector4(-451.55, 6014.25, 31.716, 223.81) },
+        { label = 'Sheriff Sandy Shores',  coords = vector4(1853.1, 3689.6, 34.27, 213.0) },
     },
 }
 

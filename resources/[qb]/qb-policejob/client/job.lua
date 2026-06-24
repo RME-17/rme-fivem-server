@@ -284,6 +284,69 @@ function closeMenuFull()
     exports['qb-menu']:closeMenu()
 end
 
+-- [RME] Police Armory menu (grade-gated; server re-validates and charges)
+function MenuArmory()
+    local armoryMenu = {
+        {
+            header = 'Police Armory',
+            isMenuHeader = true
+        }
+    }
+
+    local playerGrade = QBCore.Functions.GetPlayerData().job.grade.level
+    for i = 1, #Config.ArmoryItems do
+        local item = Config.ArmoryItems[i]
+        if playerGrade >= item.minGrade then
+            local priceTxt = item.price > 0 and ('$' .. item.price) or 'Free'
+            armoryMenu[#armoryMenu + 1] = {
+                header = item.label .. (item.amount > 1 and (' x' .. item.amount) or ''),
+                txt = priceTxt,
+                params = {
+                    event = 'rme-policejob:client:buyArmoryItem',
+                    args = {
+                        index = i
+                    }
+                }
+            }
+        end
+    end
+
+    armoryMenu[#armoryMenu + 1] = {
+        header = Lang:t('menu.close'),
+        txt = '',
+        params = {
+            event = 'qb-menu:client:closeMenu'
+        }
+    }
+    exports['qb-menu']:openMenu(armoryMenu)
+end
+
+RegisterNetEvent('rme-policejob:client:openArmory', function()
+    MenuArmory()
+end)
+
+RegisterNetEvent('rme-policejob:client:buyArmoryItem', function(data)
+    TriggerServerEvent('rme-policejob:server:buyArmoryItem', data.index)
+end)
+
+-- [RME] Armory Marker Thread (marker mode only; inArmory set by the marker ComboZone below)
+local function armory()
+    CreateThread(function()
+        while true do
+            Wait(0)
+            if inArmory and PlayerJob.type == 'leo' then
+                if PlayerJob.onduty then sleep = 5 end
+                if IsControlJustReleased(0, 38) then
+                    MenuArmory()
+                    break
+                end
+            else
+                break
+            end
+        end
+    end)
+end
+
 --NUI Callbacks
 RegisterNUICallback('closeFingerprint', function(_, cb)
     SetNuiFocus(false, false)
@@ -760,6 +823,26 @@ if Config.UseTarget then
                 distance = 1.5
             })
         end
+        -- [RME] Armory
+        for i = 1, #Config.Locations['armory'] do
+            local v = Config.Locations['armory'][i]
+            exports['qb-target']:AddCircleZone('PoliceArmory_' .. i, vector3(v.x, v.y, v.z), 1.5, {
+                name = 'PoliceArmory_' .. i,
+                useZ = true,
+                debugPoly = false,
+            }, {
+                options = {
+                    {
+                        type = 'client',
+                        event = 'rme-policejob:client:openArmory',
+                        icon = 'fas fa-shield-halved',
+                        label = 'Open Armory',
+                        jobType = 'leo',
+                    },
+                },
+                distance = 1.5
+            })
+        end
     end)
 else
     -- Toggle Duty
@@ -896,6 +979,33 @@ else
             end
         else
             inEvidence = false
+            exports['qb-core']:HideText()
+        end
+    end)
+
+    -- [RME] Armory (marker)
+    local armoryZones = {}
+    for i = 1, #Config.Locations['armory'] do
+        local v = Config.Locations['armory'][i]
+        armoryZones[#armoryZones + 1] = BoxZone:Create(
+            vector3(v.x, v.y, v.z), 1.5, 1.5, {
+                name = 'box_zone',
+                debugPoly = false,
+                minZ = v.z - 1,
+                maxZ = v.z + 1,
+            })
+    end
+
+    local armoryCombo = ComboZone:Create(armoryZones, { name = 'armoryCombo', debugPoly = false })
+    armoryCombo:onPlayerInOut(function(isPointInside)
+        if isPointInside then
+            inArmory = true
+            if PlayerJob.type == 'leo' and PlayerJob.onduty then
+                exports['qb-core']:DrawText('[E] Open Armory', 'left')
+                armory()
+            end
+        else
+            inArmory = false
             exports['qb-core']:HideText()
         end
     end)
