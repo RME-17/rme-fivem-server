@@ -61,7 +61,7 @@ function GetBulletins(JobType)
 end
 
 function GetPlayerProperties(cid, cb)
-	local result =  MySQL.query.await('SELECT houselocations.label, houselocations.coords FROM player_houses INNER JOIN houselocations ON player_houses.house = houselocations.name where player_houses.citizenid = ?', {cid})
+	local ok, result = pcall(MySQL.query.await, 'SELECT houselocations.label, houselocations.coords FROM player_houses INNER JOIN houselocations ON player_houses.house = houselocations.name where player_houses.citizenid = ?', {cid}) if not ok then result = {} end
 	return result
 end
 

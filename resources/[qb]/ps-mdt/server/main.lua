@@ -2107,9 +2107,10 @@ end
 function GetPlayerPropertiesByCitizenId(citizenid)
     local properties = {}
 
-    local result = MySQL.Sync.fetchAll("SELECT * FROM properties WHERE owner_citizenid = @citizenid", {
+    local ok, result = pcall(MySQL.Sync.fetchAll, "SELECT * FROM properties WHERE owner_citizenid = @citizenid", {
         ['@citizenid'] = citizenid
     })
+    if not ok then result = {} end
 
     if result and #result > 0 then
         for i = 1, #result do
@@ -2123,9 +2124,10 @@ end
 function GetPlayerPropertiesByOwner(citizenid)
     local properties = {}
 
-    local result = MySQL.Sync.fetchAll("SELECT * FROM properties WHERE owner = @citizenid", {
+    local ok, result = pcall(MySQL.Sync.fetchAll, "SELECT * FROM properties WHERE owner = @citizenid", {
         ['@citizenid'] = citizenid
     })
+    if not ok then result = {} end
 
     if result and #result > 0 then
         for i = 1, #result do
