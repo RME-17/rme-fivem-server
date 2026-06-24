@@ -89,6 +89,35 @@ RegisterNetEvent('qb-bossmenu:client:OpenMenu', function()
         }
     }
 
+    bossMenu[#bossMenu + 1] = {
+        header = Lang:t('body.money'),
+        txt = Lang:t('body.moneyd'),
+        icon = 'fa-solid fa-sack-dollar',
+        params = {
+            event = 'qb-bossmenu:client:MoneyMenu',
+        }
+    }
+
+    bossMenu[#bossMenu + 1] = {
+        header = 'Promote / Demote',
+        txt = Lang:t('body.managed'),
+        icon = 'fa-solid fa-user-gear',
+        params = {
+            event = 'qb-bossmenu:client:employeelist',
+        }
+    }
+
+    if PlayerJob.name == 'police' then
+        bossMenu[#bossMenu + 1] = {
+            header = 'Toggle Duty',
+            txt = 'Go on or off duty',
+            icon = 'fa-solid fa-clipboard-user',
+            params = {
+                event = 'qb-policejob:ToggleDuty',
+            }
+        }
+    end
+
     for _, v in pairs(DynamicMenuItems) do
         bossMenu[#bossMenu + 1] = v
     end
@@ -217,6 +246,90 @@ RegisterNetEvent('qb-bossmenu:client:HireMenu', function()
         }
         exports['qb-menu']:openMenu(HireMenu)
     end)
+end)
+
+RegisterNetEvent('qb-bossmenu:client:MoneyMenu', function()
+    if not PlayerJob.name or not PlayerJob.isboss then return end
+    QBCore.Functions.TriggerCallback('qb-bossmenu:server:GetBalance', function(balance)
+        local MoneyMenu = {
+            {
+                header = Lang:t('headers.bsm') .. string.upper(PlayerJob.label),
+                isMenuHeader = true,
+                icon = 'fa-solid fa-sack-dollar',
+            },
+            {
+                header = Lang:t('body.balance') .. balance,
+                isMenuHeader = true,
+                icon = 'fa-solid fa-money-bill-trend-up',
+            },
+            {
+                header = Lang:t('body.deposit'),
+                txt = Lang:t('body.depositd'),
+                icon = 'fa-solid fa-arrow-down',
+                params = {
+                    event = 'qb-bossmenu:client:DepositMoney',
+                }
+            },
+            {
+                header = Lang:t('body.withdraw'),
+                txt = Lang:t('body.withdrawd'),
+                icon = 'fa-solid fa-arrow-up',
+                params = {
+                    event = 'qb-bossmenu:client:WithdrawMoney',
+                }
+            },
+            {
+                header = Lang:t('body.return'),
+                icon = 'fa-solid fa-angle-left',
+                params = {
+                    event = 'qb-bossmenu:client:OpenMenu',
+                }
+            }
+        }
+        exports['qb-menu']:openMenu(MoneyMenu)
+    end)
+end)
+
+RegisterNetEvent('qb-bossmenu:client:DepositMoney', function()
+    local dialog = exports['qb-input']:ShowInput({
+        header = Lang:t('body.deposit'),
+        submitText = Lang:t('body.submit'),
+        inputs = {
+            {
+                type = 'number',
+                isRequired = true,
+                name = 'amount',
+                text = Lang:t('body.amount')
+            }
+        }
+    })
+    if dialog and dialog.amount then
+        local amount = tonumber(dialog.amount)
+        if amount and amount > 0 then
+            TriggerServerEvent('qb-bossmenu:server:DepositMoney', amount)
+        end
+    end
+end)
+
+RegisterNetEvent('qb-bossmenu:client:WithdrawMoney', function()
+    local dialog = exports['qb-input']:ShowInput({
+        header = Lang:t('body.withdraw'),
+        submitText = Lang:t('body.submit'),
+        inputs = {
+            {
+                type = 'number',
+                isRequired = true,
+                name = 'amount',
+                text = Lang:t('body.amount')
+            }
+        }
+    })
+    if dialog and dialog.amount then
+        local amount = tonumber(dialog.amount)
+        if amount and amount > 0 then
+            TriggerServerEvent('qb-bossmenu:server:WithdrawMoney', amount)
+        end
+    end
 end)
 
 -- MAIN THREAD

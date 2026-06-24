@@ -182,3 +182,73 @@ QBCore.Functions.CreateCallback('qb-bossmenu:getplayers', function(source, cb)
 	end)
 	cb(players)
 end)
+
+
+-- Society Account: balance / deposit / withdraw (added)
+QBCore.Functions.CreateCallback('qb-bossmenu:server:GetBalance', function(source, cb)
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not Player or not Player.PlayerData.job.isboss then
+        cb(0)
+        return
+    end
+    cb(exports['qb-banking']:GetAccountBalance(Player.PlayerData.job.name) or 0)
+end)
+
+RegisterNetEvent('qb-bossmenu:server:DepositMoney', function(amount)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    if not Player.PlayerData.job.isboss then
+        ExploitBan(src, 'DepositMoney Exploiting')
+        return
+    end
+    amount = tonumber(amount)
+    if not amount or amount <= 0 then
+        TriggerClientEvent('QBCore:Notify', src, 'Invalid amount', 'error')
+        return
+    end
+    amount = math.floor(amount)
+    local account = Player.PlayerData.job.name
+    if (Player.PlayerData.money.bank or 0) < amount then
+        TriggerClientEvent('QBCore:Notify', src, 'Not enough money in your bank account', 'error')
+        return
+    end
+    if Player.Functions.RemoveMoney('bank', amount, 'boss-deposit-' .. account) then
+        if exports['qb-banking']:AddMoney(account, amount, 'Boss deposit') then
+            TriggerClientEvent('QBCore:Notify', src, 'Deposited $' .. amount .. ' into the society account', 'success')
+        else
+            Player.Functions.AddMoney('bank', amount, 'boss-deposit-refund')
+            TriggerClientEvent('QBCore:Notify', src, 'Deposit failed', 'error')
+        end
+    end
+    TriggerClientEvent('qb-bossmenu:client:MoneyMenu', src)
+end)
+
+RegisterNetEvent('qb-bossmenu:server:WithdrawMoney', function(amount)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    if not Player.PlayerData.job.isboss then
+        ExploitBan(src, 'WithdrawMoney Exploiting')
+        return
+    end
+    amount = tonumber(amount)
+    if not amount or amount <= 0 then
+        TriggerClientEvent('QBCore:Notify', src, 'Invalid amount', 'error')
+        return
+    end
+    amount = math.floor(amount)
+    local account = Player.PlayerData.job.name
+    local balance = exports['qb-banking']:GetAccountBalance(account) or 0
+    if balance < amount then
+        TriggerClientEvent('QBCore:Notify', src, 'Not enough money in the society account', 'error')
+        return
+    end
+    if exports['qb-banking']:RemoveMoney(account, amount, 'Boss withdrawal') then
+        Player.Functions.AddMoney('bank', amount, 'boss-withdraw-' .. account)
+        TriggerClientEvent('QBCore:Notify', src, 'Withdrew $' .. amount .. ' from the society account', 'success')
+    else
+        TriggerClientEvent('QBCore:Notify', src, 'Withdrawal failed', 'error')
+    end
+    TriggerClientEvent('qb-bossmenu:client:MoneyMenu', src)
+end)

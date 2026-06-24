@@ -238,7 +238,9 @@ CreateThread(function()
     while true do
         Wait(1000)
         if LocalPlayer.state.isLoggedIn and onRadio then
-            if not hasRadio or PlayerData.metadata.isdead or PlayerData.metadata.inlaststand then
+            DoRadioCheck()
+            local meta = PlayerData and PlayerData.metadata or {}
+            if not hasRadio or meta.isdead or meta.inlaststand then
                 if RadioChannel ~= 0 then
                     leaveradio()
                 end
