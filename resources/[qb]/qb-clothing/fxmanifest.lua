@@ -30,5 +30,10 @@ files {
     'html/index.html',
     'html/style.css',
     'html/reset.css',
-    'html/script.js'
+    'html/script.js',
+    'html/jquery-3.6.0.min.js',
+    'html/fontawesome.min.css',
+    'html/webfonts/*.woff2',
+    'html/webfonts/*.woff',
+    'html/webfonts/*.ttf'
 }
