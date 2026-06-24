@@ -221,6 +221,10 @@ RegisterNetEvent('police:client:SendPoliceEmergencyAlert', function()
     local Player = QBCore.Functions.GetPlayerData()
     TriggerServerEvent('police:server:policeAlert', Lang:t('info.officer_down', { lastname = Player.charinfo.lastname, callsign = Player.metadata.callsign }))
     TriggerServerEvent('hospital:server:ambulanceAlert', Lang:t('info.officer_down', { lastname = Player.charinfo.lastname, callsign = Player.metadata.callsign }))
+    -- ps-dispatch bridge: also raise an 'Officer Down' dispatch alert (fires once on the alerting officer's client)
+    if GetResourceState('ps-dispatch') == 'started' then
+        exports['ps-dispatch']:OfficerDown()
+    end
 end)
 
 -- Threads
