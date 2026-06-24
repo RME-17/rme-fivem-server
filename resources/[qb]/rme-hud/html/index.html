@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
+  html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+  #hud {
+    position:absolute; top:16px; right:16px; width:236px;
+    background:rgba(14,17,24,0.74);
+    -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px);
+    border:1px solid rgba(255,255,255,0.09); border-radius:13px;
+    padding:12px 14px; color:#e9edf5;
+    box-shadow:0 10px 26px rgba(0,0,0,0.5);
+    display:none; user-select:none;
+  }
+  #hud.visible { display:block; }
+  .hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .hdr .title { font-size:12px; letter-spacing:1px; color:#9aa3b5; text-transform:uppercase; }
+  .hdr .sid { font-size:13px; font-weight:700; color:#fff; background:rgba(96,165,250,0.18); padding:2px 8px; border-radius:7px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:3px 0; font-size:13px; }
+  .label { color:#8b94a7; display:flex; align-items:center; gap:7px; }
+  .value { font-weight:600; }
+  .cid { font-size:11px; color:#cbd3e1; font-weight:600; }
+  .divider { height:1px; background:rgba(255,255,255,0.08); margin:7px 0; }
+  #cash { color:#4ade80; }
+  #bank { color:#60a5fa; }
+  .duty-on { color:#4ade80 !important; }
+  .duty-off { color:#f87171 !important; }
+</style>
+</head>
+<body>
+  <div id="hud">
+    <div class="hdr">
+      <span class="title">RETRON</span>
+      <span class="sid">ID <span id="serverId">--</span></span>
+    </div>
+    <div class="row">
+      <span class="label">Citizen ID</span>
+      <span class="cid" id="citizenId">--</span>
+    </div>
+    <div class="divider"></div>
+    <div class="row"><span class="label">💵 Cash</span><span class="value" id="cash">$0</span></div>
+    <div class="row"><span class="label">🏦 Bank</span><span class="value" id="bank">$0</span></div>
+    <div class="divider"></div>
+    <div class="row"><span class="label">💼 Job</span><span class="value" id="job">Civilian</span></div>
+    <div class="row"><span class="label">Status</span><span class="value" id="duty">Freelancer</span></div>
+    <div class="row"><span class="label">👥 Gang</span><span class="value" id="gang">No Gang</span></div>
+  </div>
+<script>
+  var fmt = function(n){ return '$' + (Number(n)||0).toLocaleString('en-US'); };
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    var hud = document.getElementById('hud');
+    if (d.action === 'show') { hud.classList.add('visible'); return; }
+    if (d.action === 'hide') { hud.classList.remove('visible'); return; }
+    if (d.action === 'update') {
+      hud.classList.add('visible');
+      document.getElementById('serverId').textContent = d.serverId;
+      document.getElementById('citizenId').textContent = d.citizenId;
+      document.getElementById('cash').textContent = fmt(d.cash);
+      document.getElementById('bank').textContent = fmt(d.bank);
+      var jobText = d.job; if (d.jobGrade) { jobText += ' (' + d.jobGrade + ')'; }
+      document.getElementById('job').textContent = jobText;
+      var duty = document.getElementById('duty');
+      if (d.job === 'Civilian') { duty.textContent = 'Freelancer'; duty.className = 'value'; }
+      else { duty.textContent = d.onDuty ? 'On Duty' : 'Off Duty'; duty.className = 'value ' + (d.onDuty ? 'duty-on' : 'duty-off'); }
+      document.getElementById('gang').textContent = d.gang;
+    }
+  });
+</script>
+</body>
+</html>
