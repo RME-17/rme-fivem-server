@@ -2,6 +2,11 @@ local localProps = {}    -- [id] = entity handle (props we spawned)
 local handleToId = {}    -- [entity handle] = id
 local appliedHides = {}  -- [id] = { model, pos, radius } (so we can RemoveModelHide on undo)
 
+-- fly editor state
+local flyActive = false  -- free-cam noclip mode on/off
+local flyPaused = false  -- true while a menu/dialog is open (stops camera input)
+local gizmoBusy = false  -- true while object_gizmo has control
+
 -- Combinatorial entity-set name probing. GTA has no native to enumerate set
 -- names, so we generate prefix x base x suffix combos and test each one.
 local SET_PREFIXES = { '', 'set_', 'Set_', 'SET_', 'entity_set_', 'entityset_', 'es_', 'prop_', 'props_' }
@@ -31,6 +36,17 @@ local function rotToDir(rot)
     local x = math.rad(rot.x)
     local num = math.abs(math.cos(x))
     return vector3(-math.sin(z) * num, math.cos(z) * num, math.sin(x))
+end
+
+local function drawTxt(x, y, scale, text)
+    SetTextFont(4)
+    SetTextScale(scale, scale)
+    SetTextColour(255, 255, 255, 215)
+    SetTextCentre(true)
+    SetTextOutline()
+    SetTextEntry('STRING')
+    AddTextComponentString(text)
+    DrawText(x, y)
 end
 
 local function loadModel(model)
@@ -142,13 +158,23 @@ AddEventHandler('onResourceStop', function(res)
 end)
 
 -- ---------------------------------------------------------------------------
--- raycast from the camera; returns hit(bool), endCoords(vec3), entity(handle)
+-- raycasts; return hit(bool), endCoords(vec3), entity(handle)
 -- ---------------------------------------------------------------------------
 local function aimRaycast(flags)
     local cam = GetGameplayCamCoord()
     local dir = rotToDir(GetGameplayCamRot(2))
     local dest = cam + (dir * (Config.RaycastDistance + 0.0))
     local ray = StartShapeTestRay(cam.x, cam.y, cam.z, dest.x, dest.y, dest.z, flags or 16, PlayerPedId(), 4)
+    local _, hit, endCoords, _, entity = GetShapeTestResult(ray)
+    return hit == 1, endCoords, entity
+end
+
+-- raycast from an explicit camera position/rotation (used by fly mode, where the
+-- gameplay cam is not the rendered cam)
+local function camRaycast(pos, rot, flags)
+    local dir = rotToDir(rot)
+    local dest = pos + (dir * (Config.RaycastDistance + 0.0))
+    local ray = StartShapeTestRay(pos.x, pos.y, pos.z, dest.x, dest.y, dest.z, flags or 16, PlayerPedId(), 4)
     local _, hit, endCoords, _, entity = GetShapeTestResult(ray)
     return hit == 1, endCoords, entity
 end
@@ -174,6 +200,7 @@ end
 -- ---------------------------------------------------------------------------
 local function gizmoEdit(handle)
     if not (handle and DoesEntityExist(handle)) then return nil end
+    gizmoBusy = true
     FreezeEntityPosition(handle, false)
     SetEntityCollision(handle, false, false)
     exports.object_gizmo:useGizmo(handle)
@@ -181,6 +208,7 @@ local function gizmoEdit(handle)
     FreezeEntityPosition(handle, true)
     local pos = GetEntityCoords(handle)
     local rot = GetEntityRotation(handle, 2)
+    gizmoBusy = false
     return { x = pos.x, y = pos.y, z = pos.z }, { x = rot.x, y = rot.y, z = rot.z }
 end
 
@@ -506,6 +534,204 @@ local function actionEntitySet()
 end
 
 -- ---------------------------------------------------------------------------
+-- fly editor mode (free-cam noclip + click-to-act)
+-- ---------------------------------------------------------------------------
+-- Opens a context menu for whatever the crosshair is on, then resumes fly
+-- control once the menu closes. id/ent set for our props; ent only for map objects.
+local function flyActions(id, ent)
+    flyPaused = true
+    local options = {}
+    if id then
+        options = {
+            { title = 'Move / rotate (gizmo)', icon = 'up-down-left-right', onSelect = function()
+                local p, r = gizmoEdit(ent)
+                if p then TriggerServerEvent('rme-mapper:server:update', id, p, r); notify('Updated & saved.', 'success') end
+            end },
+            { title = 'Precise nudge / rotate', icon = 'ruler', onSelect = function()
+                local p = GetEntityCoords(ent)
+                local r = GetEntityRotation(ent, 2)
+                local input = lib.inputDialog('Precise nudge / rotate', {
+                    { type = 'number', label = 'Move X (m)', default = 0.0, step = Config.NudgeStep },
+                    { type = 'number', label = 'Move Y (m)', default = 0.0, step = Config.NudgeStep },
+                    { type = 'number', label = 'Move Z (m)', default = 0.0, step = Config.NudgeStep },
+                    { type = 'number', label = 'Rotate yaw (deg)', default = 0.0, step = Config.RotateStep },
+                })
+                if not input then return end
+                local np = { x = p.x + (input[1] or 0.0), y = p.y + (input[2] or 0.0), z = p.z + (input[3] or 0.0) }
+                local nr = { x = r.x, y = r.y, z = r.z + (input[4] or 0.0) }
+                TriggerServerEvent('rme-mapper:server:update', id, np, nr)
+                notify('Nudged & saved.', 'success')
+            end },
+            { title = 'Duplicate', icon = 'clone', onSelect = function()
+                local model = safeEntityModel(ent)
+                local hash = loadModel(model)
+                if not hash then return end
+                local base = GetEntityCoords(ent)
+                local er = GetEntityRotation(ent, 2)
+                local temp = CreateObject(hash, base.x + 1.0, base.y + 1.0, base.z + 0.0, false, false, false)
+                SetEntityRotation(temp, er.x, er.y, er.z, 2, true)
+                SetModelAsNoLongerNeeded(hash)
+                local p, r = gizmoEdit(temp)
+                if DoesEntityExist(temp) then DeleteEntity(temp) end
+                if p then TriggerServerEvent('rme-mapper:server:add', model, p, r); notify('Duplicated & saved.', 'success') end
+            end },
+            { title = 'Snap to ground', icon = 'arrows-down-to-line', onSelect = function()
+                PlaceObjectOnGroundProperly(ent)
+                local p = GetEntityCoords(ent)
+                local r = GetEntityRotation(ent, 2)
+                TriggerServerEvent('rme-mapper:server:update', id, { x = p.x, y = p.y, z = p.z }, { x = r.x, y = r.y, z = r.z })
+                notify('Snapped to ground.', 'success')
+            end },
+            { title = 'Delete', icon = 'trash', onSelect = function()
+                TriggerServerEvent('rme-mapper:server:remove', id)
+                notify('Prop deleted.', 'success')
+            end },
+        }
+    else
+        local model = safeEntityModel(ent)
+        if model ~= 0 then
+            local c = GetEntityCoords(ent)
+            options = {
+                { title = 'Hide this object', icon = 'eye-slash', description = 'Removes it for everyone', onSelect = function()
+                    TriggerServerEvent('rme-mapper:server:hide', model, { x = c.x, y = c.y, z = c.z }, Config.HideRadius)
+                    notify('Object hidden & saved.', 'success')
+                end },
+            }
+        end
+    end
+    if #options == 0 then
+        flyPaused = false
+        notify('Baked geometry here - cannot select or hide it (needs CodeWalker).', 'inform')
+        return
+    end
+    lib.registerContext({ id = 'rme_fly_actions', title = id and 'Your prop' or 'Map object', options = options })
+    lib.showContext('rme_fly_actions')
+    CreateThread(function()
+        while lib.getOpenContextMenu() ~= nil do Wait(100) end
+        flyPaused = false
+    end)
+end
+
+local function flySpawnMenu()
+    flyPaused = true
+    lib.registerContext({
+        id = 'rme_fly_spawn',
+        title = 'Spawn a prop',
+        options = {
+            { title = 'By category', icon = 'shapes', onSelect = function() openCategoryMenu() end },
+            { title = 'Search all props', icon = 'magnifying-glass', onSelect = function() actionSpawnSearch() end },
+            { title = 'By model name', icon = 'keyboard', onSelect = function() actionSpawnCustom() end },
+        },
+    })
+    lib.showContext('rme_fly_spawn')
+    CreateThread(function()
+        while lib.getOpenContextMenu() ~= nil do Wait(100) end
+        flyPaused = false
+    end)
+end
+
+local function startFly()
+    if flyActive then return end
+    flyActive = true
+    local ped = PlayerPedId()
+    local sp = GetGameplayCamCoord()
+    local sr = GetGameplayCamRot(2)
+    local cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    SetCamCoord(cam, sp.x, sp.y, sp.z)
+    SetCamRot(cam, sr.x, 0.0, sr.z, 2)
+    SetCamFov(cam, 60.0)
+    SetCamActive(cam, true)
+    RenderScriptCams(true, false, 0, true, false)
+    SetEntityInvincible(ped, true)
+    SetEntityCollision(ped, false, false)
+    SetEntityVisible(ped, false, false)
+    local camPos = vector3(sp.x, sp.y, sp.z)
+    local camRot = vector3(sr.x, 0.0, sr.z)
+    notify('Fly editor ON. WASD move, mouse look, Shift fast, Space/Ctrl up-down, E select, G spawn, F2 exit.', 'success')
+    CreateThread(function()
+        while flyActive do
+            Wait(0)
+            DisablePlayerFiring(PlayerId(), true)
+            DisableControlAction(0, 24, true)  -- attack
+            DisableControlAction(0, 25, true)  -- aim
+            DisableControlAction(0, 23, true)  -- enter vehicle
+            DisableControlAction(0, 75, true)  -- exit vehicle
+            DisableControlAction(0, 22, true)  -- jump (used for up)
+            if not flyPaused and not gizmoBusy then
+                DisableControlAction(0, 1, true)   -- look LR
+                DisableControlAction(0, 2, true)   -- look UD
+                local lookX = GetDisabledControlNormal(0, 2) * 8.0
+                local lookY = GetDisabledControlNormal(0, 1) * 8.0
+                local newPitch = math.max(-89.0, math.min(89.0, camRot.x - lookX))
+                camRot = vector3(newPitch, 0.0, camRot.z - lookY)
+                local speed = 0.6
+                if IsDisabledControlPressed(0, 21) then speed = 1.8 end  -- Shift fast
+                if IsControlPressed(0, 19) then speed = 0.15 end         -- Alt slow
+                local fwd = rotToDir(camRot)
+                local h = math.rad(camRot.z)
+                local rightv = vector3(math.cos(h), math.sin(h), 0.0)
+                local mx, my, mz = 0.0, 0.0, 0.0
+                if IsDisabledControlPressed(0, 32) then mx = mx + fwd.x; my = my + fwd.y; mz = mz + fwd.z end
+                if IsDisabledControlPressed(0, 33) then mx = mx - fwd.x; my = my - fwd.y; mz = mz - fwd.z end
+                if IsDisabledControlPressed(0, 34) then mx = mx - rightv.x; my = my - rightv.y end
+                if IsDisabledControlPressed(0, 35) then mx = mx + rightv.x; my = my + rightv.y end
+                if IsDisabledControlPressed(0, 22) then mz = mz + 1.0 end  -- Space up
+                if IsDisabledControlPressed(0, 36) then mz = mz - 1.0 end  -- Ctrl down
+                camPos = vector3(camPos.x + mx * speed, camPos.y + my * speed, camPos.z + mz * speed)
+                SetCamCoord(cam, camPos.x, camPos.y, camPos.z)
+                SetCamRot(cam, camRot.x, 0.0, camRot.z, 2)
+                SetEntityCoordsNoOffset(ped, camPos.x, camPos.y, camPos.z - 1.0, false, false, false)
+                SetEntityHeading(ped, camRot.z)
+                SetFocusPosAndVel(camPos.x, camPos.y, camPos.z, 0.0, 0.0, 0.0)
+                -- crosshair + aim label
+                DrawRect(0.5, 0.5, 0.004, 0.007, 255, 90, 90, 200)
+                local _, _, ent = camRaycast(camPos, camRot, 2 + 16)
+                if ent and ent ~= 0 then
+                    if handleToId[ent] then
+                        drawTxt(0.5, 0.455, 0.42, 'Your prop  -  [E] edit / delete')
+                    elseif entityType(ent) ~= 0 then
+                        drawTxt(0.5, 0.455, 0.42, 'Map object  -  [E] hide')
+                    end
+                end
+                drawTxt(0.5, 0.94, 0.4, 'WASD move  |  Mouse look  |  Shift fast  |  Alt slow  |  Space/Ctrl up-down  |  E select  |  G spawn  |  F2 exit')
+                if IsDisabledControlJustPressed(0, 38) then -- E
+                    local _, _, e2 = camRaycast(camPos, camRot, 2 + 16)
+                    local id2 = e2 and handleToId[e2] or nil
+                    if id2 then
+                        flyActions(id2, e2)
+                    elseif entityType(e2) ~= 0 then
+                        flyActions(nil, e2)
+                    else
+                        notify('Nothing selectable under crosshair (baked geometry).', 'inform')
+                    end
+                end
+                if IsDisabledControlJustPressed(0, 47) then -- G
+                    flySpawnMenu()
+                end
+            end
+        end
+        RenderScriptCams(false, false, 0, true, false)
+        DestroyCam(cam, false)
+        ClearFocus()
+        local p = PlayerPedId()
+        SetEntityCoordsNoOffset(p, camPos.x, camPos.y, camPos.z - 1.0, false, false, false)
+        SetEntityCollision(p, true, true)
+        SetEntityVisible(p, true, false)
+        SetEntityInvincible(p, false)
+        FreezeEntityPosition(p, false)
+        notify('Fly editor OFF.', 'inform')
+    end)
+end
+
+local function toggleFly()
+    if not lib then return end
+    if flyActive then flyActive = false else startFly() end
+end
+
+RegisterCommand('rme_mapper_fly', function() toggleFly() end, false)
+RegisterKeyMapping('rme_mapper_fly', 'RME Mapper: toggle fly editor', 'keyboard', 'F2')
+
+-- ---------------------------------------------------------------------------
 -- menu
 -- ---------------------------------------------------------------------------
 openMenu = function()
@@ -513,6 +739,7 @@ openMenu = function()
         id = 'rme_mapper_menu',
         title = 'RME Map Editor',
         options = {
+            { title = 'Enter fly editor mode', description = 'Free-cam noclip: fly around, E to select, G to spawn (toggle F2)', icon = 'helicopter', onSelect = function() startFly() end },
             { title = 'Spawn by category', description = 'Browse walls, Bennys parts, lights, furniture...', icon = 'shapes', onSelect = function() openCategoryMenu() end },
             { title = 'Search all props', description = 'Type a keyword to find a prop fast', icon = 'magnifying-glass', onSelect = function() actionSpawnSearch(); Wait(150); openMenu() end },
             { title = 'Spawn by model name', description = 'Type any GTA prop model directly', icon = 'keyboard', onSelect = function() actionSpawnCustom(); Wait(150); openMenu() end },
