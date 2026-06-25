@@ -31,22 +31,36 @@ Config.WearableParts = { -- unused if Config.UseWearableParts is false (feel fre
 }
 
 Config.Shops = {
-    mechanic = { -- Auto Exotic - La Mesa supermod MLO. Repointed from Elgin Ave to the REAL MLO load coords
-        -- (extracted from lr_sc1_02_interior_0_supermod_int_milo_.ymap streaming extents: min(-249,-1410,24.6) max(-185,-1330,40.9), floor z ~31).
-        -- This MLO is the La Mesa Benny's-location building, so it overlaps the default 'bennys' entry below.
-        -- duty/stash/paint are real ground points at the garage mouth; fine-tune deep-interior points with /coords once inside.
+    bennys = { -- Benny's Original Motor Works @ La Mesa - this is the autoexotic_mlo supermod garage building.
+        -- Requires the 'bennys' job (give yourself with: setjob <id> bennys 4). Full mechanic shop (repair + paint + parts).
         managed = true,
-        shopLabel = 'Auto Exotic',
+        shopLabel = 'Benny\'s Original Motor Works',
         showBlip = true,
         blipSprite = 446,
         blipColor = 46,
-        blipCoords = vector3(-205.0, -1325.0, 31.0),
+        blipCoords = vector3(-211.73, -1325.28, 30.89),
         duty = vector3(-202.92, -1313.74, 31.70),
         stash = vector3(-199.58, -1314.65, 31.08),
         paint = vector3(-202.42, -1322.16, 31.29),
         vehicles = {
             withdraw = vector3(-205.30, -1305.40, 31.30),
             spawn = vector4(-185.00, -1294.00, 30.50, 250.0),
+            list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
+        },
+    },
+    mechanic = { -- Auto Exotic (Elgin Ave / stock LSC building). Separate shop, requires the 'mechanic' job.
+        managed = true,
+        shopLabel = 'Auto Exotic',
+        showBlip = true,
+        blipSprite = 446,
+        blipColor = 46,
+        blipCoords = vector3(-347.37, -133.54, 39.01),
+        duty = vector3(-347.37, -133.54, 39.01),
+        stash = vector3(-341.79, -129.84, 39.01),
+        paint = vector3(-355.75, -134.27, 39.01),
+        vehicles = {
+            withdraw = vector3(-369.30, -104.75, 38.38),
+            spawn = vector4(-369.65, -107.80, 38.65, 70.52),
             list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
         },
     },
@@ -79,22 +93,6 @@ Config.Shops = {
         vehicles = {
             withdraw = vector3(-1142.04, -1994.58, 13.26),
             spawn = vector4(-1137.42, -1993.26, 13.14, 226.07),
-            list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
-        },
-    },
-    bennys = { -- Default Bennys Location (NOTE: same La Mesa building as the Auto Exotic MLO above - consider showBlip=false to avoid a duplicate blip)
-        managed = true,
-        shopLabel = 'Benny\'s Motorworks',
-        showBlip = true,
-        blipSprite = 72,
-        blipColor = 46,
-        blipCoords = vector3(-211.73, -1325.28, 30.89),
-        duty = vector3(-202.92, -1313.74, 31.70),
-        stash = vector3(-199.58, -1314.65, 31.08),
-        paint = vector3(-202.42, -1322.16, 31.29),
-        vehicles = {
-            withdraw = vector3(0, 0, 0),
-            spawn = vector4(-370.51, -107.88, 38.35, 72.56),
             list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
         },
     },
