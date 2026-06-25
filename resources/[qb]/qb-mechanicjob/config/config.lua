@@ -42,6 +42,9 @@ Config.Shops = {
         duty = vector3(-202.92, -1313.74, 31.70),
         stash = vector3(-199.58, -1314.65, 31.08),
         paint = vector3(-202.42, -1322.16, 31.29),
+        -- Drive-in customization pad: park a car here, hop out, and press E for the showroom bay (all cosmetics unlocked).
+        -- PLACEHOLDER coord inside the MLO - stand on the spot in-game and /coords, then update this and redeploy.
+        custombay = vector3(-196.5, -1318.0, 31.2),
         vehicles = {
             withdraw = vector3(-205.30, -1305.40, 31.30),
             spawn = vector4(-185.00, -1294.00, 30.50, 250.0),

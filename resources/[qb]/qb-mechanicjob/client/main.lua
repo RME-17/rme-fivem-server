@@ -214,5 +214,27 @@ CreateThread(function()
             },
             distance = 5.0
         })
+
+        -- RME: drive-in customization bay (press E on foot next to a parked car)
+        if v.custombay then
+            exports['qb-target']:AddCircleZone(k .. '_custombay', v.custombay, 3.5, {
+                name = k .. '_custombay',
+                debugPoly = false,
+                useZ = true
+            }, {
+                options = { {
+                    label = 'Customize Vehicle (Bay)',
+                    icon = 'fas fa-paint-roller',
+                    job = v.managed and k or nil,
+                    canInteract = function()
+                        return GetVehiclePedIsUsing(PlayerPedId()) == 0
+                    end,
+                    action = function()
+                        OpenCustomBay() -- custombay.lua
+                    end
+                } },
+                distance = 3.5
+            })
+        end
     end
 end)
