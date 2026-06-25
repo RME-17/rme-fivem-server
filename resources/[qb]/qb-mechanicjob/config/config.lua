@@ -31,19 +31,19 @@ Config.WearableParts = { -- unused if Config.UseWearableParts is false (feel fre
 }
 
 Config.Shops = {
-    mechanic = { -- Auto Exotic MLO (Carson Avenue, El Burro Heights) - RME custom
+    mechanic = { -- Auto Exotic MLO target corner (La Mesa, ~-304,-1420) - RME custom
         managed = true,
         shopLabel = 'Auto Exotic',
         showBlip = true,
         blipSprite = 446,
         blipColor = 46,
-        blipCoords = vector3(1136.5, -2002.8, 31.0),
-        duty = vector3(1133.0, -2005.5, 31.0),
-        stash = vector3(1130.5, -2008.0, 31.0),
-        paint = vector3(1141.0, -2008.5, 31.0),
+        blipCoords = vector3(-304.16, -1420.21, 31.26),
+        duty = vector3(-304.16, -1420.21, 31.26),
+        stash = vector3(-301.5, -1418.5, 31.26),
+        paint = vector3(-308.5, -1418.5, 31.26),
         vehicles = {
-            withdraw = vector3(1126.0, -2010.5, 31.0),
-            spawn = vector4(1122.0, -2013.5, 31.0, 230.0),
+            withdraw = vector3(-311.5, -1416.0, 31.26),
+            spawn = vector4(-314.5, -1414.0, 31.26, 245.0),
             list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
         },
     },
