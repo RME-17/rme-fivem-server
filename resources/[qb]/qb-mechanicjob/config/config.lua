@@ -48,22 +48,6 @@ Config.Shops = {
             list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
         },
     },
-    mechanic = { -- Auto Exotic (Elgin Ave / stock LSC building). Separate shop, requires the 'mechanic' job.
-        managed = true,
-        shopLabel = 'Auto Exotic',
-        showBlip = true,
-        blipSprite = 446,
-        blipColor = 46,
-        blipCoords = vector3(-347.37, -133.54, 39.01),
-        duty = vector3(-347.37, -133.54, 39.01),
-        stash = vector3(-341.79, -129.84, 39.01),
-        paint = vector3(-355.75, -134.27, 39.01),
-        vehicles = {
-            withdraw = vector3(-369.30, -104.75, 38.38),
-            spawn = vector4(-369.65, -107.80, 38.65, 70.52),
-            list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
-        },
-    },
     mechanic2 = { -- Harmony Location
         managed = true,
         shopLabel = 'LS Customs',
