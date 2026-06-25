@@ -5,6 +5,16 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
   html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+  /* Compass above the minimap (bottom-left) */
+  #rmecompass {
+    position:absolute; left:1vw; bottom:21vh; width:15vw;
+    display:none; text-align:center; color:#ffffff;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+  }
+  #rmecompass.visible { display:block; }
+  #rmecompass .rc-dir { font-size:22px; font-weight:800; letter-spacing:1px; }
+  #rmecompass .rc-deg { font-size:13px; font-weight:600; color:rgba(255,255,255,0.78); margin-left:6px; }
+  /* Speedometer (bottom-right) */
   #speedo {
     position:absolute; right:24px; bottom:28px; width:172px;
     color:#ffffff; display:none; -webkit-font-smoothing:antialiased;
@@ -12,20 +22,18 @@
   }
   #speedo.visible { display:block; }
   .gauge { position:relative; width:160px; height:160px; margin:0 auto; }
-  .gauge svg { width:160px; height:160px; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7)); }
+  .gauge svg.dial { width:160px; height:160px; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7)); }
   .track { fill:none; stroke:rgba(255,255,255,0.22); stroke-width:12; stroke-linecap:round; }
   .prog { fill:none; stroke:#63e6a0; stroke-width:12; stroke-linecap:round; transition:stroke-dasharray .15s linear, stroke .2s; }
   .center { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .compass { font-size:13px; font-weight:700; letter-spacing:1px; display:flex; align-items:baseline; gap:4px; }
-  .compass .deg { font-size:11px; font-weight:600; color:rgba(255,255,255,0.78); }
-  .val { font-size:44px; font-weight:800; line-height:1; letter-spacing:-1px; }
-  .unit { font-size:11px; font-weight:700; color:rgba(255,255,255,0.72); letter-spacing:1.5px; margin-top:3px; }
+  .val { font-size:46px; font-weight:800; line-height:1; letter-spacing:-1px; }
+  .unit { font-size:11px; font-weight:700; color:rgba(255,255,255,0.72); letter-spacing:1.5px; margin-top:4px; }
   .gearbadge { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.25); border-radius:7px; padding:1px 9px; font-size:12px; font-weight:700; }
   .footer { margin-top:4px; display:flex; align-items:center; padding:0 8px; }
-  .fuel { display:flex; align-items:center; gap:7px; width:100%; }
-  .ficon { font-size:13px; }
+  .fuel { display:flex; align-items:center; gap:8px; width:100%; }
+  .ficon { width:14px; height:14px; flex-shrink:0; }
   .fbar { flex:1; height:6px; background:rgba(0,0,0,0.42); border:1px solid rgba(255,255,255,0.15); border-radius:6px; overflow:hidden; }
-  .fbar > i { display:block; height:100%; width:100%; background:#63e6a0; transition:width .3s ease; }
+  .fbar > i { display:block; height:100%; width:100%; background:#ffffff; transition:width .3s ease; }
   .fuel.low .fbar > i { background:#ff6b6b; }
   .airinfo { margin-top:5px; text-align:center; }
   .albl { font-size:11px; color:rgba(255,255,255,0.72); font-weight:700; letter-spacing:1px; }
@@ -34,21 +42,26 @@
 </style>
 </head>
 <body>
+  <div id="rmecompass">
+    <span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span>
+  </div>
   <div id="speedo">
     <div class="gauge">
-      <svg viewBox="0 0 200 200">
+      <svg class="dial" viewBox="0 0 200 200">
         <circle class="track" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="376.99 502.65"></circle>
         <circle class="prog" id="prog" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="0 502.65"></circle>
       </svg>
       <div class="center">
-        <div class="compass"><span id="dir">N</span><span class="deg" id="deg">0°</span></div>
         <div class="val" id="spd">0</div>
         <div class="unit" id="unit">MPH</div>
       </div>
       <div class="gearbadge" id="gear">N</div>
     </div>
     <div class="footer" id="footer">
-      <span class="fuel" id="fuelWrap"><span class="ficon">⛽</span><span class="fbar"><i id="fuelFill"></i></span></span>
+      <span class="fuel" id="fuelWrap">
+        <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="15" y1="22" y2="22"></line><line x1="4" x2="14" y1="9" y2="9"></line><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"></path></svg>
+        <span class="fbar"><i id="fuelFill"></i></span>
+      </span>
     </div>
     <div class="airinfo" id="airRow" style="display:none;">
       <span class="albl">ALTITUDE</span><span class="aval" id="alt">0</span><span class="aunit">m</span>
@@ -57,19 +70,20 @@
 <script>
   var ARC = 376.99, FULL = 502.65;
   function el(id){ return document.getElementById(id); }
+  function showAll(s){
+    var sp = el('speedo'), c = el('rmecompass');
+    if (s) { sp.classList.add('visible'); c.classList.add('visible'); }
+    else { sp.classList.remove('visible'); c.classList.remove('visible'); }
+  }
   window.addEventListener('message', function(e){
     var d = e.data || {};
-    var box = el('speedo');
-    if (d.action === 'speedo') {
-      if (d.show) { box.classList.add('visible'); } else { box.classList.remove('visible'); }
-      return;
-    }
+    if (d.action === 'speedo') { showAll(d.show); return; }
     if (d.action === 'update') {
-      box.classList.add('visible');
+      showAll(true);
       el('spd').textContent = d.speed;
       el('unit').textContent = d.unit;
-      if (d.dir !== undefined) { el('dir').textContent = d.dir; }
-      if (d.heading !== undefined) { el('deg').textContent = d.heading + '\u00b0'; }
+      if (d.dir !== undefined) { el('rcdir').textContent = d.dir; }
+      if (d.heading !== undefined) { el('rcdeg').textContent = d.heading + '\u00b0'; }
       var max = d.isAir ? 260 : 180;
       var frac = Math.max(0, Math.min(1, (d.speed || 0) / max));
       var len = (frac * ARC).toFixed(1);
