@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
+  html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+  #speedo {
+    position:absolute; right:26px; bottom:42px; width:182px;
+    background:rgba(18,18,22,0.62);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:16px; padding:12px 14px; color:#f4f5f7;
+    box-shadow:0 8px 24px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.10);
+    display:none; -webkit-font-smoothing:antialiased;
+  }
+  #speedo.visible { display:block; }
+  .rpm { height:4px; width:100%; background:rgba(255,255,255,0.12); border-radius:4px; overflow:hidden; margin-bottom:10px; }
+  .rpm > div { height:100%; width:0%; background:linear-gradient(90deg,#63e6a0 0%,#f5c451 70%,#ff6b6b 100%); transition:width .12s linear; }
+  .main { display:flex; align-items:baseline; justify-content:center; gap:6px; }
+  .spd { font-size:42px; font-weight:700; line-height:1; letter-spacing:-1px; }
+  .unit { font-size:13px; font-weight:600; color:rgba(255,255,255,0.55); }
+  .sub { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:12px; }
+  .gear { background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:2px 10px; font-weight:700; }
+  .fuel { display:flex; align-items:center; gap:6px; flex:1; margin-left:10px; }
+  .fuelbar { flex:1; height:6px; background:rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
+  .fuelbar > div { height:100%; width:100%; background:#63e6a0; transition:width .3s ease; }
+  .fuel.low .fuelbar > div { background:#ff6b6b; }
+  .lbl { color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:0.5px; }
+  .alt { font-weight:700; color:#7cc6ff; }
+</style>
+</head>
+<body>
+  <div id="speedo">
+    <div class="rpm"><div id="rpmFill"></div></div>
+    <div class="main"><span class="spd" id="spd">0</span><span class="unit" id="unit">MPH</span></div>
+    <div class="sub" id="carRow">
+      <span class="gear" id="gear">N</span>
+      <span class="fuel" id="fuelWrap">⛽<span class="fuelbar"><div id="fuelFill"></div></span></span>
+    </div>
+    <div class="sub" id="airRow" style="display:none;">
+      <span class="lbl">ALTITUDE</span><span class="alt"><span id="alt">0</span> m</span>
+    </div>
+  </div>
+<script>
+  function el(id){ return document.getElementById(id); }
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    var box = el('speedo');
+    if (d.action === 'speedo') {
+      if (d.show) { box.classList.add('visible'); } else { box.classList.remove('visible'); }
+      return;
+    }
+    if (d.action === 'update') {
+      box.classList.add('visible');
+      el('spd').textContent = d.speed;
+      el('unit').textContent = d.unit;
+      var rpm = Math.max(0, Math.min(1, d.rpm || 0));
+      el('rpmFill').style.width = (rpm * 100) + '%';
+      if (d.isAir) {
+        el('carRow').style.display = 'none';
+        el('airRow').style.display = 'flex';
+        el('alt').textContent = d.altitude;
+      } else {
+        el('airRow').style.display = 'none';
+        el('carRow').style.display = 'flex';
+        el('gear').textContent = (d.speed < 2) ? 'N' : ('' + d.gear);
+        var fuel = Math.max(0, Math.min(100, d.fuel || 0));
+        el('fuelFill').style.width = fuel + '%';
+        if (fuel <= 20) { el('fuelWrap').classList.add('low'); } else { el('fuelWrap').classList.remove('low'); }
+      }
+    }
+  });
+</script>
+</body>
+</html>
