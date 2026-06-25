@@ -10,8 +10,12 @@ Config.Permission = 'admin'
 -- How far in front of you a freshly spawned prop appears (metres).
 Config.SpawnDistance = 3.0
 
--- Selection ray length when aiming at a prop to edit/duplicate/delete (metres).
+-- Selection ray length when aiming at a prop to edit/duplicate/delete/hide (metres).
 Config.RaycastDistance = 30.0
 
 -- Default model pre-filled in the spawn dialog.
 Config.DefaultModel = 'prop_barrel_01a'
+
+-- Default sphere radius (metres) used when hiding an MLO/map object.
+-- Hides ALL props of that model within the sphere, so keep it tight.
+Config.HideRadius = 2.0
