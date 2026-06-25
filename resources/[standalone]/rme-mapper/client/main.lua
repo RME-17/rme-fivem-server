@@ -2,24 +2,25 @@ local localProps = {}    -- [id] = entity handle (props we spawned)
 local handleToId = {}    -- [entity handle] = id
 local appliedHides = {}  -- [id] = { model, pos, radius } (so we can RemoveModelHide on undo)
 
--- Common interior decor entity-set names to probe (GTA has no native to enumerate
--- them, so we test known/likely names). Active matches get printed to F8.
-local ENTITY_SET_CANDIDATES = {
-    'clutter', 'set_clutter', 'Set_Clutter', 'clutter_01', 'set_clutter_01', 'Set_Clutter_01', 'set_clutter_02',
-    'decor', 'set_decor', 'Set_Decor', 'decor_01', 'set_decor_01',
-    'details', 'set_details', 'Set_Details', 'detail', 'set_detail',
-    'props', 'set_props', 'Set_Props', 'prop', 'set_prop',
-    'extra', 'set_extra', 'extras', 'set_extras',
-    'garbage', 'set_garbage', 'trash', 'set_trash', 'rubbish',
-    'tools', 'set_tools', 'tooling', 'toolbox', 'set_toolbox',
-    'boxes', 'set_boxes', 'box', 'crates', 'set_crates',
-    'cars', 'set_cars', 'car', 'vehicles', 'set_vehicles', 'vehicle',
-    'carparts', 'set_carparts', 'parts', 'set_parts', 'bonnet', 'bonnets', 'hood', 'hoods', 'set_hoods',
-    'furniture', 'set_furniture', 'lights', 'set_lights', 'lighting',
-    'shutters', 'set_shutters', 'shutter', 'doors', 'set_doors', 'door', 'set_door',
-    'displays', 'set_display', 'set_displays', 'display',
-    'bennys', 'set_bennys', 'mechanic', 'set_mechanic', 'shop', 'set_shop', 'garage', 'set_garage',
-    'stock', 'set_stock', 'interior', 'set_interior', 'misc', 'set_misc', 'all', 'set_all', 'main', 'set_main',
+-- Combinatorial entity-set name probing. GTA has no native to enumerate set
+-- names, so we generate prefix x base x suffix combos and test each one.
+local SET_PREFIXES = { '', 'set_', 'Set_', 'SET_', 'entity_set_', 'entityset_', 'es_', 'prop_', 'props_' }
+local SET_BASES = {
+    'clutter', 'decor', 'deco', 'details', 'detail', 'props', 'prop', 'extra', 'extras',
+    'garbage', 'trash', 'rubbish', 'junk', 'mess', 'dirt', 'dust',
+    'tools', 'tool', 'toolbox', 'tooling', 'boxes', 'box', 'crates', 'crate',
+    'cars', 'car', 'vehicle', 'vehicles', 'carparts', 'parts', 'part', 'bonnet', 'bonnets',
+    'hood', 'hoods', 'doors', 'door', 'tyres', 'tyre', 'wheels', 'wheel', 'engine', 'engines',
+    'furniture', 'lights', 'light', 'lighting', 'lamp', 'lamps', 'neon',
+    'shutters', 'shutter', 'displays', 'display', 'shelf', 'shelves', 'rack', 'racks',
+    'bennys', 'benny', 'mechanic', 'shop', 'garage', 'stock', 'interior', 'misc',
+    'wall', 'walls', 'floor', 'roof', 'group', 'layer', 'main', 'all', 'base',
+    'a', 'b', 'c', 'one', 'two', 'three',
+}
+local SET_SUFFIXES = {
+    '', '1', '2', '3', '4', '5', '01', '02', '03', '04', '05',
+    '_1', '_2', '_3', '_4', '_5', '_01', '_02', '_03', '_04', '_05',
+    '_a', '_b', '_c', 's',
 }
 
 -- ---------------------------------------------------------------------------
@@ -362,19 +363,27 @@ local function actionScanSets()
         lib.notify({ title = 'RME Mapper', description = 'No interior here - stand inside the MLO and scan again.', type = 'error' })
         return
     end
+    lib.notify({ title = 'Entity sets', description = 'Scanning ~9000 name combos... watch F8.', type = 'inform' })
     print(('[rme-mapper][sets] ----- scanning interior %s -----'):format(tostring(interior)))
-    local active = {}
-    for _, name in ipairs(ENTITY_SET_CANDIDATES) do
-        if IsInteriorEntitySetActive(interior, name) then
-            active[#active + 1] = name
-            print('[rme-mapper][sets] ACTIVE entity set: ' .. name)
+    local active, tested = {}, 0
+    for _, pre in ipairs(SET_PREFIXES) do
+        for _, base in ipairs(SET_BASES) do
+            for _, suf in ipairs(SET_SUFFIXES) do
+                local name = pre .. base .. suf
+                if IsInteriorEntitySetActive(interior, name) then
+                    active[#active + 1] = name
+                    print('[rme-mapper][sets] ACTIVE entity set: ' .. name)
+                end
+                tested = tested + 1
+                if tested % 750 == 0 then Wait(0) end
+            end
         end
     end
+    print(('[rme-mapper][sets] done. tested %d names, %d active.'):format(tested, #active))
     if #active == 0 then
-        print('[rme-mapper][sets] no candidate names matched (the real names are non-standard - use CodeWalker)')
-        lib.notify({ title = 'Entity sets', description = ('No common set names active in interior %s. See F8 - may need CodeWalker names.'):format(tostring(interior)), type = 'inform', duration = 9000 })
+        lib.notify({ title = 'Entity sets', description = ('Tested %d names, none active in interior %s. Likely needs CodeWalker. See F8.'):format(tested, tostring(interior)), type = 'inform', duration = 9000 })
     else
-        lib.notify({ title = 'Entity sets', description = 'Active sets: ' .. table.concat(active, ', ') .. ' (see F8)', type = 'success', duration = 9000 })
+        lib.notify({ title = 'Entity sets', description = 'ACTIVE: ' .. table.concat(active, ', ') .. ' (see F8)', type = 'success', duration = 12000 })
     end
 end
 
@@ -413,7 +422,7 @@ openMenu = function()
             { title = 'Delete (aim at prop)', description = 'Remove a prop YOU placed', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
             { title = 'Hide MLO / map object (aim at it)', description = 'Remove an existing prop baked into the map/MLO', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
             { title = 'Inspect (aim at it)', description = 'Print model + interior id to F8 to identify baked props', icon = 'magnifying-glass', onSelect = function() actionInspect(); Wait(150); openMenu() end },
-            { title = 'Scan entity sets (F8)', description = 'Find active MLO decor set names in this interior', icon = 'radar', onSelect = function() actionScanSets(); Wait(150); openMenu() end },
+            { title = 'Scan entity sets (F8)', description = 'Brute-force ~9000 names to find active MLO decor sets', icon = 'radar', onSelect = function() actionScanSets(); Wait(150); openMenu() end },
             { title = 'Toggle interior entity set', description = 'Show/hide a named MLO decor set', icon = 'layer-group', onSelect = function() actionEntitySet(); Wait(150); openMenu() end },
             { title = 'Restore ALL hidden objects', description = 'Undo every map object you have hidden', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
         },
