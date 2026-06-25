@@ -6,42 +6,56 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
   html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
   #speedo {
-    position:absolute; right:26px; bottom:42px; width:182px;
+    position:absolute; right:22px; bottom:30px; width:188px;
     background:rgba(18,18,22,0.62);
     border:1px solid rgba(255,255,255,0.14);
-    border-radius:16px; padding:12px 14px; color:#f4f5f7;
-    box-shadow:0 8px 24px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.10);
+    border-radius:18px; padding:14px 14px 12px; color:#f4f5f7;
+    box-shadow:0 8px 28px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.10);
     display:none; -webkit-font-smoothing:antialiased;
   }
   #speedo.visible { display:block; }
-  .rpm { height:4px; width:100%; background:rgba(255,255,255,0.12); border-radius:4px; overflow:hidden; margin-bottom:10px; }
-  .rpm > div { height:100%; width:0%; background:linear-gradient(90deg,#63e6a0 0%,#f5c451 70%,#ff6b6b 100%); transition:width .12s linear; }
-  .main { display:flex; align-items:baseline; justify-content:center; gap:6px; }
-  .spd { font-size:42px; font-weight:700; line-height:1; letter-spacing:-1px; }
-  .unit { font-size:13px; font-weight:600; color:rgba(255,255,255,0.55); }
-  .sub { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:12px; }
-  .gear { background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:2px 10px; font-weight:700; }
-  .fuel { display:flex; align-items:center; gap:6px; flex:1; margin-left:10px; }
-  .fuelbar { flex:1; height:6px; background:rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
-  .fuelbar > div { height:100%; width:100%; background:#63e6a0; transition:width .3s ease; }
-  .fuel.low .fuelbar > div { background:#ff6b6b; }
-  .lbl { color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:0.5px; }
-  .alt { font-weight:700; color:#7cc6ff; }
+  .gauge { position:relative; width:160px; height:160px; margin:0 auto; }
+  .gauge svg { width:160px; height:160px; display:block; }
+  .track { fill:none; stroke:rgba(255,255,255,0.10); stroke-width:13; stroke-linecap:round; }
+  .prog { fill:none; stroke:#63e6a0; stroke-width:13; stroke-linecap:round; transition:stroke-dasharray .15s linear, stroke .2s; }
+  .center { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .val { font-size:46px; font-weight:800; line-height:1; letter-spacing:-1px; }
+  .unit { font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:1px; margin-top:3px; }
+  .gearbadge { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:1px 10px; font-size:13px; font-weight:700; }
+  .footer { margin-top:8px; display:flex; align-items:center; }
+  .fuel { display:flex; align-items:center; gap:7px; width:100%; }
+  .ficon { font-size:13px; }
+  .fbar { flex:1; height:6px; background:rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
+  .fbar > i { display:block; height:100%; width:100%; background:#63e6a0; transition:width .3s ease; }
+  .fuel.low .fbar > i { background:#ff6b6b; }
+  .airinfo { margin-top:7px; text-align:center; }
+  .albl { font-size:12px; color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:1px; }
+  .aval { font-weight:800; color:#7cc6ff; font-size:18px; margin-left:5px; }
+  .aunit { color:rgba(255,255,255,0.5); margin-left:2px; font-size:12px; }
 </style>
 </head>
 <body>
   <div id="speedo">
-    <div class="rpm"><div id="rpmFill"></div></div>
-    <div class="main"><span class="spd" id="spd">0</span><span class="unit" id="unit">MPH</span></div>
-    <div class="sub" id="carRow">
-      <span class="gear" id="gear">N</span>
-      <span class="fuel" id="fuelWrap">⛽<span class="fuelbar"><div id="fuelFill"></div></span></span>
+    <div class="gauge">
+      <svg viewBox="0 0 200 200">
+        <circle class="track" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="376.99 502.65"></circle>
+        <circle class="prog" id="prog" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="0 502.65"></circle>
+      </svg>
+      <div class="center">
+        <div class="val" id="spd">0</div>
+        <div class="unit" id="unit">MPH</div>
+      </div>
+      <div class="gearbadge" id="gear">N</div>
     </div>
-    <div class="sub" id="airRow" style="display:none;">
-      <span class="lbl">ALTITUDE</span><span class="alt"><span id="alt">0</span> m</span>
+    <div class="footer" id="footer">
+      <span class="fuel" id="fuelWrap"><span class="ficon">⛽</span><span class="fbar"><i id="fuelFill"></i></span></span>
+    </div>
+    <div class="airinfo" id="airRow" style="display:none;">
+      <span class="albl">ALTITUDE</span><span class="aval" id="alt">0</span><span class="aunit">m</span>
     </div>
   </div>
 <script>
+  var ARC = 376.99, FULL = 502.65;
   function el(id){ return document.getElementById(id); }
   window.addEventListener('message', function(e){
     var d = e.data || {};
@@ -54,19 +68,27 @@
       box.classList.add('visible');
       el('spd').textContent = d.speed;
       el('unit').textContent = d.unit;
-      var rpm = Math.max(0, Math.min(1, d.rpm || 0));
-      el('rpmFill').style.width = (rpm * 100) + '%';
+      var max = d.isAir ? 260 : 180;
+      var frac = Math.max(0, Math.min(1, (d.speed || 0) / max));
+      var len = (frac * ARC).toFixed(1);
+      var prog = el('prog');
+      prog.setAttribute('stroke-dasharray', len + ' ' + FULL);
+      var col = frac < 0.55 ? '#63e6a0' : (frac < 0.82 ? '#f5c451' : '#ff6b6b');
+      prog.style.stroke = col;
       if (d.isAir) {
-        el('carRow').style.display = 'none';
-        el('airRow').style.display = 'flex';
+        el('gear').style.display = 'none';
+        el('footer').style.display = 'none';
+        el('airRow').style.display = 'block';
         el('alt').textContent = d.altitude;
       } else {
+        el('gear').style.display = 'block';
+        el('footer').style.display = 'flex';
         el('airRow').style.display = 'none';
-        el('carRow').style.display = 'flex';
         el('gear').textContent = (d.speed < 2) ? 'N' : ('' + d.gear);
         var fuel = Math.max(0, Math.min(100, d.fuel || 0));
         el('fuelFill').style.width = fuel + '%';
-        if (fuel <= 20) { el('fuelWrap').classList.add('low'); } else { el('fuelWrap').classList.remove('low'); }
+        var fw = el('fuelWrap');
+        if (fuel <= 20) { fw.classList.add('low'); } else { fw.classList.remove('low'); }
       }
     }
   });
