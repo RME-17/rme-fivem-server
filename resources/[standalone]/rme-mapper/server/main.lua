@@ -27,9 +27,13 @@ local function loadFromDisk()
     end
 end
 
+-- Broad permission check so it works for ace 'command', qb-core admin, and qbcore.god setups.
 local function hasPerm(src)
     if src == 0 then return true end
-    return QBCore.Functions.HasPermission(src, Config.Permission) or QBCore.Functions.HasPermission(src, 'god')
+    if IsPlayerAceAllowed(src, 'command') then return true end
+    local okAdmin = QBCore.Functions.HasPermission(src, 'admin')
+    local okGod = QBCore.Functions.HasPermission(src, 'god')
+    return (okAdmin or okGod) and true or false
 end
 
 local function syncTo(target)
@@ -96,6 +100,17 @@ RegisterNetEvent('rme-mapper:server:unhideAll', function()
     TriggerClientEvent('rme-mapper:client:unhideAll', -1)
 end)
 
-QBCore.Commands.Add(Config.Command, 'Open the RME map editor', {}, false, function(source)
-    TriggerClientEvent('rme-mapper:client:open', source)
-end, Config.Permission)
+-- Non-restricted command so FiveM never silently denies it; we gate inside instead.
+RegisterCommand(Config.Command, function(source)
+    local src = source
+    print(('[rme-mapper] /%s used by src=%s'):format(Config.Command, tostring(src)))
+    if not hasPerm(src) then
+        print(('[rme-mapper] permission DENIED for src=%s'):format(tostring(src)))
+        TriggerClientEvent('QBCore:Notify', src, 'You do not have permission for the map editor.', 'error')
+        return
+    end
+    print(('[rme-mapper] permission OK for src=%s, opening editor'):format(tostring(src)))
+    TriggerClientEvent('rme-mapper:client:open', src)
+end, false)
+
+TriggerEvent('chat:addSuggestion', '/' .. Config.Command, 'Open the RME map editor')
