@@ -20,9 +20,17 @@ local function loadModel(model)
     return hash
 end
 
--- Safe model read: never call GetEntityModel on an invalid/world handle (it hard-errors).
-local function safeEntityModel(ent)
+-- Entity type guard: 1 ped, 2 vehicle, 3 object. World/buildings return 0 and
+-- will hard-crash GetEntityModel, so only read a model from a real typed entity.
+local function entityType(ent)
     if ent and ent ~= 0 and DoesEntityExist(ent) then
+        return GetEntityType(ent)
+    end
+    return 0
+end
+
+local function safeEntityModel(ent)
+    if entityType(ent) ~= 0 then
         return GetEntityModel(ent)
     end
     return 0
@@ -262,7 +270,7 @@ end
 -- ---------------------------------------------------------------------------
 local function actionHide()
     local _, _, ent = aimRaycast(2 + 16) -- vehicles + objects (no world flag, so no invalid handles)
-    if ent and ent ~= 0 and DoesEntityExist(ent) then
+    if entityType(ent) ~= 0 then
         if handleToId[ent] then
             lib.notify({ title = 'RME Mapper', description = 'That is a prop you placed - use Delete instead.', type = 'inform' })
             return
@@ -309,20 +317,22 @@ local function actionInspect()
     local found = {}
     for _, f in ipairs({ 16, 2, 1, 7, 511 }) do
         local hit, coords, ent = aimRaycast(f)
-        local exists = ent and ent ~= 0 and DoesEntityExist(ent)
-        local model = exists and GetEntityModel(ent) or 0
-        print(('[rme-mapper][inspect] flag=%d hit=%s entity=%s exists=%s model=%s coords=%s')
-            :format(f, tostring(hit), tostring(ent), tostring(exists), tostring(model), tostring(coords)))
-        if exists and model ~= 0 then
-            found[#found + 1] = ('flag %d -> model hash %s'):format(f, model)
+        local etype = entityType(ent)
+        local model = (etype ~= 0) and GetEntityModel(ent) or 0
+        print(('[rme-mapper][inspect] flag=%d hit=%s entity=%s type=%s model=%s coords=%s')
+            :format(f, tostring(hit), tostring(ent), tostring(etype), tostring(model), tostring(coords)))
+        if model ~= 0 then
+            found[#found + 1] = ('flag %d -> type %d, model hash %s'):format(f, etype, model)
         end
     end
     local interior = currentInterior()
-    print(('[rme-mapper][inspect] interior id at player = %s'):format(tostring(interior)))
+    local pc = GetEntityCoords(PlayerPedId())
+    print(('[rme-mapper][inspect] interior id at player = %s  | player coords = %.2f, %.2f, %.2f')
+        :format(tostring(interior), pc.x, pc.y, pc.z))
     if #found > 0 then
         lib.notify({ title = 'Inspect', description = table.concat(found, ' | ') .. ' (see F8)', type = 'inform', duration = 8000 })
     else
-        lib.notify({ title = 'Inspect', description = ('No entity under crosshair (baked MLO). Interior id %s. See F8.'):format(tostring(interior)), type = 'inform', duration = 8000 })
+        lib.notify({ title = 'Inspect', description = ('No prop entity under crosshair (baked into MLO). Interior id %s. See F8.'):format(tostring(interior)), type = 'inform', duration = 8000 })
     end
 end
 
