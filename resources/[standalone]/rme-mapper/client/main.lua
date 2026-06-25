@@ -2,6 +2,26 @@ local localProps = {}    -- [id] = entity handle (props we spawned)
 local handleToId = {}    -- [entity handle] = id
 local appliedHides = {}  -- [id] = { model, pos, radius } (so we can RemoveModelHide on undo)
 
+-- Common interior decor entity-set names to probe (GTA has no native to enumerate
+-- them, so we test known/likely names). Active matches get printed to F8.
+local ENTITY_SET_CANDIDATES = {
+    'clutter', 'set_clutter', 'Set_Clutter', 'clutter_01', 'set_clutter_01', 'Set_Clutter_01', 'set_clutter_02',
+    'decor', 'set_decor', 'Set_Decor', 'decor_01', 'set_decor_01',
+    'details', 'set_details', 'Set_Details', 'detail', 'set_detail',
+    'props', 'set_props', 'Set_Props', 'prop', 'set_prop',
+    'extra', 'set_extra', 'extras', 'set_extras',
+    'garbage', 'set_garbage', 'trash', 'set_trash', 'rubbish',
+    'tools', 'set_tools', 'tooling', 'toolbox', 'set_toolbox',
+    'boxes', 'set_boxes', 'box', 'crates', 'set_crates',
+    'cars', 'set_cars', 'car', 'vehicles', 'set_vehicles', 'vehicle',
+    'carparts', 'set_carparts', 'parts', 'set_parts', 'bonnet', 'bonnets', 'hood', 'hoods', 'set_hoods',
+    'furniture', 'set_furniture', 'lights', 'set_lights', 'lighting',
+    'shutters', 'set_shutters', 'shutter', 'doors', 'set_doors', 'door', 'set_door',
+    'displays', 'set_display', 'set_displays', 'display',
+    'bennys', 'set_bennys', 'mechanic', 'set_mechanic', 'shop', 'set_shop', 'garage', 'set_garage',
+    'stock', 'set_stock', 'interior', 'set_interior', 'misc', 'set_misc', 'all', 'set_all', 'main', 'set_main',
+}
+
 -- ---------------------------------------------------------------------------
 -- helpers
 -- ---------------------------------------------------------------------------
@@ -336,6 +356,28 @@ local function actionInspect()
     end
 end
 
+local function actionScanSets()
+    local interior = currentInterior()
+    if not interior or interior == 0 then
+        lib.notify({ title = 'RME Mapper', description = 'No interior here - stand inside the MLO and scan again.', type = 'error' })
+        return
+    end
+    print(('[rme-mapper][sets] ----- scanning interior %s -----'):format(tostring(interior)))
+    local active = {}
+    for _, name in ipairs(ENTITY_SET_CANDIDATES) do
+        if IsInteriorEntitySetActive(interior, name) then
+            active[#active + 1] = name
+            print('[rme-mapper][sets] ACTIVE entity set: ' .. name)
+        end
+    end
+    if #active == 0 then
+        print('[rme-mapper][sets] no candidate names matched (the real names are non-standard - use CodeWalker)')
+        lib.notify({ title = 'Entity sets', description = ('No common set names active in interior %s. See F8 - may need CodeWalker names.'):format(tostring(interior)), type = 'inform', duration = 9000 })
+    else
+        lib.notify({ title = 'Entity sets', description = 'Active sets: ' .. table.concat(active, ', ') .. ' (see F8)', type = 'success', duration = 9000 })
+    end
+end
+
 local function actionEntitySet()
     local interior = currentInterior()
     if not interior or interior == 0 then
@@ -343,7 +385,7 @@ local function actionEntitySet()
         return
     end
     local input = lib.inputDialog('Toggle interior entity set', {
-        { type = 'input', label = 'Entity set name', description = ('Exact set name from the MLO (CodeWalker). Interior id %s'):format(interior), required = true },
+        { type = 'input', label = 'Entity set name', description = ('Exact set name (try Scan first). Interior id %s'):format(interior), required = true },
         { type = 'select', label = 'Action', options = { { value = 'off', label = 'Deactivate (hide)' }, { value = 'on', label = 'Activate (show)' } }, default = 'off' },
     })
     if not input then return end
@@ -353,7 +395,7 @@ local function actionEntitySet()
         DeactivateInteriorEntitySet(interior, input[1])
     end
     RefreshInterior(interior)
-    lib.notify({ title = 'RME Mapper', description = ('Entity set "%s" %s.'):format(input[1], input[2] == 'on' and 'activated' or 'deactivated'), type = 'success' })
+    lib.notify({ title = 'RME Mapper', description = ('Entity set "%s" %s (local test - tell me if the bonnet vanished).'):format(input[1], input[2] == 'on' and 'activated' or 'deactivated'), type = 'success' })
 end
 
 -- ---------------------------------------------------------------------------
@@ -371,7 +413,8 @@ openMenu = function()
             { title = 'Delete (aim at prop)', description = 'Remove a prop YOU placed', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
             { title = 'Hide MLO / map object (aim at it)', description = 'Remove an existing prop baked into the map/MLO', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
             { title = 'Inspect (aim at it)', description = 'Print model + interior id to F8 to identify baked props', icon = 'magnifying-glass', onSelect = function() actionInspect(); Wait(150); openMenu() end },
-            { title = 'Toggle interior entity set', description = 'Show/hide named MLO decor sets (CodeWalker names)', icon = 'layer-group', onSelect = function() actionEntitySet(); Wait(150); openMenu() end },
+            { title = 'Scan entity sets (F8)', description = 'Find active MLO decor set names in this interior', icon = 'radar', onSelect = function() actionScanSets(); Wait(150); openMenu() end },
+            { title = 'Toggle interior entity set', description = 'Show/hide a named MLO decor set', icon = 'layer-group', onSelect = function() actionEntitySet(); Wait(150); openMenu() end },
             { title = 'Restore ALL hidden objects', description = 'Undo every map object you have hidden', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
         },
     })
