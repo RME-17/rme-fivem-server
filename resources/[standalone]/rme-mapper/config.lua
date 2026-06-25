@@ -10,7 +10,24 @@ Config.HideRadius = 2.0
 -- Searchable quick-pick list shown in the Spawn menu.
 -- Add your own lines anytime: { label = 'What you see', model = 'prop_model_name' }
 -- Invalid models are rejected automatically with a notification, so feel free to experiment.
+-- TIP: the Spawn menu also has a 'custom model' box - you can type ANY prop name there
+-- without editing this file. This list is just the searchable shortcuts.
 Config.PropList = {
+    -- Walls, partitions & structure (for building rooms / sectioning off areas)
+    { label = 'Wall panel - clean (4m)', model = 'prop_test_boundary_4m' },
+    { label = 'Wall panel - clean (1m)', model = 'prop_test_boundary_1m' },
+    { label = 'Construction hoarding 1', model = 'prop_fnc_construct_01a' },
+    { label = 'Construction hoarding 2', model = 'prop_fnc_construct_02a' },
+    { label = 'Wooden hoarding wall', model = 'prop_fncwood_16e' },
+    { label = 'Concrete wall section', model = 'prop_conc_sectionb_01a' },
+    { label = 'Jersey barrier (concrete)', model = 'prop_mp_conc_block' },
+    { label = 'Security barrier', model = 'prop_sec_barier_02a' },
+    { label = 'Metal barrier (heavy)', model = 'prop_barrier_work06a' },
+    { label = 'Chain-link fence (straight)', model = 'prop_fnclink_03e' },
+    { label = 'Chain-link fence (corner)', model = 'prop_fnclink_03crnr1' },
+    { label = 'Sliding gate (metal)', model = 'prop_facgate_03b' },
+    { label = 'Scaffold pole', model = 'prop_scaffold_pole_2b' },
+
     -- Mechanic / Benny's
     { label = 'Toolbox (red chest 1)', model = 'prop_toolchest_01' },
     { label = 'Toolbox (red chest 2)', model = 'prop_toolchest_02' },
