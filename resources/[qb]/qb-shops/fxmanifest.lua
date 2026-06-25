@@ -14,7 +14,8 @@ shared_scripts {
     '@qb-core/shared/locale.lua',
     'locale/en.lua',
     'locale/*.lua',
-    'config.lua'
+    'config.lua',
+    'config_weapons.lua'
 }
 
 client_scripts {
