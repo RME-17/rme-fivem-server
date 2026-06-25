@@ -130,6 +130,16 @@ local function getOurAimedId()
     return nil, ent
 end
 
+local function currentInterior()
+    local ped = PlayerPedId()
+    local interior = GetInteriorFromEntity(ped)
+    if interior == 0 then
+        local c = GetEntityCoords(ped)
+        interior = GetInteriorAtCoords(c.x, c.y, c.z)
+    end
+    return interior
+end
+
 -- ---------------------------------------------------------------------------
 -- gizmo edit (blocks until the player finishes dragging the handles)
 -- ---------------------------------------------------------------------------
@@ -251,7 +261,6 @@ end
 -- actions: existing MLO/map props
 -- ---------------------------------------------------------------------------
 local function actionHide()
-    -- 1) try to grab a real prop/vehicle entity we can read a model from
     local _, _, ent = aimRaycast(2 + 16) -- vehicles + objects (no world flag, so no invalid handles)
     if ent and ent ~= 0 and DoesEntityExist(ent) then
         if handleToId[ent] then
@@ -266,7 +275,6 @@ local function actionHide()
             return
         end
     end
-    -- 2) no entity (baked MLO / static geometry): get the aim point and ask for the model
     local hit, coords = aimRaycast(1 + 16) -- world + objects, just for the hit position
     if not hit then
         lib.notify({ title = 'RME Mapper', description = 'Aim at the object you want to remove.', type = 'inform' })
@@ -294,6 +302,51 @@ local function actionUnhideAll()
 end
 
 -- ---------------------------------------------------------------------------
+-- actions: discovery / MLO interior
+-- ---------------------------------------------------------------------------
+local function actionInspect()
+    print('[rme-mapper][inspect] ----- aiming probe -----')
+    local found = {}
+    for _, f in ipairs({ 16, 2, 1, 7, 511 }) do
+        local hit, coords, ent = aimRaycast(f)
+        local exists = ent and ent ~= 0 and DoesEntityExist(ent)
+        local model = exists and GetEntityModel(ent) or 0
+        print(('[rme-mapper][inspect] flag=%d hit=%s entity=%s exists=%s model=%s coords=%s')
+            :format(f, tostring(hit), tostring(ent), tostring(exists), tostring(model), tostring(coords)))
+        if exists and model ~= 0 then
+            found[#found + 1] = ('flag %d -> model hash %s'):format(f, model)
+        end
+    end
+    local interior = currentInterior()
+    print(('[rme-mapper][inspect] interior id at player = %s'):format(tostring(interior)))
+    if #found > 0 then
+        lib.notify({ title = 'Inspect', description = table.concat(found, ' | ') .. ' (see F8)', type = 'inform', duration = 8000 })
+    else
+        lib.notify({ title = 'Inspect', description = ('No entity under crosshair (baked MLO). Interior id %s. See F8.'):format(tostring(interior)), type = 'inform', duration = 8000 })
+    end
+end
+
+local function actionEntitySet()
+    local interior = currentInterior()
+    if not interior or interior == 0 then
+        lib.notify({ title = 'RME Mapper', description = 'No interior here - entity sets only exist inside MLOs.', type = 'error' })
+        return
+    end
+    local input = lib.inputDialog('Toggle interior entity set', {
+        { type = 'input', label = 'Entity set name', description = ('Exact set name from the MLO (CodeWalker). Interior id %s'):format(interior), required = true },
+        { type = 'select', label = 'Action', options = { { value = 'off', label = 'Deactivate (hide)' }, { value = 'on', label = 'Activate (show)' } }, default = 'off' },
+    })
+    if not input then return end
+    if input[2] == 'on' then
+        ActivateInteriorEntitySet(interior, input[1])
+    else
+        DeactivateInteriorEntitySet(interior, input[1])
+    end
+    RefreshInterior(interior)
+    lib.notify({ title = 'RME Mapper', description = ('Entity set "%s" %s.'):format(input[1], input[2] == 'on' and 'activated' or 'deactivated'), type = 'success' })
+end
+
+-- ---------------------------------------------------------------------------
 -- menu
 -- ---------------------------------------------------------------------------
 openMenu = function()
@@ -307,6 +360,8 @@ openMenu = function()
             { title = 'Snap to ground (aim at prop)', description = 'Drop the prop onto the surface below it', icon = 'arrows-down-to-line', onSelect = function() actionSnap(); Wait(150); openMenu() end },
             { title = 'Delete (aim at prop)', description = 'Remove a prop YOU placed', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
             { title = 'Hide MLO / map object (aim at it)', description = 'Remove an existing prop baked into the map/MLO', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
+            { title = 'Inspect (aim at it)', description = 'Print model + interior id to F8 to identify baked props', icon = 'magnifying-glass', onSelect = function() actionInspect(); Wait(150); openMenu() end },
+            { title = 'Toggle interior entity set', description = 'Show/hide named MLO decor sets (CodeWalker names)', icon = 'layer-group', onSelect = function() actionEntitySet(); Wait(150); openMenu() end },
             { title = 'Restore ALL hidden objects', description = 'Undo every map object you have hidden', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
         },
     })
