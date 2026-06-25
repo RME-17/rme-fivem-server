@@ -287,5 +287,11 @@ openMenu = function()
 end
 
 RegisterNetEvent('rme-mapper:client:open', function()
+    print('[rme-mapper] client open event received')
+    if not lib then
+        print('[rme-mapper] ERROR: ox_lib (lib) is nil on the client - ox_lib not loaded for this resource')
+        return
+    end
     openMenu()
+    print('[rme-mapper] openMenu() called')
 end)
