@@ -6,32 +6,31 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
   html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
   #speedo {
-    position:absolute; right:22px; bottom:30px; width:188px;
-    background:rgba(18,18,22,0.62);
-    border:1px solid rgba(255,255,255,0.14);
-    border-radius:18px; padding:14px 14px 12px; color:#f4f5f7;
-    box-shadow:0 8px 28px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.10);
-    display:none; -webkit-font-smoothing:antialiased;
+    position:absolute; right:24px; bottom:28px; width:172px;
+    color:#ffffff; display:none; -webkit-font-smoothing:antialiased;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
   }
   #speedo.visible { display:block; }
   .gauge { position:relative; width:160px; height:160px; margin:0 auto; }
-  .gauge svg { width:160px; height:160px; display:block; }
-  .track { fill:none; stroke:rgba(255,255,255,0.10); stroke-width:13; stroke-linecap:round; }
-  .prog { fill:none; stroke:#63e6a0; stroke-width:13; stroke-linecap:round; transition:stroke-dasharray .15s linear, stroke .2s; }
+  .gauge svg { width:160px; height:160px; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7)); }
+  .track { fill:none; stroke:rgba(255,255,255,0.22); stroke-width:12; stroke-linecap:round; }
+  .prog { fill:none; stroke:#63e6a0; stroke-width:12; stroke-linecap:round; transition:stroke-dasharray .15s linear, stroke .2s; }
   .center { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .val { font-size:46px; font-weight:800; line-height:1; letter-spacing:-1px; }
-  .unit { font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:1px; margin-top:3px; }
-  .gearbadge { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:1px 10px; font-size:13px; font-weight:700; }
-  .footer { margin-top:8px; display:flex; align-items:center; }
+  .compass { font-size:13px; font-weight:700; letter-spacing:1px; display:flex; align-items:baseline; gap:4px; }
+  .compass .deg { font-size:11px; font-weight:600; color:rgba(255,255,255,0.78); }
+  .val { font-size:44px; font-weight:800; line-height:1; letter-spacing:-1px; }
+  .unit { font-size:11px; font-weight:700; color:rgba(255,255,255,0.72); letter-spacing:1.5px; margin-top:3px; }
+  .gearbadge { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.25); border-radius:7px; padding:1px 9px; font-size:12px; font-weight:700; }
+  .footer { margin-top:4px; display:flex; align-items:center; padding:0 8px; }
   .fuel { display:flex; align-items:center; gap:7px; width:100%; }
   .ficon { font-size:13px; }
-  .fbar { flex:1; height:6px; background:rgba(255,255,255,0.12); border-radius:6px; overflow:hidden; }
+  .fbar { flex:1; height:6px; background:rgba(0,0,0,0.42); border:1px solid rgba(255,255,255,0.15); border-radius:6px; overflow:hidden; }
   .fbar > i { display:block; height:100%; width:100%; background:#63e6a0; transition:width .3s ease; }
   .fuel.low .fbar > i { background:#ff6b6b; }
-  .airinfo { margin-top:7px; text-align:center; }
-  .albl { font-size:12px; color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:1px; }
-  .aval { font-weight:800; color:#7cc6ff; font-size:18px; margin-left:5px; }
-  .aunit { color:rgba(255,255,255,0.5); margin-left:2px; font-size:12px; }
+  .airinfo { margin-top:5px; text-align:center; }
+  .albl { font-size:11px; color:rgba(255,255,255,0.72); font-weight:700; letter-spacing:1px; }
+  .aval { font-weight:800; color:#7cc6ff; font-size:17px; margin-left:5px; }
+  .aunit { color:rgba(255,255,255,0.72); margin-left:2px; font-size:11px; }
 </style>
 </head>
 <body>
@@ -42,6 +41,7 @@
         <circle class="prog" id="prog" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="0 502.65"></circle>
       </svg>
       <div class="center">
+        <div class="compass"><span id="dir">N</span><span class="deg" id="deg">0°</span></div>
         <div class="val" id="spd">0</div>
         <div class="unit" id="unit">MPH</div>
       </div>
@@ -68,6 +68,8 @@
       box.classList.add('visible');
       el('spd').textContent = d.speed;
       el('unit').textContent = d.unit;
+      if (d.dir !== undefined) { el('dir').textContent = d.dir; }
+      if (d.heading !== undefined) { el('deg').textContent = d.heading + '\u00b0'; }
       var max = d.isAir ? 260 : 180;
       var frac = Math.max(0, Math.min(1, (d.speed || 0) / max));
       var len = (frac * ARC).toFixed(1);

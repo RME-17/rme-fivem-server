@@ -4,6 +4,15 @@ local speedMult = UseMPH and 2.23694 or 3.6
 local speedUnit = UseMPH and 'MPH' or 'KM/H'
 local FuelScript = 'LegacyFuel'
 
+local DIRS = { 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW' }
+
+local function getCompass(entity)
+    local heading = GetEntityHeading(entity)
+    local bearing = (360.0 - heading) % 360.0
+    local idx = math.floor(((bearing + 22.5) % 360.0) / 45.0) + 1
+    return math.floor(bearing + 0.5), DIRS[idx]
+end
+
 local function getFuel(veh)
     local ok, fuel = pcall(function()
         return exports[FuelScript]:GetFuel(veh)
@@ -30,6 +39,7 @@ CreateThread(function()
                 local gear = GetVehicleCurrentGear(veh)
                 local fuel = getFuel(veh)
                 local alt = math.floor(GetEntityCoords(ped).z + 0.5)
+                local heading, dir = getCompass(veh)
                 if not shown then
                     shown = true
                     SendNUIMessage({ action = 'speedo', show = true })
@@ -43,6 +53,8 @@ CreateThread(function()
                     fuel = fuel,
                     altitude = alt,
                     isAir = isAir,
+                    heading = heading,
+                    dir = dir,
                 })
             elseif shown then
                 shown = false
