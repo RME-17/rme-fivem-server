@@ -31,16 +31,16 @@ Config.WearableParts = { -- unused if Config.UseWearableParts is false (feel fre
 }
 
 Config.Shops = {
-    mechanic = { -- Auto Exotic (Elgin Ave, Hawick) - real Auto Exotic location; update once MLO building is confirmed - RME custom
+    mechanic = { -- Auto Exotic (Elgin Ave, Hawick) - interior points set from in-game coords - RME custom
         managed = true,
         shopLabel = 'Auto Exotic',
         showBlip = true,
         blipSprite = 446,
         blipColor = 46,
-        blipCoords = vector3(-346.02, -130.68, 39.02),
-        duty = vector3(-348.18, -134.55, 39.59),
-        stash = vector3(-346.02, -130.68, 39.02),
-        paint = vector3(-324.11, -147.11, 39.10),
+        blipCoords = vector3(-347.37, -133.54, 39.01),
+        duty = vector3(-347.37, -133.54, 39.01),
+        stash = vector3(-341.79, -129.84, 39.01),
+        paint = vector3(-355.75, -134.27, 39.01),
         vehicles = {
             withdraw = vector3(-369.30, -104.75, 38.38),
             spawn = vector4(-369.65, -107.80, 38.65, 70.52),
