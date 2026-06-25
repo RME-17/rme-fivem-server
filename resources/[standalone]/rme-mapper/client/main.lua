@@ -235,7 +235,7 @@ local function actionHide()
         return
     end
     if entity and entity ~= 0 and handleToId[entity] then
-        lib.notify({ title = 'RME Mapper', description = 'That is a mapper prop \u2014 use Delete instead.', type = 'inform' })
+        lib.notify({ title = 'RME Mapper', description = 'That is a mapper prop - use Delete instead.', type = 'inform' })
         return
     end
     if entity and entity ~= 0 and GetEntityModel(entity) ~= 0 then
