@@ -184,34 +184,35 @@ local function gizmoEdit(handle)
     return { x = pos.x, y = pos.y, z = pos.z }, { x = rot.x, y = rot.y, z = rot.z }
 end
 
-local openMenu -- forward declaration
+local openMenu          -- forward declaration
+local openCategoryMenu  -- forward declaration
 
--- ---------------------------------------------------------------------------
--- actions: props we own
--- ---------------------------------------------------------------------------
-local function buildPropOptions()
-    local opts = {}
-    for _, v in ipairs(Config.PropList or {}) do
-        opts[#opts + 1] = { value = v.model, label = v.label }
-    end
-    return opts
+local function notify(msg, t)
+    lib.notify({ title = 'RME Mapper', description = msg, type = t or 'inform' })
 end
 
-local function actionSpawn()
-    local input = lib.inputDialog('Spawn prop', {
-        { type = 'select', label = 'Pick a prop', description = 'Search the list and choose one', options = buildPropOptions(), searchable = true, clearable = true },
-        { type = 'input', label = 'Or custom model', description = 'Type any prop model name to override the pick above', default = '' },
-    })
-    if not input then return end
-    local model = input[2]
-    if not model or model == '' then model = input[1] end
+-- flatten the catalog into a single list (falls back to legacy PropList)
+local function allItems()
+    local out = {}
+    if Config.Catalog then
+        for _, cat in ipairs(Config.Catalog) do
+            for _, it in ipairs(cat.items or {}) do out[#out + 1] = it end
+        end
+    elseif Config.PropList then
+        for _, it in ipairs(Config.PropList) do out[#out + 1] = it end
+    end
+    return out
+end
+
+-- spawn a model with the gizmo, then save it on the server
+local function spawnFromModel(model)
     if not model or model == '' then
-        lib.notify({ title = 'RME Mapper', description = 'Pick a prop from the list or type a model name.', type = 'error' })
+        notify('Pick a prop or type a model name.', 'error')
         return
     end
     local hash = loadModel(model)
     if not hash then
-        lib.notify({ title = 'RME Mapper', description = ('Invalid model: %s'):format(tostring(model)), type = 'error' })
+        notify(('Invalid model: %s'):format(tostring(model)), 'error')
         return
     end
     local ped = PlayerPedId()
@@ -224,27 +225,110 @@ local function actionSpawn()
     if DoesEntityExist(temp) then DeleteEntity(temp) end -- server broadcast spawns the authoritative copy
     if pos then
         TriggerServerEvent('rme-mapper:server:add', model, pos, rot)
-        lib.notify({ title = 'RME Mapper', description = 'Prop placed & saved.', type = 'success' })
+        notify('Prop placed & saved.', 'success')
     end
 end
 
+-- ---------------------------------------------------------------------------
+-- actions: spawning
+-- ---------------------------------------------------------------------------
+local function actionSpawnCustom()
+    local input = lib.inputDialog('Spawn by model name', {
+        { type = 'input', label = 'Model name', description = 'Type any prop model (e.g. prop_barrel_01a)', required = true },
+    })
+    if not input then return end
+    spawnFromModel(input[1])
+end
+
+local function actionSpawnSearch()
+    local input = lib.inputDialog('Search all props', {
+        { type = 'input', label = 'Keyword', description = 'e.g. wall, lift, beam, light, toolbox', required = true },
+    })
+    if not input or not input[1] then return end
+    local term = string.lower(input[1])
+    local matches = {}
+    for _, it in ipairs(allItems()) do
+        if string.find(string.lower(it.label), term, 1, true) or string.find(string.lower(it.model), term, 1, true) then
+            matches[#matches + 1] = { value = it.model, label = it.label }
+            if #matches >= 100 then break end
+        end
+    end
+    if #matches == 0 then
+        matches[1] = { value = input[1], label = ('Use \"%s\" as a model name'):format(input[1]) }
+    end
+    local pick = lib.inputDialog('Search results', {
+        { type = 'select', label = 'Pick a prop', options = matches, searchable = true, clearable = true },
+    })
+    if pick and pick[1] then spawnFromModel(pick[1]) end
+end
+
+local function openCategoryItems(cat)
+    local opts = {}
+    for _, it in ipairs(cat.items or {}) do
+        opts[#opts + 1] = { value = it.model, label = it.label }
+    end
+    local pick = lib.inputDialog(cat.category, {
+        { type = 'select', label = 'Choose a prop', description = 'Search this category and pick one', options = opts, searchable = true, clearable = true },
+    })
+    if pick and pick[1] then spawnFromModel(pick[1]) end
+end
+
+openCategoryMenu = function()
+    local options = {}
+    for _, cat in ipairs(Config.Catalog or {}) do
+        local c = cat
+        options[#options + 1] = {
+            title = c.category,
+            description = ('%d items'):format(#(c.items or {})),
+            icon = 'cubes',
+            onSelect = function() openCategoryItems(c); Wait(150); openCategoryMenu() end,
+        }
+    end
+    lib.registerContext({ id = 'rme_mapper_categories', title = 'Spawn by category', menu = 'rme_mapper_menu', options = options })
+    lib.showContext('rme_mapper_categories')
+end
+
+-- ---------------------------------------------------------------------------
+-- actions: editing props we own
+-- ---------------------------------------------------------------------------
 local function actionEdit()
     local id, ent = getOurAimedId()
     if not id then
-        lib.notify({ title = 'RME Mapper', description = 'Aim at a mapper prop first.', type = 'inform' })
+        notify('Aim at a mapper prop first.', 'inform')
         return
     end
     local pos, rot = gizmoEdit(ent)
     if pos then
         TriggerServerEvent('rme-mapper:server:update', id, pos, rot)
-        lib.notify({ title = 'RME Mapper', description = 'Prop updated & saved.', type = 'success' })
+        notify('Prop updated & saved.', 'success')
     end
+end
+
+local function actionNudge()
+    local id, ent = getOurAimedId()
+    if not id then
+        notify('Aim at a mapper prop first.', 'inform')
+        return
+    end
+    local pos = GetEntityCoords(ent)
+    local rot = GetEntityRotation(ent, 2)
+    local input = lib.inputDialog('Precise nudge / rotate', {
+        { type = 'number', label = 'Move X (m)', default = 0.0, step = Config.NudgeStep },
+        { type = 'number', label = 'Move Y (m)', default = 0.0, step = Config.NudgeStep },
+        { type = 'number', label = 'Move Z (m)', default = 0.0, step = Config.NudgeStep },
+        { type = 'number', label = 'Rotate yaw (deg)', default = 0.0, step = Config.RotateStep },
+    })
+    if not input then return end
+    local np = { x = pos.x + (input[1] or 0.0), y = pos.y + (input[2] or 0.0), z = pos.z + (input[3] or 0.0) }
+    local nr = { x = rot.x, y = rot.y, z = rot.z + (input[4] or 0.0) }
+    TriggerServerEvent('rme-mapper:server:update', id, np, nr)
+    notify('Nudged & saved.', 'success')
 end
 
 local function actionDuplicate()
     local id, ent = getOurAimedId()
     if not id then
-        lib.notify({ title = 'RME Mapper', description = 'Aim at a mapper prop to duplicate.', type = 'inform' })
+        notify('Aim at a mapper prop to duplicate.', 'inform')
         return
     end
     local model = safeEntityModel(ent)
@@ -259,31 +343,45 @@ local function actionDuplicate()
     if DoesEntityExist(temp) then DeleteEntity(temp) end
     if pos then
         TriggerServerEvent('rme-mapper:server:add', model, pos, rot)
-        lib.notify({ title = 'RME Mapper', description = 'Duplicated & saved.', type = 'success' })
+        notify('Duplicated & saved.', 'success')
     end
 end
 
 local function actionSnap()
     local id, ent = getOurAimedId()
     if not id then
-        lib.notify({ title = 'RME Mapper', description = 'Aim at a mapper prop to snap.', type = 'inform' })
+        notify('Aim at a mapper prop to snap.', 'inform')
         return
     end
     PlaceObjectOnGroundProperly(ent)
     local pos = GetEntityCoords(ent)
     local rot = GetEntityRotation(ent, 2)
     TriggerServerEvent('rme-mapper:server:update', id, { x = pos.x, y = pos.y, z = pos.z }, { x = rot.x, y = rot.y, z = rot.z })
-    lib.notify({ title = 'RME Mapper', description = 'Snapped to ground.', type = 'success' })
+    notify('Snapped to ground.', 'success')
 end
 
 local function actionDelete()
     local id = getOurAimedId()
     if not id then
-        lib.notify({ title = 'RME Mapper', description = 'Aim at a mapper prop to delete.', type = 'inform' })
+        notify('Aim at a mapper prop to delete.', 'inform')
         return
     end
     TriggerServerEvent('rme-mapper:server:remove', id)
-    lib.notify({ title = 'RME Mapper', description = 'Prop deleted.', type = 'success' })
+    notify('Prop deleted.', 'success')
+end
+
+local function actionClearMine()
+    local ok = lib.alertDialog({
+        header = 'Clear all your props',
+        content = 'Delete EVERY prop you have placed? This cannot be undone.',
+        centered = true,
+        cancel = true,
+    })
+    if ok ~= 'confirm' then return end
+    local ids = {}
+    for id in pairs(localProps) do ids[#ids + 1] = id end
+    for _, id in ipairs(ids) do TriggerServerEvent('rme-mapper:server:remove', id) end
+    notify(('Cleared %d props.'):format(#ids), 'success')
 end
 
 -- ---------------------------------------------------------------------------
@@ -293,20 +391,20 @@ local function actionHide()
     local _, _, ent = aimRaycast(2 + 16) -- vehicles + objects (no world flag, so no invalid handles)
     if entityType(ent) ~= 0 then
         if handleToId[ent] then
-            lib.notify({ title = 'RME Mapper', description = 'That is a prop you placed - use Delete instead.', type = 'inform' })
+            notify('That is a prop you placed - use Delete instead.', 'inform')
             return
         end
         local model = safeEntityModel(ent)
         if model ~= 0 then
             local c = GetEntityCoords(ent)
             TriggerServerEvent('rme-mapper:server:hide', model, { x = c.x, y = c.y, z = c.z }, Config.HideRadius)
-            lib.notify({ title = 'RME Mapper', description = 'Object hidden & saved.', type = 'success' })
+            notify('Object hidden & saved.', 'success')
             return
         end
     end
     local hit, coords = aimRaycast(1 + 16) -- world + objects, just for the hit position
     if not hit then
-        lib.notify({ title = 'RME Mapper', description = 'Aim at the object you want to remove.', type = 'inform' })
+        notify('Aim at the object you want to remove.', 'inform')
         return
     end
     local input = lib.inputDialog('Hide map object', {
@@ -315,7 +413,7 @@ local function actionHide()
     })
     if not input then return end
     TriggerServerEvent('rme-mapper:server:hide', input[1], { x = coords.x, y = coords.y, z = coords.z }, (input[2] or Config.HideRadius) + 0.0)
-    lib.notify({ title = 'RME Mapper', description = 'Hidden (by model) & saved.', type = 'success' })
+    notify('Hidden (by model) & saved.', 'success')
 end
 
 local function actionUnhideAll()
@@ -327,7 +425,7 @@ local function actionUnhideAll()
     })
     if ok ~= 'confirm' then return end
     TriggerServerEvent('rme-mapper:server:unhideAll')
-    lib.notify({ title = 'RME Mapper', description = 'Restored all hidden objects.', type = 'success' })
+    notify('Restored all hidden objects.', 'success')
 end
 
 -- ---------------------------------------------------------------------------
@@ -360,7 +458,7 @@ end
 local function actionScanSets()
     local interior = currentInterior()
     if not interior or interior == 0 then
-        lib.notify({ title = 'RME Mapper', description = 'No interior here - stand inside the MLO and scan again.', type = 'error' })
+        notify('No interior here - stand inside the MLO and scan again.', 'error')
         return
     end
     lib.notify({ title = 'Entity sets', description = 'Scanning ~9000 name combos... watch F8.', type = 'inform' })
@@ -390,7 +488,7 @@ end
 local function actionEntitySet()
     local interior = currentInterior()
     if not interior or interior == 0 then
-        lib.notify({ title = 'RME Mapper', description = 'No interior here - entity sets only exist inside MLOs.', type = 'error' })
+        notify('No interior here - entity sets only exist inside MLOs.', 'error')
         return
     end
     local input = lib.inputDialog('Toggle interior entity set', {
@@ -404,7 +502,7 @@ local function actionEntitySet()
         DeactivateInteriorEntitySet(interior, input[1])
     end
     RefreshInterior(interior)
-    lib.notify({ title = 'RME Mapper', description = ('Entity set "%s" %s (local test - tell me if the bonnet vanished).'):format(input[1], input[2] == 'on' and 'activated' or 'deactivated'), type = 'success' })
+    notify(('Entity set \"%s\" %s.'):format(input[1], input[2] == 'on' and 'activated' or 'deactivated'), 'success')
 end
 
 -- ---------------------------------------------------------------------------
@@ -415,16 +513,20 @@ openMenu = function()
         id = 'rme_mapper_menu',
         title = 'RME Map Editor',
         options = {
-            { title = 'Spawn new prop', description = 'Pick from the list, then drag the gizmo to place it', icon = 'plus', onSelect = function() actionSpawn(); Wait(150); openMenu() end },
-            { title = 'Move / rotate (aim at prop)', description = 'Look at a placed prop, then drag the gizmo handles', icon = 'up-down-left-right', onSelect = function() actionEdit(); Wait(150); openMenu() end },
-            { title = 'Duplicate (aim at prop)', description = 'Copy the prop you are looking at', icon = 'clone', onSelect = function() actionDuplicate(); Wait(150); openMenu() end },
-            { title = 'Snap to ground (aim at prop)', description = 'Drop the prop onto the surface below it', icon = 'arrows-down-to-line', onSelect = function() actionSnap(); Wait(150); openMenu() end },
-            { title = 'Delete (aim at prop)', description = 'Remove a prop YOU placed', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
-            { title = 'Hide MLO / map object (aim at it)', description = 'Remove an existing prop baked into the map/MLO', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
-            { title = 'Inspect (aim at it)', description = 'Print model + interior id to F8 to identify baked props', icon = 'magnifying-glass', onSelect = function() actionInspect(); Wait(150); openMenu() end },
-            { title = 'Scan entity sets (F8)', description = 'Brute-force ~9000 names to find active MLO decor sets', icon = 'radar', onSelect = function() actionScanSets(); Wait(150); openMenu() end },
+            { title = 'Spawn by category', description = 'Browse walls, Bennys parts, lights, furniture...', icon = 'shapes', onSelect = function() openCategoryMenu() end },
+            { title = 'Search all props', description = 'Type a keyword to find a prop fast', icon = 'magnifying-glass', onSelect = function() actionSpawnSearch(); Wait(150); openMenu() end },
+            { title = 'Spawn by model name', description = 'Type any GTA prop model directly', icon = 'keyboard', onSelect = function() actionSpawnCustom(); Wait(150); openMenu() end },
+            { title = 'Move / rotate (gizmo)', description = 'Aim at a prop, then drag the handles', icon = 'up-down-left-right', onSelect = function() actionEdit(); Wait(150); openMenu() end },
+            { title = 'Precise nudge / rotate', description = 'Aim at a prop, enter exact offsets', icon = 'ruler', onSelect = function() actionNudge(); Wait(150); openMenu() end },
+            { title = 'Duplicate', description = 'Aim at a prop to copy it', icon = 'clone', onSelect = function() actionDuplicate(); Wait(150); openMenu() end },
+            { title = 'Snap to ground', description = 'Aim at a prop to drop it onto the surface', icon = 'arrows-down-to-line', onSelect = function() actionSnap(); Wait(150); openMenu() end },
+            { title = 'Delete prop', description = 'Aim at a prop YOU placed to remove it', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
+            { title = 'Clear ALL my props', description = 'Delete every prop you placed (with confirm)', icon = 'broom', onSelect = function() actionClearMine(); Wait(150); openMenu() end },
+            { title = 'Hide map / MLO object', description = 'Aim at an existing door or prop to hide it', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
+            { title = 'Restore ALL hidden', description = 'Bring back everything you hid', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
+            { title = 'Inspect object', description = 'Print model + interior id to F8', icon = 'circle-info', onSelect = function() actionInspect(); Wait(150); openMenu() end },
+            { title = 'Scan entity sets (F8)', description = 'Find active MLO decor sets', icon = 'radar', onSelect = function() actionScanSets(); Wait(150); openMenu() end },
             { title = 'Toggle interior entity set', description = 'Show/hide a named MLO decor set', icon = 'layer-group', onSelect = function() actionEntitySet(); Wait(150); openMenu() end },
-            { title = 'Restore ALL hidden objects', description = 'Undo every map object you have hidden', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
         },
     })
     lib.showContext('rme_mapper_menu')
