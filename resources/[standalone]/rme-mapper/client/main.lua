@@ -1,5 +1,6 @@
-local localProps = {}   -- [id] = entity handle
-local handleToId = {}   -- [entity handle] = id
+local localProps = {}    -- [id] = entity handle (props we spawned)
+local handleToId = {}    -- [entity handle] = id
+local appliedHides = {}  -- [id] = { model, pos, radius } (so we can RemoveModelHide on undo)
 
 -- ---------------------------------------------------------------------------
 -- helpers
@@ -19,6 +20,9 @@ local function loadModel(model)
     return hash
 end
 
+-- ---------------------------------------------------------------------------
+-- props we own
+-- ---------------------------------------------------------------------------
 local function spawnLocal(p)
     if not p or not p.id or localProps[p.id] then return end
     local hash = loadModel(p.model)
@@ -40,23 +44,42 @@ local function removeLocal(id)
     localProps[id] = nil
 end
 
-local function clearAll()
+local function clearAllProps()
     for id in pairs(localProps) do removeLocal(id) end
     localProps = {}
     handleToId = {}
 end
 
 -- ---------------------------------------------------------------------------
+-- hides (existing MLO/map props removed via CreateModelHide)
+-- ---------------------------------------------------------------------------
+local function applyHide(h)
+    if not h or not h.id or appliedHides[h.id] then return end
+    local hash = type(h.model) == 'number' and h.model or joaat(h.model)
+    local r = (h.radius or 2.0) + 0.0
+    CreateModelHide(h.pos.x + 0.0, h.pos.y + 0.0, h.pos.z + 0.0, r, hash, false)
+    appliedHides[h.id] = { model = hash, pos = h.pos, radius = r }
+end
+
+local function unhideAllLocal()
+    for _, h in pairs(appliedHides) do
+        RemoveModelHide(h.pos.x + 0.0, h.pos.y + 0.0, h.pos.z + 0.0, h.radius + 0.0, h.model, false)
+    end
+    appliedHides = {}
+end
+
+-- ---------------------------------------------------------------------------
 -- sync from server
 -- ---------------------------------------------------------------------------
-RegisterNetEvent('rme-mapper:client:sync', function(props)
-    clearAll()
-    for _, p in pairs(props) do spawnLocal(p) end
+RegisterNetEvent('rme-mapper:client:sync', function(payload)
+    payload = payload or {}
+    clearAllProps()
+    unhideAllLocal()
+    for _, p in pairs(payload.props or {}) do spawnLocal(p) end
+    for _, h in pairs(payload.hides or {}) do applyHide(h) end
 end)
 
-RegisterNetEvent('rme-mapper:client:add', function(p)
-    spawnLocal(p)
-end)
+RegisterNetEvent('rme-mapper:client:add', function(p) spawnLocal(p) end)
 
 RegisterNetEvent('rme-mapper:client:update', function(id, pos, rot)
     local obj = localProps[id]
@@ -66,9 +89,9 @@ RegisterNetEvent('rme-mapper:client:update', function(id, pos, rot)
     end
 end)
 
-RegisterNetEvent('rme-mapper:client:remove', function(id)
-    removeLocal(id)
-end)
+RegisterNetEvent('rme-mapper:client:remove', function(id) removeLocal(id) end)
+RegisterNetEvent('rme-mapper:client:hide', function(h) applyHide(h) end)
+RegisterNetEvent('rme-mapper:client:unhideAll', function() unhideAllLocal() end)
 
 AddEventHandler('onClientResourceStart', function(res)
     if res ~= GetCurrentResourceName() then return end
@@ -77,25 +100,25 @@ end)
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
-    clearAll()
+    clearAllProps()
+    unhideAllLocal()
 end)
 
 -- ---------------------------------------------------------------------------
--- selection (aim a ray from the camera)
+-- raycast from the camera; returns hit(bool), endCoords(vec3), entity(handle)
 -- ---------------------------------------------------------------------------
-local function getAimedEntity()
+local function aimRaycast(flags)
     local cam = GetGameplayCamCoord()
     local dir = rotToDir(GetGameplayCamRot(2))
     local dest = cam + (dir * (Config.RaycastDistance + 0.0))
-    local ray = StartShapeTestRay(cam.x, cam.y, cam.z, dest.x, dest.y, dest.z, 16, PlayerPedId(), 4)
-    local _, hit, _, _, entity = GetShapeTestResult(ray)
-    if hit == 1 and entity and entity ~= 0 then return entity end
-    return nil
+    local ray = StartShapeTestRay(cam.x, cam.y, cam.z, dest.x, dest.y, dest.z, flags or 16, PlayerPedId(), 4)
+    local _, hit, endCoords, _, entity = GetShapeTestResult(ray)
+    return hit == 1, endCoords, entity
 end
 
 local function getOurAimedId()
-    local ent = getAimedEntity()
-    if ent and handleToId[ent] then return handleToId[ent], ent end
+    local _, _, ent = aimRaycast(16)
+    if ent and ent ~= 0 and handleToId[ent] then return handleToId[ent], ent end
     return nil, ent
 end
 
@@ -117,7 +140,7 @@ end
 local openMenu -- forward declaration
 
 -- ---------------------------------------------------------------------------
--- actions
+-- actions: props we own
 -- ---------------------------------------------------------------------------
 local function actionSpawn()
     local input = lib.inputDialog('Spawn prop', {
@@ -203,6 +226,47 @@ local function actionDelete()
 end
 
 -- ---------------------------------------------------------------------------
+-- actions: existing MLO/map props
+-- ---------------------------------------------------------------------------
+local function actionHide()
+    local hit, coords, entity = aimRaycast(1 + 16) -- world + objects
+    if not hit then
+        lib.notify({ title = 'RME Mapper', description = 'Aim at the object you want to remove.', type = 'inform' })
+        return
+    end
+    if entity and entity ~= 0 and handleToId[entity] then
+        lib.notify({ title = 'RME Mapper', description = 'That is a mapper prop \u2014 use Delete instead.', type = 'inform' })
+        return
+    end
+    if entity and entity ~= 0 and GetEntityModel(entity) ~= 0 then
+        local c = GetEntityCoords(entity)
+        TriggerServerEvent('rme-mapper:server:hide', GetEntityModel(entity), { x = c.x, y = c.y, z = c.z }, Config.HideRadius)
+        lib.notify({ title = 'RME Mapper', description = 'Object hidden & saved.', type = 'success' })
+        return
+    end
+    -- no entity handle (baked MLO / static geometry): ask for the model, hide at the aim point
+    local input = lib.inputDialog('Hide map object', {
+        { type = 'input', label = 'Model name', description = 'No entity here. Enter the prop model to hide at this spot.', required = true },
+        { type = 'number', label = 'Radius (m)', default = Config.HideRadius, min = 0.5, max = 25.0 },
+    })
+    if not input then return end
+    TriggerServerEvent('rme-mapper:server:hide', input[1], { x = coords.x, y = coords.y, z = coords.z }, (input[2] or Config.HideRadius) + 0.0)
+    lib.notify({ title = 'RME Mapper', description = 'Hidden (by model) & saved.', type = 'success' })
+end
+
+local function actionUnhideAll()
+    local ok = lib.alertDialog({
+        header = 'Restore hidden objects',
+        content = 'This brings back ALL objects you have hidden in the city. Continue?',
+        centered = true,
+        cancel = true,
+    })
+    if ok ~= 'confirm' then return end
+    TriggerServerEvent('rme-mapper:server:unhideAll')
+    lib.notify({ title = 'RME Mapper', description = 'Restored all hidden objects.', type = 'success' })
+end
+
+-- ---------------------------------------------------------------------------
 -- menu
 -- ---------------------------------------------------------------------------
 openMenu = function()
@@ -214,7 +278,9 @@ openMenu = function()
             { title = 'Move / rotate (aim at prop)', description = 'Look at a placed prop, then drag the gizmo handles', icon = 'up-down-left-right', onSelect = function() actionEdit(); Wait(150); openMenu() end },
             { title = 'Duplicate (aim at prop)', description = 'Copy the prop you are looking at', icon = 'clone', onSelect = function() actionDuplicate(); Wait(150); openMenu() end },
             { title = 'Snap to ground (aim at prop)', description = 'Drop the prop onto the surface below it', icon = 'arrows-down-to-line', onSelect = function() actionSnap(); Wait(150); openMenu() end },
-            { title = 'Delete (aim at prop)', description = 'Remove the prop you are looking at', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
+            { title = 'Delete (aim at prop)', description = 'Remove a prop YOU placed', icon = 'trash', onSelect = function() actionDelete(); Wait(150); openMenu() end },
+            { title = 'Hide MLO / map object (aim at it)', description = 'Remove an existing prop baked into the map/MLO', icon = 'eye-slash', onSelect = function() actionHide(); Wait(150); openMenu() end },
+            { title = 'Restore ALL hidden objects', description = 'Undo every map object you have hidden', icon = 'rotate-left', onSelect = function() actionUnhideAll(); Wait(150); openMenu() end },
         },
     })
     lib.showContext('rme_mapper_menu')
