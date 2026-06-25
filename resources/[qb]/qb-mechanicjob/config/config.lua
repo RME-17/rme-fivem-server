@@ -100,3 +100,24 @@ Config.Shops = {
         },
     },
 }
+
+-- ===========================================================================
+-- RME map dressing for the Benny's MLO (handled by client/decor.lua, no CodeWalker)
+-- ===========================================================================
+
+-- Hide existing map/clutter props within a radius of a point.
+-- HOW TO FILL: stand on/next to the prop in-game, /coords for x,y,z, and set the
+-- prop's model name. Keep radius small (0.5-1.5) so you don't nuke nearby props
+-- that share the same model. Each entry runs CreateModelHide() on start.
+Config.MapHides = {
+    -- { model = 'prop_toolchest_01', coords = vector3(-200.0, -1320.0, 31.0), radius = 1.0 },
+    -- { model = 'prop_tool_bench02', coords = vector3(-198.0, -1318.0, 31.0), radius = 1.0 },
+}
+
+-- Spawn extra decorative props (e.g. car lifts/ramps to make more bays).
+-- coords is vector4 (x, y, z, heading). snapToGround drops it to the floor if true
+-- (otherwise the exact z is used); collision defaults to true (set false for decor only).
+Config.MapProps = {
+    -- { model = 'prop_car_ramp_01', coords = vector4(-195.0, -1310.0, 31.0, 90.0), snapToGround = false, collision = true },
+    -- { model = 'prop_carjack', coords = vector4(-193.0, -1312.0, 31.0, 0.0), snapToGround = true, collision = true },
+}
