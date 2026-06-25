@@ -20,6 +20,14 @@ local function loadModel(model)
     return hash
 end
 
+-- Safe model read: never call GetEntityModel on an invalid/world handle (it hard-errors).
+local function safeEntityModel(ent)
+    if ent and ent ~= 0 and DoesEntityExist(ent) then
+        return GetEntityModel(ent)
+    end
+    return 0
+end
+
 -- ---------------------------------------------------------------------------
 -- props we own
 -- ---------------------------------------------------------------------------
@@ -117,7 +125,7 @@ local function aimRaycast(flags)
 end
 
 local function getOurAimedId()
-    local _, _, ent = aimRaycast(16)
+    local _, _, ent = aimRaycast(2 + 16) -- vehicles + objects
     if ent and ent ~= 0 and handleToId[ent] then return handleToId[ent], ent end
     return nil, ent
 end
@@ -142,12 +150,26 @@ local openMenu -- forward declaration
 -- ---------------------------------------------------------------------------
 -- actions: props we own
 -- ---------------------------------------------------------------------------
+local function buildPropOptions()
+    local opts = {}
+    for _, v in ipairs(Config.PropList or {}) do
+        opts[#opts + 1] = { value = v.model, label = v.label }
+    end
+    return opts
+end
+
 local function actionSpawn()
     local input = lib.inputDialog('Spawn prop', {
-        { type = 'input', label = 'Model name', description = 'e.g. prop_barrel_01a', default = Config.DefaultModel, required = true },
+        { type = 'select', label = 'Pick a prop', description = 'Search the list and choose one', options = buildPropOptions(), searchable = true, clearable = true },
+        { type = 'input', label = 'Or custom model', description = 'Type any prop model name to override the pick above', default = '' },
     })
     if not input then return end
-    local model = input[1]
+    local model = input[2]
+    if not model or model == '' then model = input[1] end
+    if not model or model == '' then
+        lib.notify({ title = 'RME Mapper', description = 'Pick a prop from the list or type a model name.', type = 'error' })
+        return
+    end
     local hash = loadModel(model)
     if not hash then
         lib.notify({ title = 'RME Mapper', description = ('Invalid model: %s'):format(tostring(model)), type = 'error' })
@@ -186,7 +208,7 @@ local function actionDuplicate()
         lib.notify({ title = 'RME Mapper', description = 'Aim at a mapper prop to duplicate.', type = 'inform' })
         return
     end
-    local model = GetEntityModel(ent)
+    local model = safeEntityModel(ent)
     local hash = loadModel(model)
     if not hash then return end
     local base = GetEntityCoords(ent)
@@ -229,24 +251,29 @@ end
 -- actions: existing MLO/map props
 -- ---------------------------------------------------------------------------
 local function actionHide()
-    local hit, coords, entity = aimRaycast(1 + 16) -- world + objects
+    -- 1) try to grab a real prop/vehicle entity we can read a model from
+    local _, _, ent = aimRaycast(2 + 16) -- vehicles + objects (no world flag, so no invalid handles)
+    if ent and ent ~= 0 and DoesEntityExist(ent) then
+        if handleToId[ent] then
+            lib.notify({ title = 'RME Mapper', description = 'That is a prop you placed - use Delete instead.', type = 'inform' })
+            return
+        end
+        local model = safeEntityModel(ent)
+        if model ~= 0 then
+            local c = GetEntityCoords(ent)
+            TriggerServerEvent('rme-mapper:server:hide', model, { x = c.x, y = c.y, z = c.z }, Config.HideRadius)
+            lib.notify({ title = 'RME Mapper', description = 'Object hidden & saved.', type = 'success' })
+            return
+        end
+    end
+    -- 2) no entity (baked MLO / static geometry): get the aim point and ask for the model
+    local hit, coords = aimRaycast(1 + 16) -- world + objects, just for the hit position
     if not hit then
         lib.notify({ title = 'RME Mapper', description = 'Aim at the object you want to remove.', type = 'inform' })
         return
     end
-    if entity and entity ~= 0 and handleToId[entity] then
-        lib.notify({ title = 'RME Mapper', description = 'That is a mapper prop - use Delete instead.', type = 'inform' })
-        return
-    end
-    if entity and entity ~= 0 and GetEntityModel(entity) ~= 0 then
-        local c = GetEntityCoords(entity)
-        TriggerServerEvent('rme-mapper:server:hide', GetEntityModel(entity), { x = c.x, y = c.y, z = c.z }, Config.HideRadius)
-        lib.notify({ title = 'RME Mapper', description = 'Object hidden & saved.', type = 'success' })
-        return
-    end
-    -- no entity handle (baked MLO / static geometry): ask for the model, hide at the aim point
     local input = lib.inputDialog('Hide map object', {
-        { type = 'input', label = 'Model name', description = 'No entity here. Enter the prop model to hide at this spot.', required = true },
+        { type = 'input', label = 'Model name', description = 'No movable entity here. Enter the prop model to hide at this spot.', required = true },
         { type = 'number', label = 'Radius (m)', default = Config.HideRadius, min = 0.5, max = 25.0 },
     })
     if not input then return end
@@ -274,7 +301,7 @@ openMenu = function()
         id = 'rme_mapper_menu',
         title = 'RME Map Editor',
         options = {
-            { title = 'Spawn new prop', description = 'Enter a model, then drag the gizmo to place it', icon = 'plus', onSelect = function() actionSpawn(); Wait(150); openMenu() end },
+            { title = 'Spawn new prop', description = 'Pick from the list, then drag the gizmo to place it', icon = 'plus', onSelect = function() actionSpawn(); Wait(150); openMenu() end },
             { title = 'Move / rotate (aim at prop)', description = 'Look at a placed prop, then drag the gizmo handles', icon = 'up-down-left-right', onSelect = function() actionEdit(); Wait(150); openMenu() end },
             { title = 'Duplicate (aim at prop)', description = 'Copy the prop you are looking at', icon = 'clone', onSelect = function() actionDuplicate(); Wait(150); openMenu() end },
             { title = 'Snap to ground (aim at prop)', description = 'Drop the prop onto the surface below it', icon = 'arrows-down-to-line', onSelect = function() actionSnap(); Wait(150); openMenu() end },
@@ -287,11 +314,9 @@ openMenu = function()
 end
 
 RegisterNetEvent('rme-mapper:client:open', function()
-    print('[rme-mapper] client open event received')
     if not lib then
         print('[rme-mapper] ERROR: ox_lib (lib) is nil on the client - ox_lib not loaded for this resource')
         return
     end
     openMenu()
-    print('[rme-mapper] openMenu() called')
 end)
