@@ -85,12 +85,17 @@ AddEventHandler('CEventPedJackingMyVehicle', function(_, ped)
     end)
 end)
 
+-- RME: Vehicle Theft dispatch alert disabled by request.
+-- A tripped car alarm (e.g. hotwiring) used to send a "Vehicle Theft" (10-35) alert to PD dispatch.
+-- Carjacking alerts (CEventPedJackingMyVehicle, above) are still active.
+-- To re-enable, restore the original body:
+--     WaitTimer('Autotheft', function()
+--         if cache.ped ~= ped then return end
+--         local vehicle = GetVehiclePedIsUsing(ped, true)
+--         exports['ps-dispatch']:VehicleTheft(vehicle)
+--     end)
 AddEventHandler('CEventShockingCarAlarm', function(_, ped)
-    WaitTimer('Autotheft', function()
-        if cache.ped ~= ped then return end
-        local vehicle = GetVehiclePedIsUsing(ped, true)
-        exports['ps-dispatch']:VehicleTheft(vehicle)
-    end)
+    return
 end)
 
 AddEventHandler('CEventExplosionHeard', function(witnesses, ped)
