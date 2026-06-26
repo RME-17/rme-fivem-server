@@ -153,4 +153,83 @@ RegisterCommand('rmetvstoptest', function()
     end
 end, false)
 
+-- ---- /tvmodel : identify the prop you are aiming at ---------------------
+-- Aim your crosshair at the centre of the screen (a few metres away) and run
+-- /tvmodel. It raycasts the entity, prints its model hash, the entity type, and
+-- whether that model is already a configured rde_oxmedia device.
+local CONFIGURED_MODELS = {
+    'apa_mp_h_str_avunitl_01_b','apa_mp_h_str_avunitl_04','apa_mp_h_str_avunitm_01',
+    'apa_mp_h_str_avunitm_03','apa_mp_h_str_avunits_01','apa_mp_h_str_avunits_04',
+    'ba_prop_battle_club_speaker_large','ba_prop_battle_club_speaker_med',
+    'ba_prop_battle_club_speaker_small','bkr_prop_clubhouse_jukebox_01a',
+    'bkr_prop_clubhouse_jukebox_01b','bkr_prop_clubhouse_jukebox_02a',
+    'ch_prop_arcade_jukebox_01a','ch_prop_ch_tv_rt_01a','des_tvsmash_start',
+    'ex_prop_ex_tv_flat_01','gr_prop_gr_trailer_monitor_01','gr_prop_gr_trailer_monitor_02',
+    'gr_prop_gr_trailer_monitor_03','gr_prop_gr_trailer_tv','gr_prop_gr_trailer_tv_02',
+    'hei_heist_str_avunitl_03','hei_prop_dlc_tablet','p_tv_flat_01_s','prop_50s_jukebox',
+    'prop_big_cin_screen','prop_boombox_01','prop_car_boot_01','prop_flatscreen_overlay',
+    'prop_ghettoblast_01','prop_ghettoblast_02','prop_huge_display_01','prop_huge_display_02',
+    'prop_jukebox_01','prop_monitor_01a','prop_monitor_01b','prop_monitor_02','prop_monitor_03b',
+    'prop_monitor_w_large','prop_portable_hifi_01','prop_radio_01','prop_speaker_01',
+    'prop_speaker_02','prop_speaker_03','prop_speaker_04','prop_speaker_05','prop_speaker_06',
+    'prop_speaker_07','prop_speaker_08','prop_tapeplayer_01','prop_trev_tv_01','prop_tv_01',
+    'prop_tv_02','prop_tv_03','prop_tv_03_overlay','prop_tv_04','prop_tv_05','prop_tv_06',
+    'prop_tv_07','prop_tv_flat_01','prop_tv_flat_01_screen','prop_tv_flat_01b','prop_tv_flat_02',
+    'prop_tv_flat_02b','prop_tv_flat_03','prop_tv_flat_03b','prop_tv_flat_michael',
+    'sm_prop_smug_monitor_01','sm_prop_smug_radio_01','sm_prop_smug_tv_flat_01',
+    'v_ilev_cin_screen','v_ilev_lest_bigscreen','v_ilev_mm_screen','v_ilev_mm_screen2',
+    'vw_prop_vw_cinema_tv_01','xm_prop_x17_computer_02','xm_prop_x17_tv_flat_01',
+    'xm_prop_x17dlc_monitor_wall_01a','xs_prop_arena_bigscreen_01','xs_prop_arena_screen_tv_01',
+}
+
+local function u32(x) return x & 0xFFFFFFFF end
+
+local CONFIGURED_SET = {}
+for _, n in ipairs(CONFIGURED_MODELS) do CONFIGURED_SET[u32(GetHashKey(n))] = n end
+
+local function rotToDir(rot)
+    local zr = math.rad(rot.z)
+    local xr = math.rad(rot.x)
+    local num = math.abs(math.cos(xr))
+    return vector3(-math.sin(zr) * num, math.cos(zr) * num, math.sin(xr))
+end
+
+local function aimedEntity()
+    local cam = GetGameplayCamCoord()
+    local dir = rotToDir(GetGameplayCamRot(2))
+    local dest = cam + (dir * 25.0)
+    local ray = StartExpensiveSynchronousShapeTestLosProbe(cam.x, cam.y, cam.z, dest.x, dest.y, dest.z, -1, PlayerPedId(), 4)
+    local _, hit, endCoords, _, entity = GetShapeTestResult(ray)
+    return hit == 1, entity, endCoords
+end
+
+local function tvmsg(s)
+    print('^5[tvmodel]^7 ' .. s)
+    TriggerEvent('chat:addMessage', { color = { 0, 200, 255 }, args = { '[tvmodel]', (s:gsub('%^%d', '')) } })
+end
+
+RegisterCommand('tvmodel', function()
+    local hit, entity, coords = aimedEntity()
+    if not hit or not entity or entity == 0 or not DoesEntityExist(entity) then
+        tvmsg('No entity in your crosshair. Stand 2-5m away, aim dead-centre at the screen, and run /tvmodel again.')
+        return
+    end
+    local model = u32(GetEntityModel(entity))
+    local etype = GetEntityType(entity)
+    local typeStr = ({ [0] = 'none/map', [1] = 'ped', [2] = 'vehicle', [3] = 'object' })[etype] or ('type ' .. etype)
+    local networked = NetworkGetEntityIsNetworked(entity)
+    local name = CONFIGURED_SET[model]
+    tvmsg(('entity=%s  type=%s  networked=%s'):format(entity, typeStr, tostring(networked)))
+    tvmsg(('model hash = %d  (0x%X)'):format(model, model))
+    if coords then
+        tvmsg(('hit coords = %.2f, %.2f, %.2f'):format(coords.x, coords.y, coords.z))
+    end
+    if name then
+        tvmsg(('MATCH -> this IS a configured rde_oxmedia device: %s'):format(name))
+        tvmsg('Detection should work, so this is likely an MLO map-entity the E-key scan misses -> switch to target mode.')
+    else
+        tvmsg('NO MATCH -> this prop is NOT in the rde_oxmedia device list. Send me the model hash above to add it.')
+    end
+end, false)
+
 print('^2[RME-TV] loaded^7')
