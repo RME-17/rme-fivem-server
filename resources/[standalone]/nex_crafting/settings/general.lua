@@ -33,9 +33,12 @@ nexCrafting.ConfigData = {
             },
         },
 
+        -- NOTE: This build's qb-target eye path calls ox_target exports, which
+        -- this server does not run. Using marker mode (walk up + press E)
+        -- instead, which is standalone and needs no target resource.
         interaction = {
-            useTarget = true,
-            useMarker = false,
+            useTarget = false,
+            useMarker = true,
             interactionKey = 38,
             interactionDistance = 2,
             drawDistance = 10,
