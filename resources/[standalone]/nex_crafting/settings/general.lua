@@ -10,8 +10,8 @@ nexCrafting = nexCrafting or {}
 
 nexCrafting.ConfigData = {
     settings = {
-        -- TEMP: debug on to trace bench target registration. Set back to false later.
-        debug = true,
+        -- Verbose logging. Flip to true only when troubleshooting.
+        debug = false,
 
         -- UI theme. The panel is monochrome (black + one accent color).
         -- Set accentColor to any hex color to recolor the whole UI, e.g.
