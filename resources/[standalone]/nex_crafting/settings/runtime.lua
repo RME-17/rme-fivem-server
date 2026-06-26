@@ -17,7 +17,7 @@ end
 --   'nui://qs-inventory/html/images/'      (qs-inventory)
 --   'nui://codem-inventory/html/img/'      (codem-inventory)
 --   'https://your-cdn.com/images/'         (custom web URL)
-nexCrafting.ItemImagePath = 'nui://ox_inventory/web/images/'
+nexCrafting.ItemImagePath = 'nui://qb-inventory/html/images/'
 
 if not IsDuplicityVersion() then
     nexCrafting.ClientConfig = nil

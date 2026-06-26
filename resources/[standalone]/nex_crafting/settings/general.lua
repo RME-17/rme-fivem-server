@@ -10,7 +10,7 @@ nexCrafting = nexCrafting or {}
 
 nexCrafting.ConfigData = {
     settings = {
-        debug = true,
+        debug = false,
 
         -- UI theme. The panel is monochrome (black + one accent color).
         -- Set accentColor to any hex color to recolor the whole UI, e.g.
@@ -35,7 +35,7 @@ nexCrafting.ConfigData = {
 
         interaction = {
             useTarget = true,
-            useMarker = true,
+            useMarker = false,
             interactionKey = 38,
             interactionDistance = 2,
             drawDistance = 10,
@@ -55,7 +55,7 @@ nexCrafting.ConfigData = {
         },
 
         oxInventory = {
-            imagePath = 'nui://ox_inventory/web/images/',
+            imagePath = 'nui://qb-inventory/html/images/',
             benchStash = {
                 enabled = false,
                 slots = 10,
