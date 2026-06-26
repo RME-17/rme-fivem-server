@@ -8,10 +8,16 @@
 -- Confirmed against rde_oxmedia client.lua getActiveDevices():
 --   dev.entity, dev.coords, dev.data.url, dev.data.volume (0-100), dev.data.paused,
 --   dev.config.audioRange, dev.config.type.
---
--- NOTE: if xSound streamer mode is ON (disableMusic), PlayUrlPos returns early
--- WITHOUT creating the sound, so calling Distance/Position/etc. afterwards would
--- index a nil sound and error. We guard every xSound call accordingly.
+
+-- ====================== TUNABLE ======================
+-- Max distance (in metres) the TV/radio audio can be heard. This OVERRIDES
+-- rde_oxmedia's per-device audioRange, so you can make a whole shop/club hear it.
+--   ~20-30  = one room
+--   ~70     = a whole mechanic shop interior
+--   higher  = carries further outside too
+-- Set to nil to use each device's own rde_oxmedia audioRange instead.
+local AUDIO_RANGE = 70.0
+-- =====================================================
 
 local POLL_MS = 750
 local tracked = {}   -- rde_oxmedia device key -> xSound sound name
@@ -36,6 +42,11 @@ local function toXVolume(v)
     return v
 end
 
+local function rangeFor(dev)
+    if AUDIO_RANGE then return AUDIO_RANGE + 0.0 end
+    return ((dev.config and dev.config.audioRange) or 30.0) + 0.0
+end
+
 local function stopAll()
     if not xsReady() then tracked = {} return end
     for key, name in pairs(tracked) do
@@ -50,9 +61,9 @@ CreateThread(function()
     print(xsReady() and '^2[RME-TV] xsound: STARTED^7' or '^1[RME-TV] xsound: NOT STARTED^7')
     print(oxmediaReady() and '^2[RME-TV] rde_oxmedia: STARTED^7' or '^1[RME-TV] rde_oxmedia: NOT STARTED^7')
     if xsReady() and streamerOn() then
-        print('^3[RME-TV] WARNING: xSound streamer mode is ON - ALL xSound audio is suppressed. Type /streamermode in chat to turn it OFF.^7')
+        print('^3[RME-TV] WARNING: xSound streamer mode is ON - audio suppressed. /streamermode to turn OFF.^7')
     end
-    print('^3[RME-TV] In-game test: /rmetvsound plays a test MP3 straight through xSound.^7')
+    print(('^3[RME-TV] audio range = %s m. In-game test: /rmetvsound^7'):format(AUDIO_RANGE and tostring(AUDIO_RANGE) or 'per-device'))
 end)
 
 -- ---- main bridge loop ---------------------------------------------------
@@ -80,20 +91,17 @@ CreateThread(function()
                         seen[key] = true
                         local name  = soundNameFor(key)
                         local vol   = toXVolume(data.volume)
-                        local range = (dev.config and dev.config.audioRange) or 30.0
+                        local range = rangeFor(dev)
                         local pos   = dev.coords
                         if dev.entity and DoesEntityExist(dev.entity) then
                             pos = GetEntityCoords(dev.entity)
                         end
 
                         if not tracked[key] then
-                            -- only attempt to start when NOT suppressed; PlayUrlPos
-                            -- would otherwise drop the sound and the follow-up
-                            -- Distance() call would index a nil sound and error.
                             if pos and not suppressed then
                                 exports['xsound']:PlayUrlPos(name, url, vol, pos, false)
                                 if exports['xsound']:soundExists(name) then
-                                    exports['xsound']:Distance(name, range + 0.0)
+                                    exports['xsound']:Distance(name, range)
                                     tracked[key] = name
                                     print(('^2[RME-TV] start audio [%s] vol=%.2f range=%.1f url=%s^7')
                                         :format(key, vol, range, tostring(url):sub(1, 60)))
@@ -102,6 +110,7 @@ CreateThread(function()
                         elseif exports['xsound']:soundExists(name) then
                             if pos then exports['xsound']:Position(name, pos) end
                             exports['xsound']:setVolume(name, vol)
+                            exports['xsound']:Distance(name, range)
                             if data.paused then
                                 if exports['xsound']:isPlaying(name) then exports['xsound']:Pause(name) end
                             else
@@ -131,11 +140,11 @@ end)
 RegisterCommand('rmetvsound', function()
     if not xsReady() then print('^1[RME-TV] /rmetvsound: xsound not started.^7') return end
     if streamerOn() then
-        print('^3[RME-TV] /rmetvsound: xSound streamer mode is ON - turn it OFF with /streamermode first.^7')
+        print('^3[RME-TV] /rmetvsound: xSound streamer mode is ON - /streamermode to turn OFF first.^7')
         return
     end
     exports['xsound']:PlayUrl('rme_tv_selftest', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 0.6, false)
-    print('^2[RME-TV] /rmetvsound: playing test MP3. Hear it = xSound OK. Silent = NUI audio on this PC.^7')
+    print('^2[RME-TV] /rmetvsound: playing test MP3. Hear it = xSound OK.^7')
 end, false)
 
 RegisterCommand('rmetvstoptest', function()
