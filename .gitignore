@@ -1,4 +1,4 @@
-﻿# FiveM / txAdmin local files
+# FiveM / txAdmin local files
 cache/
 logs/
 crashes/
@@ -23,3 +23,6 @@ Desktop.ini
 node_modules/
 dist/
 build/
+
+# Externally-cloned resources that ship with their own .git (RDE scripts check for git metadata)
+resources/rde_oxmedia/
