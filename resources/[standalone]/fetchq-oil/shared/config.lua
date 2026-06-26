@@ -33,8 +33,8 @@ Config = {
     Contracts = {
         {
             name = locale('boat_mission'),
-            reward = { min = 1500, max = 3000 },
-            estText = '$1,500 - $3,000',
+            reward = { min = 30000, max = 50000 },
+            estText = '$30,000 - $50,000',
             numContainers = 2,
             barrelsToLoad = 10,
             portContainerModel = 'tr_prop_tr_container_01a',
@@ -69,8 +69,8 @@ Config = {
         },
         {
             name = locale('heli_mission'),
-            reward = { min = 2500, max = 4500 },
-            estText = '$2,500 - $4,500',
+            reward = { min = 30000, max = 50000 },
+            estText = '$30,000 - $50,000',
             barrelsToLoad = 6,
             numContainers = 1,
             SkyliftVehicle = 'skylift',
