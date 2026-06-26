@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Trucking</title>
+</head>
+<body>
+    <div id="app" class="hidden">
+
+        <!-- first-time company creation -->
+        <div id="create-screen" class="hidden">
+            <div class="create-card">
+                <div class="hazard"></div>
+                <div class="create-body">
+                    <div class="create-icon">
+                        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </div>
+                    <div class="create-kicker" data-i18n="ui.brand_authority">San Andreas Freight Authority</div>
+                    <h1 data-i18n="ui.create_title">Create Your Trucking Company</h1>
+                    <p data-i18n="ui.create_sub">Start small. Haul freight, hire drivers, buy trucks and build a logistics empire.</p>
+                    <input id="create-name" type="text" maxlength="28" placeholder="Company name..." data-i18n-ph="ui.create_placeholder" autocomplete="off">
+                    <button id="create-btn" class="btn btn-primary btn-lg"><span data-i18n="ui.create_btn">Create Company</span> &mdash; <span id="create-cost"></span></button>
+                    <button class="btn btn-ghost" data-i18n="ui.not_now" onclick="closeUI()">Not now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- main menu -->
+        <div id="main" class="hidden">
+            <aside>
+                <div class="hazard"></div>
+                <div class="brand">
+                    <div id="brand-logo" class="brand-logo"></div>
+                    <div class="brand-text">
+                        <div id="brand-name" class="brand-name"></div>
+                        <div id="brand-rank" class="brand-rank"></div>
+                    </div>
+                </div>
+                <div class="level-box">
+                    <div class="level-row">
+                        <span class="lvl-label"><span data-i18n="ui.level">Level</span> <b id="side-level"></b></span>
+                        <span id="side-xp" class="muted"></span>
+                    </div>
+                    <div class="bar"><div id="side-xpbar" class="bar-fill"></div></div>
+                </div>
+                <nav id="nav">
+                    <button data-tab="overview" class="active">
+                        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span data-i18n="ui.nav.overview">Overview</span>
+                    </button>
+                    <button data-tab="contracts">
+                        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                        <span data-i18n="ui.nav.contracts">Dispatch</span>
+                    </button>
+                    <button data-tab="drivers">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span data-i18n="ui.nav.drivers">Drivers</span>
+                    </button>
+                    <button data-tab="fleet">
+                        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        <span data-i18n="ui.nav.fleet">Fleet</span>
+                    </button>
+                    <button data-tab="crew">
+                        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        <span data-i18n="ui.nav.crew">Crew</span>
+                    </button>
+                    <button data-tab="upgrades">
+                        <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        <span data-i18n="ui.nav.upgrades">Upgrades</span>
+                    </button>
+                    <button data-tab="bank">
+                        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <span data-i18n="ui.nav.bank">Bank</span>
+                    </button>
+                    <button data-tab="leaderboard">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                        <span data-i18n="ui.nav.leaderboard">Rankings</span>
+                    </button>
+                    <button data-tab="settings">
+                        <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                        <span data-i18n="ui.nav.settings">Settings</span>
+                    </button>
+                </nav>
+                <div class="side-balance">
+                    <span class="side-balance-label" data-i18n="ui.company_funds">Company Funds</span>
+                    <div id="side-balance" class="balance-amount"></div>
+                </div>
+                <button class="btn btn-ghost close-btn" data-i18n="ui.close" onclick="closeUI()">Close &mdash; ESC</button>
+            </aside>
+            <main id="content"></main>
+        </div>
+
+        <!-- admin UI (/truckingadmin, /truckingloc) -->
+        <div id="admin-screen" class="hidden"></div>
+
+        <div id="modal-root"></div>
+        <div id="toast-root"></div>
+    </div>
+
+    <!-- delivery-location placement HUD: shown during the admin fly-cam.
+         The NUI holds no input focus here, so the camera controls still work. -->
+    <div id="place-overlay" class="hidden">
+        <div id="place-reticle"></div>
+        <div class="place-hud">
+            <div class="hazard"></div>
+            <div class="place-inner">
+                <div class="place-head">
+                    <div class="place-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.27-7-11a7 7 0 0 1 14 0c0 4.73-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+                    </div>
+                    <div class="place-titles">
+                        <div class="place-kicker">San Andreas Freight Authority</div>
+                        <div class="place-title" data-i18n="ui.place.title">Placing Delivery Location</div>
+                    </div>
+                    <div class="place-readouts">
+                        <div class="readout"><span data-i18n="ui.place.zoom">Zoom</span><b id="pl-fov">70</b></div>
+                        <div class="readout"><span data-i18n="ui.place.speed">Speed</span><b id="pl-speed">x1.00</b></div>
+                        <div class="readout"><span data-i18n="ui.place.backin">Back-in</span><b id="pl-arrow">0&deg;</b></div>
+                        <div class="readout"><span data-i18n="ui.place.height">Height</span><b id="pl-height">+0.00</b></div>
+                    </div>
+                </div>
+                <div class="place-controls">
+                    <div class="ctrl"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span class="ctrl-label" data-i18n="ui.place.move">Move</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>E</kbd><kbd>Q</kbd></span><span class="ctrl-label" data-i18n="ui.place.updown">Up / Down</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>Shift</kbd></span><span class="ctrl-label" data-i18n="ui.place.fast">Fast</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>Ctrl</kbd></span><span class="ctrl-label" data-i18n="ui.place.precise">Precise</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>Scroll</kbd></span><span class="ctrl-label" data-i18n="ui.place.zoom">Zoom</span></div>
+                    <div class="ctrl"><span class="keys"><kbd class="ar">&#9650;</kbd><kbd class="ar">&#9660;</kbd></span><span class="ctrl-label" data-i18n="ui.place.speed">Speed</span></div>
+                    <div class="ctrl"><span class="keys"><kbd class="ar">&#9664;</kbd><kbd class="ar">&#9654;</kbd></span><span class="ctrl-label" data-i18n="ui.place.rotate">Rotate arrow</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>R</kbd></span><span class="ctrl-label" data-i18n="ui.place.flip">Flip 180&deg;</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>PgUp</kbd><kbd>PgDn</kbd></span><span class="ctrl-label" data-i18n="ui.place.height">Height</span></div>
+                </div>
+                <div class="place-foot">
+                    <div id="pl-status" class="place-status">Aim at the ground to place the marker</div>
+                    <div class="place-actions">
+                        <div id="pl-place" class="paction place"><kbd>Enter</kbd><span data-i18n="ui.place.place_marker">Place marker</span></div>
+                        <div class="paction cancel"><kbd>Backspace</kbd><span data-i18n="ui.cancel">Cancel</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- confirm step before re-placing an existing delivery point -->
+    <div id="place-confirm" class="hidden">
+        <div class="place-hud">
+            <div class="hazard"></div>
+            <div class="place-inner">
+                <div class="place-head">
+                    <div class="place-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.27-7-11a7 7 0 0 1 14 0c0 4.73-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+                    </div>
+                    <div class="place-titles">
+                        <div class="place-kicker">San Andreas Freight Authority</div>
+                        <div class="place-title" data-i18n="ui.place.confirm_title">Current delivery point</div>
+                    </div>
+                </div>
+                <div class="place-controls">
+                    <div class="ctrl"><span class="keys"><kbd>Mouse</kbd></span><span class="ctrl-label" data-i18n="ui.place.look">Look around</span></div>
+                    <div class="ctrl"><span class="keys"><kbd>Scroll</kbd></span><span class="ctrl-label" data-i18n="ui.place.zoom">Zoom</span></div>
+                </div>
+                <div class="place-foot">
+                    <div class="place-status ready" data-i18n="ui.place.confirm_msg">This is where the marker is now. Reposition it, or keep it as it is.</div>
+                    <div class="place-actions">
+                        <div class="paction place ready"><kbd>Enter</kbd><span data-i18n="ui.place.reposition">Reposition</span></div>
+                        <div class="paction cancel"><kbd>Backspace</kbd><span data-i18n="ui.place.keep">Keep it</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
