@@ -8,12 +8,22 @@
 -- Confirmed against rde_oxmedia client.lua getActiveDevices():
 --   dev.entity, dev.coords, dev.data.url, dev.data.volume (0-100), dev.data.paused,
 --   dev.config.audioRange, dev.config.type.
+--
+-- NOTE: if xSound streamer mode is ON (disableMusic), PlayUrlPos returns early
+-- WITHOUT creating the sound, so calling Distance/Position/etc. afterwards would
+-- index a nil sound and error. We guard every xSound call accordingly.
 
 local POLL_MS = 750
 local tracked = {}   -- rde_oxmedia device key -> xSound sound name
+local warnedStreamer = false
 
 local function xsReady()      return GetResourceState('xsound') == 'started' end
 local function oxmediaReady() return GetResourceState('rde_oxmedia') == 'started' end
+
+local function streamerOn()
+    local ok, on = pcall(function() return exports['xsound']:isPlayerInStreamerMode() end)
+    return ok and on == true
+end
 
 local function soundNameFor(key)
     return 'rme_tv_' .. (tostring(key):gsub('[^%w]', '_'))
@@ -29,9 +39,7 @@ end
 local function stopAll()
     if not xsReady() then tracked = {} return end
     for key, name in pairs(tracked) do
-        if exports['xsound']:soundExists(name) then
-            exports['xsound']:Destroy(name)
-        end
+        if exports['xsound']:soundExists(name) then exports['xsound']:Destroy(name) end
         tracked[key] = nil
     end
 end
@@ -39,17 +47,12 @@ end
 -- ---- startup diagnostics ------------------------------------------------
 CreateThread(function()
     Wait(2500)
-    if xsReady() then
-        print('^2[RME-TV] xsound: STARTED^7')
-    else
-        print('^1[RME-TV] xsound: NOT STARTED. Install the xsound folder in resources and add `ensure xsound` BEFORE rme-tv. No sound is possible until this is fixed.^7')
+    print(xsReady() and '^2[RME-TV] xsound: STARTED^7' or '^1[RME-TV] xsound: NOT STARTED^7')
+    print(oxmediaReady() and '^2[RME-TV] rde_oxmedia: STARTED^7' or '^1[RME-TV] rde_oxmedia: NOT STARTED^7')
+    if xsReady() and streamerOn() then
+        print('^3[RME-TV] WARNING: xSound streamer mode is ON - ALL xSound audio is suppressed. Type /streamermode in chat to turn it OFF.^7')
     end
-    if oxmediaReady() then
-        print('^2[RME-TV] rde_oxmedia: STARTED^7')
-    else
-        print('^1[RME-TV] rde_oxmedia: NOT STARTED.^7')
-    end
-    print('^3[RME-TV] In-game test: type /rmetvsound to play a test MP3 straight through xSound (bypasses rde_oxmedia).^7')
+    print('^3[RME-TV] In-game test: /rmetvsound plays a test MP3 straight through xSound.^7')
 end)
 
 -- ---- main bridge loop ---------------------------------------------------
@@ -61,6 +64,14 @@ CreateThread(function()
                 return exports['rde_oxmedia']:getActiveDevices()
             end)
             if ok and type(devices) == 'table' then
+                local suppressed = streamerOn()
+                if suppressed and not warnedStreamer then
+                    print('^3[RME-TV] xSound streamer mode is ON - audio suppressed. /streamermode to turn OFF.^7')
+                    warnedStreamer = true
+                elseif not suppressed then
+                    warnedStreamer = false
+                end
+
                 local seen = {}
                 for key, dev in pairs(devices) do
                     local data = dev and dev.data
@@ -76,12 +87,17 @@ CreateThread(function()
                         end
 
                         if not tracked[key] then
-                            if pos then
-                                print(('^2[RME-TV] start audio [%s] vol=%.2f range=%.1f url=%s^7')
-                                    :format(key, vol, range, tostring(url):sub(1, 60)))
+                            -- only attempt to start when NOT suppressed; PlayUrlPos
+                            -- would otherwise drop the sound and the follow-up
+                            -- Distance() call would index a nil sound and error.
+                            if pos and not suppressed then
                                 exports['xsound']:PlayUrlPos(name, url, vol, pos, false)
-                                exports['xsound']:Distance(name, range + 0.0)
-                                tracked[key] = name
+                                if exports['xsound']:soundExists(name) then
+                                    exports['xsound']:Distance(name, range + 0.0)
+                                    tracked[key] = name
+                                    print(('^2[RME-TV] start audio [%s] vol=%.2f range=%.1f url=%s^7')
+                                        :format(key, vol, range, tostring(url):sub(1, 60)))
+                                end
                             end
                         elseif exports['xsound']:soundExists(name) then
                             if pos then exports['xsound']:Position(name, pos) end
@@ -112,17 +128,14 @@ AddEventHandler('onResourceStop', function(res)
 end)
 
 -- ---- isolation self-test ------------------------------------------------
--- Plays a known-good MP3 through xSound at the player, with NO involvement from
--- rde_oxmedia. If you hear this, xSound works and the issue is the bridge/data.
--- If this is ALSO silent, the problem is xSound / NUI audio on this build.
 RegisterCommand('rmetvsound', function()
-    if not xsReady() then
-        print('^1[RME-TV] /rmetvsound: xsound is not started.^7')
+    if not xsReady() then print('^1[RME-TV] /rmetvsound: xsound not started.^7') return end
+    if streamerOn() then
+        print('^3[RME-TV] /rmetvsound: xSound streamer mode is ON - turn it OFF with /streamermode first.^7')
         return
     end
-    local url = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-    exports['xsound']:PlayUrl('rme_tv_selftest', url, 0.6, false)
-    print('^2[RME-TV] /rmetvsound: playing test MP3 through xSound. Hear it = xSound OK. Silent = xSound/NUI audio is the problem.^7')
+    exports['xsound']:PlayUrl('rme_tv_selftest', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 0.6, false)
+    print('^2[RME-TV] /rmetvsound: playing test MP3. Hear it = xSound OK. Silent = NUI audio on this PC.^7')
 end, false)
 
 RegisterCommand('rmetvstoptest', function()
