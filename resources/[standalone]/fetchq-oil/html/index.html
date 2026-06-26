@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fetchq-oil NUI BOILERPLATE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        oxypac: {
+                            bg: '#050505',
+                            sidebar: '#0a0a0a',
+                            card: '#111111',
+                            surface: '#161616',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            accent: '#fbbf24',
+                            accentHover: '#f59e0b',
+                            text: '#f4f4f5',
+                            muted: '#71717a',
+                            danger: '#ef4444',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Urbanist', 'sans-serif'],
+                        display: ['Urbanist', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="mission-tracker" style="display: none;">
+        <div id="mission-hud"
+            class="fixed left-8 top-1/2 -translate-y-1/2 z-50 transition-transform duration-500 ease-out">
+            <div class="hud-panel w-[350px] p-0 relative overflow-hidden text-white">
+                <div class="flex items-center justify-between p-4 pb-0">
+                    <div class="flex items-center gap-2">
+                        <span id="mission-tracker-time"
+                            class="text-white font-mono font-bold text-xl drop-shadow-lg">17:58</span>
+                    </div>
+                </div>
+                <div class="p-4 pt-1">
+                    <div class="mb-4">
+                        <h2 id="mission-tracker-objective"
+                            class="text-white text-2xl font-black leading-none tracking-tighter drop-shadow-xl uppercase">
+                            Collect 10 cages and load them into the van
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3 justify-start">
+                        <div
+                            class="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+                            <span class="text-[9px] text-gray-300 font-bold uppercase tracking-wider">Hold</span>
+                            <span
+                                class="w-5 h-5 flex items-center justify-center bg-white text-black rounded-full font-black font-sans text-[10px]">B</span>
+                            <span id="expand-text"
+                                class="text-[9px] text-gray-300 font-bold uppercase tracking-wider">Details</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="steps-container"
+                    class="px-6 pb-6 space-y-4 max-h-0 overflow-hidden transition-all duration-300 opacity-0 text-white">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main-ui" style="display: none;">
+        <div class="bg-hud-panel-left"></div>
+        <div class="bg-hud-panel-right"></div>
+        <div class="hud-panel left-panel">
+
+            <header class="panel-header">
+                <div class="brand-top">
+
+                    <div class="brand-text">
+                        <h1><span data-i18n="ui_oil_rig">Oil</span><span class="accent" data-i18n="ui_rig"> Rig</span>
+                        </h1>
+                        <span class="sub" data-i18n="ui_multiplayer_job">MULTIPLAYER JOB</span>
+                    </div>
+                </div>
+
+                <nav class="nav-tabs">
+                    <button class="tab active" id="tab-lobby" onclick="switchTab('lobby')"
+                        data-i18n="ui_lobby">Lobby</button>
+                    <button class="tab" id="tab-manage" onclick="switchTab('manage')"
+                        data-i18n="ui_manage">Manage</button>
+                </nav>
+            </header>
+
+            <div class="panel-content">
+
+                <div id="view-lobby">
+                    <div class="section-label"><span class="accent">//</span> <span
+                            data-i18n="ui_active_contract">ACTIVE CONTRACT</span></div>
+
+                    <div class="mission-selector" id="mission-selector"></div>
+
+                    <div class="section-label" style="margin-top: 20px;"><span class="accent">//</span> <span
+                            data-i18n="ui_loadout_config">LOADOUT CONFIG</span>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="card-icon"><i class="fa-solid fa-shirt"></i></div>
+                        <div class="card-info">
+                            <span class="label" data-i18n="ui_disguise">Disguise</span>
+                            <span class="value" id="disguise-name">--</span>
+                        </div>
+                        <div class="card-controls">
+                            <button onclick="cycleDisguise(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button onclick="cycleDisguise(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <button class="apply-btn" onclick="applyDisguise()" data-i18n="ui_apply">Apply</button>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="card-icon accent-bg"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div class="card-info">
+                            <span class="label" data-i18n="ui_salary_cut">Salary Cut</span>
+                            <span class="value accent-text" data-i18n="ui_profit_100">100% Profit</span>
+                            <span class="micro-text" id="mission-est">Est: --</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="view-manage" class="hidden">
+                    <div class="section-label"><span class="accent">//</span> <span data-i18n="ui_team_management">Team
+                            Management</span></div>
+                    <div id="manage-squad"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="hud-panel right-panel">
+            <div class="panel-content">
+                <div class="section-label align-right">
+                    <span data-i18n="ui_squad_roster">Squad Roster</span> <span id="roster-count">(0/2)</span> <span
+                        class="accent">//</span>
+                </div>
+
+                <div id="roster-squad"></div>
+                <div id="roster-nearby-label" class="section-label align-right" style="margin-top:15px;display:none;">
+                    Nearby (30m) <span class="accent">//</span></div>
+                <div id="roster-nearby"></div>
+
+                <div class="spacer"></div>
+
+                <div class="action-area">
+                    <button class="start-btn" onclick="startJob()" data-i18n="ui_start_job">
+                        Start Job
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="oilrig-minigame" aria-hidden="true">
+        <div class="mg-backdrop"></div>
+        <div class="mg-shell">
+            <div class="mg-topbar">
+                <div class="mg-brand">
+                    <span class="mg-status-led"></span>
+                    <div>
+                        <h2>Rig Lock Override</h2>
+                        <p>Container Access Module</p>
+                    </div>
+                </div>
+                <div class="mg-top-actions">
+                    <div class="mg-readout" id="mg-faults">FAULTS 0/3</div>
+                    <div class="mg-readout mg-timer" id="mg-timer">01:10</div>
+                    <button class="mg-icon-btn" id="mg-close" title="Abort override">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mg-body">
+                <main class="mg-workspace">
+                    <div class="mg-phase-list horizontal">
+                        <div class="mg-phase-chip active" data-phase-chip="pressure">
+                            <span>1</span>
+                            <strong>Valves</strong>
+                        </div>
+                        <div class="mg-phase-chip" data-phase-chip="trace">
+                            <span>2</span>
+                            <strong>Circuit</strong>
+                        </div>
+                        <div class="mg-phase-chip" data-phase-chip="pulse">
+                            <span>3</span>
+                            <strong>Sync</strong>
+                        </div>
+                    </div>
+
+                    <div class="mg-system-feed" id="mg-system-feed">SYSTEM ONLINE</div>
+                    <section class="mg-panel active" id="mg-pressure-panel">
+                        <div class="mg-section-head">
+                            <span>Hydraulic Balance</span>
+                            <strong id="mg-pressure-status">VALVES UNSTABLE</strong>
+                        </div>
+                        <div class="mg-pressure-grid" id="mg-pressure-grid"></div>
+                        <button class="mg-primary-btn" id="mg-pressure-submit">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            Lock Values
+                        </button>
+                    </section>
+
+                    <section class="mg-panel" id="mg-trace-panel">
+                        <div class="mg-section-head">
+                            <span>Control Circuit</span>
+                            <strong id="mg-trace-status">ROUTE 0/5</strong>
+                        </div>
+                        <div class="mg-circuit-grid" id="mg-circuit-grid"></div>
+                        <div class="mg-inline-actions">
+                            <button class="mg-secondary-btn" id="mg-trace-replay">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                Replay
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="mg-panel" id="mg-pulse-panel">
+                        <div class="mg-section-head">
+                            <span>Maglock Pulse</span>
+                            <strong id="mg-pulse-status">SYNC 0/3</strong>
+                        </div>
+                        <div class="mg-pulse-track" id="mg-pulse-track">
+                            <div class="mg-pulse-target" id="mg-pulse-target"></div>
+                            <div class="mg-pulse-marker" id="mg-pulse-marker"></div>
+                        </div>
+                        <button class="mg-primary-btn" id="mg-pulse-submit">
+                            <i class="fa-solid fa-bolt"></i>
+                            Sync Pulse
+                        </button>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
