@@ -69,9 +69,9 @@ Config.Locations = {
         vector3(1857.3, 3691.5, 34.27),        -- Sandy Shores
     },
     impound = {
-        vector3(622.58, -3.86, 82.78),         -- Vinewood PD [RME moved from MRPD]
-        vector3(-436.14, 5982.63, 31.34),      -- Paleto
-        vector3(1849.3, 3673.5, 33.45),        -- Sandy Shores
+        vector4(546.0, -52.0, 71.07, 247.22),     -- Vinewood PD driveway [RME moved outside so retrieved cars spawn cleanly]
+        vector4(-436.14, 5982.63, 31.34, 87.93),  -- Paleto
+        vector4(1849.3, 3673.5, 33.45, 30.0),     -- Sandy Shores
     },
     helicopter = {
         vector4(579.77, 12.11, 103.23, 358.16),   -- Vinewood PD rooftop helipad [RME moved from MRPD]
