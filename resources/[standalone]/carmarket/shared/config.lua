@@ -1,12 +1,12 @@
 Config = {}
-​
+
 Config.Debug = false
 Config.Locale = 'en'
-​
+
 Config.Database = {
     AutoCreateTable = true, -- If true, it will create the table in the database
 }
-​
+
 Config.Interaction = 'ox_target' -- 'ox_target' or nil
 Config.InventoryMenuSystem = 'ox_lib' -- 'auto' (auto-detect) | 'ox_lib' (optional) | 'esx_menu_default' | 'qb-menu-default' | 'ox_target'
 Config.ZoneSpawnRadiusDefault = 50 -- The default radius for the zone spawn
@@ -15,7 +15,7 @@ Config.DrawText = { -- Draw text for the zone
     key = 38, -- The key to open the menu
     vehicleText = 'Manage chosen vehicle', -- The text to display for the vehicles on zones in market places
 }
-​
+
 Config.Zones = {
     {
         id = "zone1",
@@ -138,27 +138,27 @@ Config.Zones = {
         },
     }
 }
-​
+
 Config.Parking = {
     SlotPrice = 10000,
     SlotWeeklyFee = 2000,
     MaxSlotsPerParking = 30,
     SpacesPerPage = 10,
 }
-​
+
 Config.Exchange = {
     ZonePurchasePrice = 250000,
     DefaultListingFeePerWeek = 500,
     DefaultCommissionPercent = 5,
     MaxListingsPerZone = 50,
 }
-​
+
 Config.Commands = {
     AdminAce = 'group.admin',
     RequireAdminForAddParkingSlot = false,
     RequireAdminForRefreshZone = false,
 }
-​
+
 Config.TestDrive = {
     Enabled = true,
     coords = vec3(-1015.0851, -3328.7476, 13.9444),
@@ -167,7 +167,7 @@ Config.TestDrive = {
     price = 0,
     cancelKey = 73, -- X key [X/G/E] - Available to use in config.lua
 }
-​
+
 -- Custom vehicle images.
 -- For modded/custom vehicles whose images aren't on docs.fivem.net.
 -- 1) Put your image at:  web/build/images/vehicles/<respname>.webp
