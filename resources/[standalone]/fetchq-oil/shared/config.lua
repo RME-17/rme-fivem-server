@@ -1,7 +1,7 @@
 Config = {
     FrameworkSettings = {
         CoreName = "qb-core", -- qb-core, es_extended, qbx_core, custom
-        Debug = true,
+        Debug = false,
         DrawTextSettings = {
             resource = 'drawtext-qb-core', --- drawtext-ox_lib | drawtext-ox_lib | drawtext-qb-core |
         },
@@ -33,8 +33,8 @@ Config = {
     Contracts = {
         {
             name = locale('boat_mission'),
-            reward = { min = 450000, max = 800000 },
-            estText = '$450k - $800k',
+            reward = { min = 1500, max = 3000 },
+            estText = '$1,500 - $3,000',
             numContainers = 2,
             barrelsToLoad = 10,
             portContainerModel = 'tr_prop_tr_container_01a',
@@ -69,8 +69,8 @@ Config = {
         },
         {
             name = locale('heli_mission'),
-            reward = { min = 600000, max = 1200000 },
-            estText = '$600k - $1.2M',
+            reward = { min = 2500, max = 4500 },
+            estText = '$2,500 - $4,500',
             barrelsToLoad = 6,
             numContainers = 1,
             SkyliftVehicle = 'skylift',
