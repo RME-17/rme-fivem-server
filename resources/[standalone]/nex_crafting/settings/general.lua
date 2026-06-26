@@ -36,11 +36,13 @@ nexCrafting.ConfigData = {
         -- NOTE: This build's qb-target eye path calls ox_target exports, which
         -- this server does not run. Using marker mode (walk up + press E)
         -- instead, which is standalone and needs no target resource.
+        -- interactionDistance widened to 3.5 so E triggers from anywhere
+        -- around the table (bench coord is the table center).
         interaction = {
             useTarget = false,
             useMarker = true,
             interactionKey = 38,
-            interactionDistance = 2,
+            interactionDistance = 3.5,
             drawDistance = 10,
             markerType = 27,
             markerColor = { 255, 255, 255, 100 },
