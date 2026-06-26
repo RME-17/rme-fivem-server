@@ -33,14 +33,12 @@ nexCrafting.ConfigData = {
             },
         },
 
-        -- NOTE: This build's qb-target eye path calls ox_target exports, which
-        -- this server does not run. Using marker mode (walk up + press E)
-        -- instead, which is standalone and needs no target resource.
-        -- interactionDistance widened to 3.5 so E triggers from anywhere
-        -- around the table (bench coord is the table center).
+        -- ox_target is installed, so use the eye (target) for benches. NEX
+        -- registers a "Use ..." option on each bench via ox_target:addLocalEntity
+        -- at startup. Hold Left Alt at the bench and click the option to open.
         interaction = {
-            useTarget = false,
-            useMarker = true,
+            useTarget = true,
+            useMarker = false,
             interactionKey = 38,
             interactionDistance = 3.5,
             drawDistance = 10,
