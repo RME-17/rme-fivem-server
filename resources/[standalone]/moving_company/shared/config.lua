@@ -233,7 +233,7 @@ Config.Props = {
     { labelKey = 'item.office_chair', model = 'prop_off_chair_04', anim = 'furniture' },
     { labelKey = 'item.dining_chair', model = 'prop_chair_04a', anim = 'furniture' },
     { labelKey = 'item.bedside_table', model = 'prop_table_04', anim = 'heavy', cargoCenter = true, cargoZ = -0.08, cargoRotation = vector3(0.0, 0.0, 90.0) },
-    { labelKey = 'item.tv_box', model = 'prop_tv_flat_03', anim = 'fragile', cargoType = 'bench', cargoZ = 0.64 }
+    { labelKey = 'item.tv_box', model = 'prop_cardbordbox_03a', anim = 'fragile', cargoType = 'bench' }
 }
 
 Config.Customers = {
