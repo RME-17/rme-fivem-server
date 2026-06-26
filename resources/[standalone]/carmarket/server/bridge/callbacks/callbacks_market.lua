@@ -150,7 +150,7 @@ KOJA.Server.RegisterServerCallback(
                         for _, row in ipairs(all or {}) do
                             local plateNorm = KOJA.Server.plateNormalized(row.plate) or ""
                             if not listedPlates[plateNorm] and not listedIds[row.id] then
-                                local v = row.vehicle and json.decode(row.vehicle) or {}
+                                local v = KOJA.Shared.decodeJsonStringOrTable(row.vehicle)
                                 if type(v) ~= "table" then
                                     v = {}
                                 end
@@ -166,7 +166,7 @@ KOJA.Server.RegisterServerCallback(
                         local vehicles = {}
                         for i = offset + 1, math.min(offset + GARAGE_PAGE, #list) do
                             local row = list[i]
-                            local v = row.vehicle and json.decode(row.vehicle) or {}
+                            local v = KOJA.Shared.decodeJsonStringOrTable(row.vehicle)
                             if type(v) ~= "table" then
                                 v = {}
                             end
@@ -233,4 +233,3 @@ KOJA.Server.RegisterServerCallback(
         cb({ success = true, paid = price })
     end
 )
-

@@ -41,6 +41,7 @@ server_scripts {
 	'@oxmysql/lib/MySQL.lua',
 	'server/database.lua',
 	'server/bridge/utils.lua',
+	'server/bridge/vehicle_compat.lua',
 	'server/server.lua',
 	'server/bridge/callbacks/callbacks_exchange.lua',
 	'server/bridge/callbacks/callbacks_admin.lua',
