@@ -1,0 +1,34 @@
+/* RME clean chat theme
+   Removes the dark/blue translucent background block behind chat messages.
+   Messages stay readable via a text shadow; the input box keeps a subtle
+   background only while you are typing. */
+
+.chat-window {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.chat-messages {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.msg {
+    color: #fff;
+    /* keep text legible without a background panel */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* input field: faint backing only so you can read what you type */
+.chat-input > div {
+    background-color: rgba(0, 0, 0, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.suggestions {
+    background-color: rgba(0, 0, 0, 0.55) !important;
+}
+
+textarea {
+    background: transparent !important;
+}
