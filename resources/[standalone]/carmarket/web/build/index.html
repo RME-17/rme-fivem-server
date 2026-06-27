@@ -6,6 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Koja Scripts Boilerplate</title>
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+    <!-- RME_HIDE_MYCARS_TAB: removes the "My cars" sidebar tab at runtime. -->
+    <script>
+      (function () {
+        var TARGETS = ['my cars', 'mycars'];
+        function norm(s) { return (s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+        function hideMyCars() {
+          var nodes = document.querySelectorAll('button, a, li, [role="button"]');
+          for (var i = 0; i < nodes.length; i++) {
+            var el = nodes[i];
+            if (el.dataset && el.dataset.rmeHidden === '1') continue;
+            var txt = norm(el.textContent);
+            if (!txt) continue;
+            if (TARGETS.indexOf(txt) !== -1) {
+              el.style.setProperty('display', 'none', 'important');
+              if (el.dataset) el.dataset.rmeHidden = '1';
+            }
+          }
+        }
+        function start() {
+          hideMyCars();
+          try {
+            var obs = new MutationObserver(function () { hideMyCars(); });
+            obs.observe(document.body, { childList: true, subtree: true });
+          } catch (e) {}
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', start);
+        } else {
+          start();
+        }
+      })();
+    </script>
     <script type="module" crossorigin src="./assets/main-n1uJgLJE.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/index-DIROdGvf.js">
     <link rel="stylesheet" crossorigin href="./assets/index-Du7KgcHw.css">
