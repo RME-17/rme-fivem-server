@@ -86,11 +86,33 @@ function Misc.Utils.DecodeVehicleRaw(raw)
 end
 
 function Misc.Utils.ExtractVehicleModelHash(raw)
+    -- RME_QB_MODELHASH_FIX_V1: QBCore stores the model as a NAME string (e.g. "t20"),
+    -- not a numeric hash like ESX. tonumber() on a name fails, which previously
+    -- returned 0 and made spawnCarsForZone skip the vehicle. Convert name strings
+    -- to a model hash via GetHashKey so parked/display cars actually spawn.
     if type(raw) == 'number' then
         return raw
     end
     local v = Misc.Utils.DecodeVehicleRaw(raw)
-    return tonumber(v.model) or tonumber(v.modelHash) or tonumber(v.hash) or 0
+    local m = v.model or v.modelHash or v.hash
+    if type(m) == 'number' then
+        return m
+    end
+    if type(m) == 'string' then
+        local n = tonumber(m)
+        if n then return n end
+        local s = m:gsub('^%s+', ''):gsub('%s+$', '')
+        if s ~= '' and not s:match('^[%[{]') then
+            return GetHashKey(s)
+        end
+    end
+    if type(raw) == 'string' then
+        local s = raw:gsub('^%s+', ''):gsub('%s+$', '')
+        if s ~= '' and not s:match('^[%[{]') then
+            return GetHashKey(s)
+        end
+    end
+    return 0
 end
 
 function Misc.Utils.OnscreenKeyboard(prompt, defaultText)
