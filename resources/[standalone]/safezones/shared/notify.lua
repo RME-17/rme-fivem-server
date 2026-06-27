@@ -1,6 +1,6 @@
 -- Notification wrapper
 -- Customize this function to use your preferred notification system
--- Supports: standalone (chat), ox_lib, qb, esx
+-- Supports: rme (RME glass UI), standalone (chat), ox_lib, qb, esx
 -- Change Config.NotifyType in config.lua to switch
 
 function Notify(msg, type)
@@ -8,7 +8,10 @@ function Notify(msg, type)
 
     local notifyType = Config.NotifyType or 'chat'
 
-    if notifyType == 'ox_lib' and GetResourceState('ox_lib') == 'started' then
+    if notifyType == 'rme' then
+        -- RME custom glass toast (resource: rme-safezone-ui)
+        TriggerEvent('rme-safezone:notify', msg, type)
+    elseif notifyType == 'ox_lib' and GetResourceState('ox_lib') == 'started' then
         lib.notify({
             title = 'SafeZone',
             description = msg,

@@ -4,7 +4,7 @@ Config.Locale = 'en'
 Config.Command = 'safezone'
 Config.AdminOnly = true -- true: ace 'command' permission required
 Config.Debug     = true    -- true: enable debug prints in console
-Config.NotifyType = 'chat' -- 'chat' (standalone) | 'ox_lib' | 'qb' | 'esx'
+Config.NotifyType = 'rme' -- 'rme' (RME glass UI) | 'chat' | 'ox_lib' | 'qb' | 'esx'
 
 function DebugPrint(...)
     if Config.Debug then print(...) end
