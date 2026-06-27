@@ -14,6 +14,7 @@
   #rmecompass.visible { display:block; }
   #rmecompass .rc-dir { font-size:22px; font-weight:800; letter-spacing:1px; }
   #rmecompass .rc-deg { font-size:13px; font-weight:600; color:rgba(255,255,255,0.78); margin-left:6px; }
+  #rmecompass .rc-street { font-size:12px; font-weight:600; color:rgba(255,255,255,0.86); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   /* Speedometer (bottom-right) */
   #speedo {
     position:absolute; right:24px; bottom:28px; width:172px;
@@ -43,7 +44,8 @@
 </head>
 <body>
   <div id="rmecompass">
-    <span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span>
+    <div><span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span></div>
+    <div class="rc-street" id="rcstreet"></div>
   </div>
   <div id="speedo">
     <div class="gauge">
@@ -70,20 +72,26 @@
 <script>
   var ARC = 376.99, FULL = 502.65;
   function el(id){ return document.getElementById(id); }
-  function showAll(s){
-    var sp = el('speedo'), c = el('rmecompass');
-    if (s) { sp.classList.add('visible'); c.classList.add('visible'); }
-    else { sp.classList.remove('visible'); c.classList.remove('visible'); }
+  function showSpeedo(s){
+    var sp = el('speedo');
+    if (s) { sp.classList.add('visible'); }
+    else { sp.classList.remove('visible'); }
   }
   window.addEventListener('message', function(e){
     var d = e.data || {};
-    if (d.action === 'speedo') { showAll(d.show); return; }
-    if (d.action === 'update') {
-      showAll(true);
-      el('spd').textContent = d.speed;
-      el('unit').textContent = d.unit;
+    if (d.action === 'compass') {
+      var c = el('rmecompass');
+      c.classList.add('visible');
       if (d.dir !== undefined) { el('rcdir').textContent = d.dir; }
       if (d.heading !== undefined) { el('rcdeg').textContent = d.heading + '\u00b0'; }
+      if (d.street !== undefined) { el('rcstreet').textContent = d.street || ''; }
+      return;
+    }
+    if (d.action === 'speedo') { showSpeedo(d.show); return; }
+    if (d.action === 'update') {
+      showSpeedo(true);
+      el('spd').textContent = d.speed;
+      el('unit').textContent = d.unit;
       var max = d.isAir ? 260 : 180;
       var frac = Math.max(0, Math.min(1, (d.speed || 0) / max));
       var len = (frac * ARC).toFixed(1);
