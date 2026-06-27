@@ -1,0 +1,4483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CVehicleModelInfoVarGlobal>
+  <Kits>
+    <!-- Police Scout Modkit (0021-NX) -->
+    <Item>
+      <kitName>5021_onx_polscout_modkit</kitName>
+      <id value="5021" />
+      <kitType>MKT_SPECIAL</kitType>
+      <visibleMods>
+        <!-- ONX Police Scout Liveries: Default -->
+        <Item>
+          <modelName>onx_polscout_liv_lspd1</modelName>
+          <modShopLabel>LIV_LSPD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_lspd2</modelName>
+          <modShopLabel>LIV_LSPD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_lssd1</modelName>
+          <modShopLabel>LIV_LSSD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_lssd2</modelName>
+          <modShopLabel>LIV_LSSD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_sahp1</modelName>
+          <modShopLabel>LIV_SAHP</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_sahp2</modelName>
+          <modShopLabel>LIV_SAHP2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Liveries: Subscription Pack -->
+        <Item>
+          <modelName>onx_polscout_liv_bcso1</modelName>
+          <modShopLabel>LIV_BCSO</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_bcso2</modelName>
+          <modShopLabel>LIV_BCSO2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_dppd1</modelName>
+          <modShopLabel>LIV_DPPD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_dppd2</modelName>
+          <modShopLabel>LIV_DPPD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_gssd1</modelName>
+          <modShopLabel>LIV_GSSD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_gssd2</modelName>
+          <modShopLabel>LIV_GSSD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_doc1</modelName>
+          <modShopLabel>LIV_DOC</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_safr1</modelName>
+          <modShopLabel>LIV_SAFR</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_lsfd1</modelName>
+          <modShopLabel>LIV_LSFD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_search1</modelName>
+          <modShopLabel>LIV_SEARCH</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_sasp1</modelName>
+          <modShopLabel>LIV_SASP</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_sasp2</modelName>
+          <modShopLabel>LIV_SASP2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_pbsd1</modelName>
+          <modShopLabel>LIV_PBSD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_pbsd2</modelName>
+          <modShopLabel>LIV_PBSD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_dpd1</modelName>
+          <modShopLabel>LIV_DPD</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_liv_dpd2</modelName>
+          <modShopLabel>LIV_DPD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIVERY_MOD</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Generic: Spotlights -->
+        <!-- ONX Police Generic: Spotlights -->
+        <Item>
+          <modelName>onx_pol_m_spotarm_dside</modelName>
+          <modShopLabel>ONX_SPOT_MDC</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_spotrot_dside1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_dside1</modelName>
+          <modShopLabel>ONX_SPOT_MD1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_dside2</modelName>
+          <modShopLabel>ONX_SPOT_MD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spotarm_dside</modelName>
+          <modShopLabel>ONX_SPOT_RDC</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_spotrot_dside2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_dside3</modelName>
+          <modShopLabel>ONX_SPOT_RD1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_dside4</modelName>
+          <modShopLabel>ONX_SPOT_RD2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_L</type>
+          <bone>misc_u</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_pside1</modelName>
+          <modShopLabel>ONX_SPOT_MP1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_R</type>
+          <bone>misc_t</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_pside2</modelName>
+          <modShopLabel>ONX_SPOT_MP2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_R</type>
+          <bone>misc_t</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_pside3</modelName>
+          <modShopLabel>ONX_SPOT_RP1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_R</type>
+          <bone>misc_t</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_spot_pside4</modelName>
+          <modShopLabel>ONX_SPOT_RP2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_WING_R</type>
+          <bone>misc_t</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: Remove Ram Bar -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_RAM3</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_2</Item>
+          </turnOffBones>
+          <type>VMT_PLAQUE</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: County Ram Bar -->
+        <Item>
+          <modelName>onx_pol_m_ram_mdn_l_1a</modelName>
+          <modShopLabel>ONX_RAM1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_PLAQUE</type>
+          <bone>extra_2</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: State Highway Ram Bar -->
+        <Item>
+          <modelName>onx_pol_m_ram_mdn_l_1c</modelName>
+          <modShopLabel>ONX_RAM2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_PLAQUE</type>
+          <bone>extra_2</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Door Guards -->
+        <Item>
+          <modelName>onx_polscout_windbars_1a</modelName>
+          <modShopLabel>ONX_DIV2</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_windbars_1b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_SEATS</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Consoles & Laptops -->
+        <Item>
+          <modelName>onx_pol_m_con2a</modelName>
+          <modShopLabel>ONX_CONS</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2b</modelName>
+          <modShopLabel>ONX_MDW1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LS1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_ls1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LS2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_ls2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_BC1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_bc1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_BC2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_bc2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lspd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lspd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DPPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_dppd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DPPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_dppd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_dpd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_dpd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_INAPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_inapd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_INAPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_inapd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_RHPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_rhpd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_RHPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_rhpd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_VWPD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_vwpd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_VWPD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_vwpd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSSD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lssd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSSD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lssd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_BCSO1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_bcso1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_BCSO2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_bcso2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_GSSD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_gssd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_GSSD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_gssd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_PBSD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_pbsd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_PBSD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_pbsd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SASP1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sasp1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SASP2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sasp2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAHP1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sahp1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAHP2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sahp2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DOC1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_doc1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_DOC2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_doc2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_FIB1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_fib1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_FIB2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_fib2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_NOOSE1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_noose1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_NOOSE2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_noose2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_sasi1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sasi1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_sasi2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sasi2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAFR1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_safr1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAFR2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_safr2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSFD1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lsfd1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_LSFD2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_lsfd2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAMA1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sama1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_con2c</modelName>
+          <modShopLabel>ONX_MDW_SAMA2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_screen_sama2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR2</type>
+          <bone>misc_z</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Remove Divider -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_DIV1</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>misc_y</Item>
+          </turnOffBones>
+          <type>VMT_SEATS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police (K9) -->
+        <Item>
+          <modelName>onx_polscout_k9_1b</modelName>
+          <modShopLabel>ONX_DIV3</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_k9_pside_b</Item>
+            <Item>onx_polscout_k9_dside_b</Item>
+          </linkedModels>
+          <turnOffBones>
+            <Item>misc_y</Item>
+            <Item>misc_v</Item>
+            <Item>misc_w</Item>
+            <Item>misc_x</Item>
+          </turnOffBones>
+          <type>VMT_SEATS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_k9_1a</modelName>
+          <modShopLabel>ONX_DIV4</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_k9_pside_a</Item>
+            <Item>onx_polscout_k9_dside_a</Item>
+          </linkedModels>
+          <turnOffBones>
+            <Item>misc_y</Item>
+            <Item>misc_v</Item>
+            <Item>misc_w</Item>
+            <Item>misc_x</Item>
+          </turnOffBones>
+          <type>VMT_SEATS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police (K9) Split -->
+        <Item>
+          <modelName>onx_polscout_k9_2b</modelName>
+          <modShopLabel>ONX_DIV5</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_k9_dside_b</Item>
+            <Item>onx_polscout_windbars_1b</Item>
+          </linkedModels>
+          <turnOffBones>
+            <Item>misc_y</Item>
+            <Item>misc_x</Item>
+            <Item>misc_w</Item>
+          </turnOffBones>
+          <type>VMT_SEATS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_k9_2a</modelName>
+          <modShopLabel>ONX_DIV6</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_k9_dside_a</Item>
+            <Item>onx_polscout_windbars_1b</Item>
+          </linkedModels>
+          <turnOffBones>
+            <Item>misc_y</Item>
+            <Item>misc_x</Item>
+            <Item>misc_w</Item>
+          </turnOffBones>
+          <type>VMT_SEATS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Scout -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_SLICKTOP</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_1</Item>
+            <Item>misc_1</Item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_alpr_cam1a</modelName>
+          <modShopLabel>ONX_ALPR1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIGHTBAR</type>
+          <bone>extra_1</bone>
+          <collisionBone>extra_1</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_alpr_cam2a</modelName>
+          <modShopLabel>ONX_ALPR2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIGHTBAR</type>
+          <bone>extra_1</bone>
+          <collisionBone>extra_1</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_alpr_cam3a</modelName>
+          <modShopLabel>ONX_ALPR3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_LIGHTBAR</type>
+          <bone>extra_1</bone>
+          <collisionBone>extra_1</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN1A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Modern Medium -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN1B</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Modern Small -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN1C</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Modern Arjent -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN2A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Old School Vision -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBAROS1A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Old School Aerodynic -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBAROS2A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Old School Aerodynic w/ TA -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBAROS2A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Old School StreetHawk -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBAROS3A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Modern Valor -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN3A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Lightbars: Modern Valor Short-->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDN3B</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNEMS1A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNEMS1B</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNEMS1C</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNAMB1A</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNAMB1B</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LBARMDNAMB1C</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <item>extra_1</item>
+          </turnOffBones>
+          <type>VMT_LIGHTBAR</type>
+          <bone>misc_1</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Radar: Scout -->
+        <Item>
+          <modelName>onx_pol_m_radar</modelName>
+          <modShopLabel>ONX_RADAR</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_KNOB</type>
+          <bone>misc_p</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Gunracks: Scout-->
+        <!-- ONX Police Gunracks: Scout Empty Divider Gunrack -->
+        <Item>
+          <modelName>onx_pol_m_gunrack_c_d</modelName>
+          <modShopLabel>ONX_GUN_E</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_gunrack_c_p</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR4</type>
+          <bone>misc_o</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Gunracks: Scout Rifles Gunrack -->
+        <Item>
+          <modelName>onx_pol_m_gun_c_d</modelName>
+          <modShopLabel>ONX_GUN_R</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_gun_c_p</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_INTERIOR4</type>
+          <bone>misc_o</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Gunracks: Scout Empty Roof Gunrack -->
+        <Item>
+          <modelName>onx_pol_m_gunrack_c_r</modelName>
+          <modShopLabel>ONX_GUN_RE2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR4</type>
+          <bone>misc_m</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Gunracks: Scout Shotgun Roof Gunrack -->
+        <Item>
+          <modelName>onx_pol_m_gun_s_r</modelName>
+          <modShopLabel>ONX_GUN_RS2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR4</type>
+          <bone>misc_m</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Gunracks: Scout Rifle Roof Gunrack -->
+        <Item>
+          <modelName>onx_pol_m_gun_c_r</modelName>
+          <modShopLabel>ONX_GUN_RR2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR4</type>
+          <bone>misc_m</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Lightbar Only -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LGHT1</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_3</Item>
+            <Item>extra_4</Item>
+            <Item>extra_5</Item>
+            <Item>extra_6</Item>
+            <Item>extra_7</Item>
+            <Item>extra_8</Item>
+            <Item>extra_9</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Front Cabin Lights & Dashcam -->
+        <Item>
+          <modelName>onx_pol_m_dashcam</modelName>
+          <modShopLabel>ONX_LGHT2</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_5</Item>
+            <Item>extra_6</Item>
+            <Item>extra_7</Item>
+            <Item>extra_8</Item>
+            <Item>extra_9</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>extra_3</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Rear Cabin Lights -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LGHT3</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_3</Item>
+            <Item>extra_4</Item>
+            <Item>extra_8</Item>
+            <Item>extra_9</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Front & Rear Cabin Lights & Dashcam -->
+        <Item>
+          <modelName>onx_pol_m_dashcam</modelName>
+          <modShopLabel>ONX_LGHT4</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_8</Item>
+            <Item>extra_9</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>extra_3</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Cabin & Exterior Lights & Dashcam -->
+        <Item>
+          <modelName>onx_pol_m_dashcam</modelName>
+          <modShopLabel>ONX_LGHT5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_INTERIOR1</type>
+          <bone>extra_3</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Exterior Lights Only -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LGHT6</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_3</Item>
+            <Item>extra_4</Item>
+            <Item>extra_5</Item>
+            <Item>extra_6</Item>
+            <Item>extra_7</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Front Cabin & Exterior Lights & Dashcam -->
+        <Item>
+          <modelName>onx_pol_m_dashcam</modelName>
+          <modShopLabel>ONX_LGHT7</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_5</Item>
+            <Item>extra_6</Item>
+            <Item>extra_7</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>extra_3</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Rear Cabin & Exterior Lights -->
+        <Item>
+          <modelName>null</modelName>
+          <modShopLabel>ONX_LGHT8</modShopLabel>
+          <linkedModels />
+          <turnOffBones>
+            <Item>extra_3</Item>
+            <Item>extra_4</Item>
+          </turnOffBones>
+          <type>VMT_INTERIOR1</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: Metropolitan Antenna Range -->
+        <Item>
+          <modelName>onx_polscout_ant1a</modelName>
+          <modShopLabel>ONX_ANT_M</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant2a</modelName>
+          <modShopLabel>ONX_ANT_M</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant3a</modelName>
+          <modShopLabel>ONX_ANT_MS</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant4a</modelName>
+          <modShopLabel>ONX_ANT_MT</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: County Antenna Range -->
+        <Item>
+          <modelName>onx_polscout_ant5a</modelName>
+          <modShopLabel>ONX_ANT_C</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant6a</modelName>
+          <modShopLabel>ONX_ANT_C</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant7a</modelName>
+          <modShopLabel>ONX_ANT_C</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant8a</modelName>
+          <modShopLabel>ONX_ANT_C</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble2b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant9a</modelName>
+          <modShopLabel>ONX_ANT_CS</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant10a</modelName>
+          <modShopLabel>ONX_ANT_CS</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble2b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant11a</modelName>
+          <modShopLabel>ONX_ANT_CT</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble2b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout: State Antenna Range -->
+        <Item>
+          <modelName>onx_polscout_ant12a</modelName>
+          <modShopLabel>ONX_ANT_S</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant13a</modelName>
+          <modShopLabel>ONX_ANT_S</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant14a</modelName>
+          <modShopLabel>ONX_ANT_SS</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble2b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant15a</modelName>
+          <modShopLabel>ONX_ANT_SS</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_ant16a</modelName>
+          <modShopLabel>ONX_ANT_ST</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_ant_wobble1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_ROOF</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Supervisor (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet1a</modelName>
+          <modShopLabel>ONX_T_SUP</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet1a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Command (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet2a</modelName>
+          <modShopLabel>ONX_T_COM</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet2a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Warden (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet3a</modelName>
+          <modShopLabel>ONX_T_WAR</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet3a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Paramedic (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet4a</modelName>
+          <modShopLabel>ONX_T_PAR</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet4a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags S.W.A.T. (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet5a</modelName>
+          <modShopLabel>ONX_T_SWAT</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet5a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Doctor (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet6a</modelName>
+          <modShopLabel>ONX_T_GANG</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet6a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags K9 Caution (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet7a</modelName>
+          <modShopLabel>ONX_T_K9</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet7a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags K9 Large (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_dsidet8a</modelName>
+          <modShopLabel>ONX_T_K9</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet8a</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Supervisor (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet1b</modelName>
+          <modShopLabel>ONX_T_SUP</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet1b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Command (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet2b</modelName>
+          <modShopLabel>ONX_T_COM</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet2b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Warden (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet3b</modelName>
+          <modShopLabel>ONX_T_WAR</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet3b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Paramedic (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet4b</modelName>
+          <modShopLabel>ONX_T_PAR</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet4b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags S.W.A.T. (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet5b</modelName>
+          <modShopLabel>ONX_T_SWAT</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet5b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags Doctor (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet6b</modelName>
+          <modShopLabel>ONX_T_GANG</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet6b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags K9 Caution (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet7b</modelName>
+          <modShopLabel>ONX_T_K9</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet7b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Scout Door Tags K9 Large (Red) -->
+        <Item>
+          <modelName>onx_polscout_dsidet8b</modelName>
+          <modShopLabel>ONX_T_K9</modShopLabel>
+          <linkedModels>
+            <Item>onx_polscout_psidet8b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_DOOR_L</type>
+          <bone>door_dside_r</bone>
+          <collisionBone>door_dside_r</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Trunk Tags: Scout -->
+        <Item>
+          <modelName>onx_polscout_trunktags</modelName>
+          <modShopLabel>ONX_BADGES</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_PLTVANITY</type>
+          <bone>boot</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- ONX Police Trunk Contents: Scout -->
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1a</modelName>
+          <modShopLabel>ONX_TRUNK_S1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_1b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1a</modelName>
+          <modShopLabel>ONX_TRUNK_S2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_1b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1a</modelName>
+          <modShopLabel>ONX_TRUNK_S3</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_1b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1a1</modelName>
+          <modShopLabel>ONX_TRUNK_S4</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_1b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1a1</modelName>
+          <modShopLabel>ONX_TRUNK_S5</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_1b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2a</modelName>
+          <modShopLabel>ONX_TRUNK_M1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_2b</Item>
+            <Item>onx_pol_m_gunrack_c_t</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2a</modelName>
+          <modShopLabel>ONX_TRUNK_M2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_2b1</Item>
+            <Item>onx_pol_m_gun_s_t</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2a</modelName>
+          <modShopLabel>ONX_TRUNK_M3</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_2b2</Item>
+            <Item>onx_pol_m_gun_c_t</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2a1</modelName>
+          <modShopLabel>ONX_TRUNK_M4</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_2b1</Item>
+            <Item>onx_pol_m_gun_s_t</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2a1</modelName>
+          <modShopLabel>ONX_TRUNK_M5</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_2b2</Item>
+            <Item>onx_pol_m_gun_c_t</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a</modelName>
+          <modShopLabel>ONX_TRUNK_SR1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_4b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a</modelName>
+          <modShopLabel>ONX_TRUNK_SR2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_4b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a</modelName>
+          <modShopLabel>ONX_TRUNK_SR3</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_4b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a1</modelName>
+          <modShopLabel>ONX_TRUNK_SR4</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_4b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a1</modelName>
+          <modShopLabel>ONX_TRUNK_SR5</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_4b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4a2</modelName>
+          <modShopLabel>ONX_TRUNK_S6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a</modelName>
+          <modShopLabel>ONX_TRUNK_MR1</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_5b</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a</modelName>
+          <modShopLabel>ONX_TRUNK_MR2</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_5b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a</modelName>
+          <modShopLabel>ONX_TRUNK_MR3</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_5b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a1</modelName>
+          <modShopLabel>ONX_TRUNK_MR4</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_5b1</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a1</modelName>
+          <modShopLabel>ONX_TRUNK_MR5</modShopLabel>
+          <linkedModels>
+            <Item>onx_pol_m_draw_suv_5b2</Item>
+          </linkedModels>
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5a2</modelName>
+          <modShopLabel>ONX_TRUNK_M6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_TRUNK</type>
+          <bone>misc_r</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- Callsings Digit 1 -->
+        <Item>
+          <modelName>onx_polscout_csign_a0</modelName>
+          <modShopLabel>ONX_C0</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a1</modelName>
+          <modShopLabel>ONX_C1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a2</modelName>
+          <modShopLabel>ONX_C2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a3</modelName>
+          <modShopLabel>ONX_C3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a4</modelName>
+          <modShopLabel>ONX_C4</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a5</modelName>
+          <modShopLabel>ONX_C5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a6</modelName>
+          <modShopLabel>ONX_C6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a7</modelName>
+          <modShopLabel>ONX_C7</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a8</modelName>
+          <modShopLabel>ONX_C8</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_a9</modelName>
+          <modShopLabel>ONX_C9</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- Callsings Digit 2 -->
+        <Item>
+          <modelName>onx_polscout_csign_b0</modelName>
+          <modShopLabel>ONX_C0</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b1</modelName>
+          <modShopLabel>ONX_C1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b2</modelName>
+          <modShopLabel>ONX_C2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b3</modelName>
+          <modShopLabel>ONX_C3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b4</modelName>
+          <modShopLabel>ONX_C4</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b5</modelName>
+          <modShopLabel>ONX_C5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b6</modelName>
+          <modShopLabel>ONX_C6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b7</modelName>
+          <modShopLabel>ONX_C7</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b8</modelName>
+          <modShopLabel>ONX_C8</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_b9</modelName>
+          <modShopLabel>ONX_C9</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS2</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- Callsings Digit 3 -->
+        <Item>
+          <modelName>onx_polscout_csign_c0</modelName>
+          <modShopLabel>ONX_C0</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c1</modelName>
+          <modShopLabel>ONX_C1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c2</modelName>
+          <modShopLabel>ONX_C2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c3</modelName>
+          <modShopLabel>ONX_C3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c4</modelName>
+          <modShopLabel>ONX_C4</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c5</modelName>
+          <modShopLabel>ONX_C5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c6</modelName>
+          <modShopLabel>ONX_C6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c7</modelName>
+          <modShopLabel>ONX_C7</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c8</modelName>
+          <modShopLabel>ONX_C8</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_c9</modelName>
+          <modShopLabel>ONX_C9</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS3</type>
+          <bone>chassis</bone>
+          <collisionBone>chassis</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- Callsings Digit 4 -->
+        <Item>
+          <modelName>onx_polscout_csign_d0</modelName>
+          <modShopLabel>ONX_C0</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d1</modelName>
+          <modShopLabel>ONX_C1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d2</modelName>
+          <modShopLabel>ONX_C2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d3</modelName>
+          <modShopLabel>ONX_C3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d4</modelName>
+          <modShopLabel>ONX_C4</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d5</modelName>
+          <modShopLabel>ONX_C5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d6</modelName>
+          <modShopLabel>ONX_C6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d7</modelName>
+          <modShopLabel>ONX_C7</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d8</modelName>
+          <modShopLabel>ONX_C8</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_d9</modelName>
+          <modShopLabel>ONX_C9</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS4</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <!-- Callsings Digit 5 -->
+        <Item>
+          <modelName>onx_polscout_csign_e0</modelName>
+          <modShopLabel>ONX_C0</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e1</modelName>
+          <modShopLabel>ONX_C1</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e2</modelName>
+          <modShopLabel>ONX_C2</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e3</modelName>
+          <modShopLabel>ONX_C3</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e4</modelName>
+          <modShopLabel>ONX_C4</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e5</modelName>
+          <modShopLabel>ONX_C5</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e6</modelName>
+          <modShopLabel>ONX_C6</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e7</modelName>
+          <modShopLabel>ONX_C7</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e8</modelName>
+          <modShopLabel>ONX_C8</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_csign_e9</modelName>
+          <modShopLabel>ONX_C9</modShopLabel>
+          <linkedModels />
+          <turnOffBones />
+          <type>VMT_CHASSIS5</type>
+          <bone>chassis</bone>
+          <collisionBone>boot</collisionBone>
+          <cameraPos>VMCP_DEFAULT</cameraPos>
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <turnOffExtra value="false" />
+          <disableBonnetCamera value="false" />
+          <allowBonnetSlide value="true" />
+        </Item>
+      </visibleMods>
+      <linkMods>
+        <!-- ONX Polscout LinkMod Door Bars-->
+        <Item>
+          <modelName>onx_polscout_windbars_1b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_windbars_1a</modelName>
+          <bone>door_dside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Polscout LinkMod K9 Doors-->
+        <Item>
+          <modelName>onx_polscout_k9_pside_a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_k9_dside_a</modelName>
+          <bone>door_dside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_k9_pside_b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_polscout_k9_dside_b</modelName>
+          <bone>door_dside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Drawers (SUV) -->
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_1b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_2b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_3b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_3b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_3b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_4b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_5b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_6b</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_6b1</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_draw_suv_6b2</modelName>
+          <bone>misc_q</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Spotlight Rotate Drivers Side (On)-->
+        <Item>
+          <modelName>onx_pol_m_spotrot_dside1</modelName>
+          <bone>misc_s</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Spotlight Rotate Drivers Side Retro (On)-->
+        <Item>
+          <modelName>onx_pol_m_spotrot_dside2</modelName>
+          <bone>misc_s</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Spotlight Rotate Drivers Side Classic (On)-->
+        <Item>
+          <modelName>onx_pol_m_spotrot_dside3</modelName>
+          <bone>misc_s</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Radio 1 Antenna -->
+        <Item>
+          <modelName>onx_pol_m_ant_wobble1a</modelName>
+          <bone>miscwobble_1</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Radio 2 Antenna -->
+        <Item>
+          <modelName>onx_pol_m_ant_wobble2b</modelName>
+          <bone>miscwobble_2</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Supervisor (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet1a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Command (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet2a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Warden (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet3a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Lifeguard (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet4a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Search & Rescue (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet5a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Doctor (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet6a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag K9 Caution (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet7a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag K9 Large (Colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet8a</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Supervisor (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet1b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Command (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet2b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Warden (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet3b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Lifeguard (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet4b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Search & Rescue (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet5b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag Doctor (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet6b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag K9 Caution (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet7b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Scout Passenger Side Door Tag K9 Large (Red non-colorable) -->
+        <Item>
+          <modelName>onx_polscout_psidet8b</modelName>
+          <bone>door_pside_r</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Laptop Screen Saver-->
+        <Item>
+          <modelName>onx_pol_m_screen_ls1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_ls2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_bc1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_bc2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lspd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lspd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_dppd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_dppd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_dpd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_dpd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_inapd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_inapd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_rhpd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_rhpd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_vwpd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_vwpd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lssd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lssd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_bcso1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_bcso2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_gssd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_gssd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_pbsd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_pbsd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sasp1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sasp2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sahp1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sahp2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_doc1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_doc2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_fib1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_fib2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_noose1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_noose2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sasi1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sasi2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_safr1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_safr2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lsfd1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_lsfd2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sama1</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <Item>
+          <modelName>onx_pol_m_screen_sama2</modelName>
+          <bone>misc_z</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gunracks -->
+        <!-- ONX Police Generic LinkMod Gun: Passenger Side Carbine Rack -->
+        <Item>
+          <modelName>onx_pol_m_gunrack_c_p</modelName>
+          <bone>misc_n</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gun: Passenger Side Carbine -->
+        <Item>
+          <modelName>onx_pol_m_gun_c_p</modelName>
+          <bone>misc_n</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gun: Passenger Side Shotgun -->
+        <Item>
+          <modelName>onx_pol_m_gun_s_p</modelName>
+          <bone>misc_n</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gun: Trunk Mount Carbine Rack -->
+        <Item>
+          <modelName>onx_pol_m_gunrack_c_t</modelName>
+          <bone>misc_l</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gun: Trunk Mount Carbine -->
+        <Item>
+          <modelName>onx_pol_m_gun_c_t</modelName>
+          <bone>misc_l</bone>
+          <turnOffExtra value="false" />
+        </Item>
+        <!-- ONX Police Generic LinkMod Gun: Trunk Mount Shotgun -->
+        <Item>
+          <modelName>onx_pol_m_gun_s_t</modelName>
+          <bone>misc_l</bone>
+          <turnOffExtra value="false" />
+        </Item>
+      </linkMods>
+      <statMods>
+        <Item>
+          <identifier />
+          <modifier value="10" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ENGINE</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="25" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ENGINE</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="50" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ENGINE</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="75" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ENGINE</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="100" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ENGINE</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="25" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_BRAKES</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="50" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_BRAKES</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="100" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_BRAKES</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="25" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_GEARBOX</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="50" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_GEARBOX</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="75" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_GEARBOX</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="100" />
+          <audioApply value="1.000000" />
+          <weight value="5" />
+          <type>VMT_GEARBOX</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="20" />
+          <audioApply value="1.000000" />
+          <weight value="0" />
+          <type>VMT_ARMOUR</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="40" />
+          <audioApply value="1.000000" />
+          <weight value="10" />
+          <type>VMT_ARMOUR</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="60" />
+          <audioApply value="1.000000" />
+          <weight value="20" />
+          <type>VMT_ARMOUR</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="80" />
+          <audioApply value="1.000000" />
+          <weight value="30" />
+          <type>VMT_ARMOUR</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="100" />
+          <audioApply value="1.000000" />
+          <weight value="40" />
+          <type>VMT_ARMOUR</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="5" />
+          <audioApply value="1.000000" />
+          <weight value="0" />
+          <type>VMT_SUSPENSION</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="10" />
+          <audioApply value="1.000000" />
+          <weight value="0" />
+          <type>VMT_SUSPENSION</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="20" />
+          <audioApply value="1.000000" />
+          <weight value="0" />
+          <type>VMT_SUSPENSION</type>
+        </Item>
+        <Item>
+          <identifier />
+          <modifier value="30" />
+          <audioApply value="1.000000" />
+          <weight value="0" />
+          <type>VMT_SUSPENSION</type>
+        </Item>
+        <Item>
+          <identifier>HORN_COP</identifier>
+          <modifier value="2904189469" />
+          <audioApply value="1.00000000" />
+          <weight value="0" />
+          <type>VMT_HORN</type>
+        </Item>
+      </statMods>
+      <slotNames>
+        <Item>
+          <slot>VMT_SPOILER</slot>
+          <name>POL_AERO</name>
+        </Item>
+        <Item>
+          <slot>VMT_PLAQUE</slot>
+          <name>POL_RAM</name>
+        </Item>
+        <Item>
+          <slot>VMT_INTERIOR2</slot>
+          <name>POL_CONS</name>
+        </Item>
+        <Item>
+          <slot>VMT_INTERIOR3</slot>
+          <name>POL_CONS2</name>
+        </Item>
+        <Item>
+          <slot>VMT_INTERIOR4</slot>
+          <name>POL_GUN</name>
+        </Item>
+        <Item>
+          <slot>VMT_KNOB</slot>
+          <name>POL_RADAR</name>
+        </Item>
+        <Item>
+          <slot>VMT_TRUNK</slot>
+          <name>POL_TRUNK</name>
+        </Item>
+        <Item>
+          <slot>VMT_SEATS</slot>
+          <name>POL_DIV</name>
+        </Item>
+        <Item>
+          <slot>VMT_LIGHTBAR</slot>
+          <name>POL_ALPR</name>
+        </Item>
+        <Item>
+          <slot>VMT_PLTVANITY</slot>
+          <name>POL_BADGE</name>
+        </Item>
+        <Item>
+          <slot>VMT_INTERIOR1</slot>
+          <name>POL_LIGHTS</name>
+        </Item>
+        <Item>
+          <slot>VMT_WING_L</slot>
+          <name>POL_SPOT</name>
+        </Item>
+        <Item>
+          <slot>VMT_WING_R</slot>
+          <name>POL_SPOT_P</name>
+        </Item>
+        <Item>
+          <slot>VMT_DOOR_L</slot>
+          <name>POL_DOOR</name>
+        </Item>
+        <Item>
+          <slot>VMT_ROOF</slot>
+          <name>POL_ANT</name>
+        </Item>
+        <Item>
+          <slot>VMT_CHASSIS</slot>
+          <name>POL_CSIGNA</name>
+        </Item>
+        <Item>
+          <slot>VMT_CHASSIS2</slot>
+          <name>POL_CSIGNB</name>
+        </Item>
+        <Item>
+          <slot>VMT_CHASSIS3</slot>
+          <name>POL_CSIGNC</name>
+        </Item>
+        <Item>
+          <slot>VMT_CHASSIS4</slot>
+          <name>POL_CSIGND</name>
+        </Item>
+        <Item>
+          <slot>VMT_CHASSIS5</slot>
+          <name>POL_CSIGNE</name>
+        </Item>
+      </slotNames>
+      <liveryNames />
+      <livery2Names />
+    </Item>
+  </Kits>
+</CVehicleModelInfoVarGlobal>

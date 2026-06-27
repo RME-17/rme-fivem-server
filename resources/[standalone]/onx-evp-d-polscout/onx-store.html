@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ONX Official Links</title>
+  <meta name="description" content="Official ONX store, subscription packs, marketplace, support, and showcase links." />
+
+  <style>
+    :root {
+      --bg-1: #010611;
+      --bg-2: #041126;
+      --bg-3: #08224b;
+
+      --shell-top: rgba(5, 15, 36, 0.95);
+      --shell-bottom: rgba(2, 10, 25, 0.98);
+
+      --card-top: rgba(13, 29, 62, 0.98);
+      --card-bottom: rgba(8, 19, 42, 0.99);
+
+      --card-primary-top: rgba(18, 40, 84, 0.98);
+      --card-primary-bottom: rgba(10, 22, 48, 0.99);
+
+      --text: #f4f8ff;
+      --muted: #9fb0cc;
+      --blue: #1f63d3;
+      --blue-deep: #103a85;
+      --blue-bright: #59a4ff;
+      --border: rgba(255, 255, 255, 0.10);
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.50);
+      --radius: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+        radial-gradient(circle at 18% 16%, rgba(89, 164, 255, 0.07), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(31, 99, 211, 0.12), transparent 30%),
+        linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 46%, var(--bg-3) 100%);
+      background-size:
+        48px 48px,
+        48px 48px,
+        auto,
+        auto,
+        auto;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 34px 18px;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg,
+          transparent 0%,
+          transparent 20%,
+          rgba(89, 164, 255, 0.02) 27%,
+          rgba(89, 164, 255, 0.06) 32%,
+          rgba(255,255,255,0.04) 36%,
+          transparent 42%,
+          transparent 100%);
+      mix-blend-mode: screen;
+    }
+
+    .wrap {
+      width: min(1040px, 100%);
+      position: relative;
+    }
+
+    .shell {
+      position: relative;
+      overflow: hidden;
+      border-radius: calc(var(--radius) + 10px);
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.04), transparent 34%),
+        linear-gradient(180deg, var(--shell-top), var(--shell-bottom));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      isolation: isolate;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg,
+          transparent 0%,
+          transparent 24%,
+          rgba(89, 164, 255, 0.03) 30%,
+          rgba(89, 164, 255, 0.07) 35%,
+          rgba(255,255,255,0.03) 39%,
+          transparent 45%,
+          transparent 100%);
+      z-index: 0;
+    }
+
+    .shell::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      pointer-events: none;
+      border-radius: calc(var(--radius) + 10px);
+      padding: 1px;
+      background: linear-gradient(120deg,
+        rgba(255,255,255,0.03),
+        rgba(89, 164, 255, 0.18),
+        rgba(255,255,255,0.05),
+        rgba(16, 58, 133, 0.14),
+        rgba(255,255,255,0.03));
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      z-index: 3;
+    }
+
+    .bg-mark {
+      position: absolute;
+      right: -8%;
+      top: 60px;
+      width: min(700px, 60vw);
+      opacity: 0.055;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+      filter: drop-shadow(0 0 20px rgba(89, 164, 255, 0.03));
+    }
+
+    .bg-mark .onx-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .header {
+      position: relative;
+      z-index: 2;
+      padding: 42px 48px 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .brand-avatar {
+      width: 82px;
+      height: 82px;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(180deg, rgba(34, 93, 196, 0.20), rgba(8, 24, 54, 0.92)),
+        linear-gradient(135deg, #0f3578, #164aa6 58%, #2e73df);
+      box-shadow:
+        0 0 26px rgba(31, 99, 211, 0.24),
+        inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .brand-avatar .onx-svg {
+      width: 56%;
+      height: 56%;
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue-bright);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 68px);
+      line-height: 0.94;
+      letter-spacing: -0.07em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      padding: 34px 48px 44px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      display: block;
+      min-height: 156px;
+      padding: 24px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-decoration: none;
+      color: var(--text);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.025), transparent 52%),
+        linear-gradient(180deg, var(--card-top), var(--card-bottom));
+      transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        background 180ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(89, 164, 255, 0.34);
+      box-shadow:
+        0 18px 52px rgba(0, 0, 0, 0.34),
+        0 0 26px rgba(31, 99, 211, 0.08);
+      background:
+        linear-gradient(145deg, rgba(89, 164, 255, 0.05), rgba(255,255,255,0.02) 48%, transparent 70%),
+        linear-gradient(180deg, rgba(16, 35, 74, 0.99), rgba(8, 21, 45, 1));
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      right: -48px;
+      bottom: -48px;
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(89,164,255,0.08), transparent 68%);
+      pointer-events: none;
+    }
+
+    .primary {
+      grid-column: 1 / -1;
+      min-height: 188px;
+      background:
+        linear-gradient(145deg, rgba(89, 164, 255, 0.05), rgba(255,255,255,0.02) 48%, transparent 70%),
+        linear-gradient(180deg, var(--card-primary-top), var(--card-primary-bottom));
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      margin-bottom: 18px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.035);
+      color: var(--blue-bright);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+    }
+
+    .tag::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 14px currentColor;
+    }
+
+    .card h2 {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 10px;
+      font-size: 24px;
+      letter-spacing: -0.035em;
+    }
+
+    .primary h2 {
+      font-size: clamp(30px, 4vw, 44px);
+    }
+
+    .card p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .url {
+      position: relative;
+      z-index: 1;
+      display: block;
+      margin-top: 20px;
+      color: #e6f0ff;
+      font-size: 13px;
+      opacity: 0.82;
+      word-break: break-word;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 22px;
+      color: rgba(244,248,255,0.52);
+      font-size: 12px;
+    }
+
+    .footer span:last-child {
+      text-align: right;
+    }
+
+    @media (max-width: 820px) {
+      .bg-mark {
+        width: 520px;
+        right: -150px;
+        top: 120px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 18px;
+      }
+
+      .header,
+      .content {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .header {
+        padding-top: 28px;
+      }
+
+      .brand-row {
+        align-items: flex-start;
+      }
+
+      .brand-avatar {
+        width: 66px;
+        height: 66px;
+        border-radius: 20px;
+      }
+
+      .brand-avatar .onx-svg {
+        width: 54%;
+        height: 54%;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .primary {
+        grid-column: auto;
+      }
+
+      .footer {
+        flex-direction: column;
+      }
+
+      .footer span:last-child {
+        text-align: left;
+      }
+
+      .bg-mark {
+        width: 420px;
+        right: -140px;
+        top: 160px;
+        opacity: 0.05;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="shell" aria-label="ONX official links">
+      <div class="bg-mark" aria-hidden="true">
+        <svg class="onx-svg" id="Layer_2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 2406.4199"><g id="Components"><g id="_2c3fc52c-4b52-4a58-a594-7b82ada3d727_5"><path d="m1255.71,2108.61l-203.5498-203.55c-7.8398-7.83-18.2705-12.14-29.3701-12.14-7.2598,0-14.4199,1.92-20.71,5.55l-272.6602,157.39h-.0098l-286.8501-165.65-218.3701,218.38,515.8301,297.83,477.2798-275.6,3.7402-2.16,34.71-20.04c-.0303.01-.0703.01-.0996.02l.0596-.03Zm-58.1201,4.42c-1.1299.2-2.25.4-3.3799.6-2.25.4-4.5.8-6.7295,1.19-1.1201.19-2.2402.38-3.3506.57-3.3496.57-6.6797,1.12-9.9902,1.66-8.8496,1.43-17.5801,2.75-26.2197,3.95-1.0801.15-2.1504.29-3.2295.44-17.21,2.34-34.0303,4.22-50.4707,5.63-1.0293.09-2.0596.17-3.0898.26-4.0898.33-8.1699.64-12.2197.92-4.0605.28-8.0898.53-12.0898.75h-.0107c-2,.11-3.9893.21-5.9893.31-3.9805.19-7.9502.35-11.8906.48-8.8701.3-17.6299.45-26.29.45-1.5898,0-3.1797-.01-4.7695-.01h-.0098c-100.0703-.64-186.1104-21.42-265.8906-63l257.4404-148.61,3.2402-1.86c.5898-.35,1.1992-.66,1.8096-.93,7.6396-3.44,16.7402-1.85,22.7598,4.17l187.7705,187.77c-9.25,1.87-18.3799,3.62-27.4004,5.26Z" style="fill:#fff;"/><path d="m457.2803,513.4199c7.2598,0,14.4199-1.9199,20.7197-5.55l272.6001-157.3599h.0098l286.9702,165.6599,218.2402-218.24L740.02,0l-477.3999,275.54s-.02,0-.02.01l-6.5303,3.7898-31.6899,18.3701-.02.02,203.5503,203.54c7.8398,7.83,18.27,12.1499,29.3701,12.1499Zm.1499-237.3198c102.1196,0,189.6299,20.7698,270.6797,63.0099l-257.4497,148.6-3.2402,1.87c-7.96,4.59-18.0698,3.26-24.5698-3.24l-187.7803-187.78c73.98-14.9301,140.8101-22.4598,202.3604-22.4598Z" style="fill:#fff;"/><path d="m1480,427.26l-111.0098-64.03-628.9702,629.11L110.9102,363.23,0,427.26v1126.34l300.1499-300.14c3.9102-3.9199,6.9502-8.49,9.0103-13.46,2.0498-4.97,3.1299-10.3501,3.1299-15.89v-237.75l216.7798,216.9L0,1732.36v246.8l110.9102,64.02,629.1099-629.11,628.9702,629.11,101.1797-58.35,9.8301-5.67V852.77l-.0303.0399h-.0098l-300.1104,300.11c-3.9092,3.92-6.9492,8.49-9.0098,13.46-2.0596,4.9601-3.1396,10.3401-3.1396,15.8801v237.7599l-216.7598-216.7599,529.0596-529.0701v-246.9299ZM291.1699,1224.11c0,4.7699-1.6099,9.2799-4.6001,12.91-.4297.52-.8799,1.02-1.3599,1.5L16.7197,1507.0099c10.9302-108.39,27.7202-212.18,48.3203-299.83.3999-1.72.8101-3.4299,1.2197-5.1399,1.2202-5.1201,2.4502-10.1702,3.6904-15.1801,1.25-5,2.5098-9.9401,3.7798-14.83.8501-3.25,1.7002-6.48,2.5601-9.6801,1.7197-6.4,3.46-12.6901,5.21-18.86,17.04-59.76,35.8301-108.3,55.8799-144.27,2.0303-3.64,4.0601-7.14,6.1104-10.51,7.7798-12.8201,15.71-23.74,23.7798-32.76,35.3701-31.97,76.5498-34.04,123.8999,9.61v258.55Zm897.6602-41.85c0-4.75,1.6201-9.27,4.5996-12.9.4307-.52.8799-1.02,1.3604-1.5l268.4902-268.4901c-10.9307,108.4001-27.71,212.1802-48.3203,299.8301-.4004,1.72-.7998,3.4299-1.21,5.14-1.2305,5.12-2.46,10.1801-3.7002,15.1801-1.25,5.01-2.5098,9.95-3.7803,14.83-.8496,3.25-1.6992,6.48-2.5596,9.6801-1.7197,6.3999-3.4502,12.6899-5.21,18.8599-17.0303,59.7601-35.8301,108.3-55.8799,144.2801-2.0303,3.63-4.0605,7.13-6.1104,10.5099-7.7793,12.82-15.7197,23.75-23.79,32.77-35.3701,31.97-76.54,34.06-123.8896-9.57v-258.6199Z" style="fill:#fff;"/></g></g></svg>
+      </div>
+
+      <header class="header">
+        <div class="brand-row">
+          <div class="brand-avatar" aria-hidden="true">
+            <svg class="onx-svg" id="Layer_2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 2406.4199"><g id="Components"><g id="_2c3fc52c-4b52-4a58-a594-7b82ada3d727_5"><path d="m1255.71,2108.61l-203.5498-203.55c-7.8398-7.83-18.2705-12.14-29.3701-12.14-7.2598,0-14.4199,1.92-20.71,5.55l-272.6602,157.39h-.0098l-286.8501-165.65-218.3701,218.38,515.8301,297.83,477.2798-275.6,3.7402-2.16,34.71-20.04c-.0303.01-.0703.01-.0996.02l.0596-.03Zm-58.1201,4.42c-1.1299.2-2.25.4-3.3799.6-2.25.4-4.5.8-6.7295,1.19-1.1201.19-2.2402.38-3.3506.57-3.3496.57-6.6797,1.12-9.9902,1.66-8.8496,1.43-17.5801,2.75-26.2197,3.95-1.0801.15-2.1504.29-3.2295.44-17.21,2.34-34.0303,4.22-50.4707,5.63-1.0293.09-2.0596.17-3.0898.26-4.0898.33-8.1699.64-12.2197.92-4.0605.28-8.0898.53-12.0898.75h-.0107c-2,.11-3.9893.21-5.9893.31-3.9805.19-7.9502.35-11.8906.48-8.8701.3-17.6299.45-26.29.45-1.5898,0-3.1797-.01-4.7695-.01h-.0098c-100.0703-.64-186.1104-21.42-265.8906-63l257.4404-148.61,3.2402-1.86c.5898-.35,1.1992-.66,1.8096-.93,7.6396-3.44,16.7402-1.85,22.7598,4.17l187.7705,187.77c-9.25,1.87-18.3799,3.62-27.4004,5.26Z" style="fill:#fff;"/><path d="m457.2803,513.4199c7.2598,0,14.4199-1.9199,20.7197-5.55l272.6001-157.3599h.0098l286.9702,165.6599,218.2402-218.24L740.02,0l-477.3999,275.54s-.02,0-.02.01l-6.5303,3.7898-31.6899,18.3701-.02.02,203.5503,203.54c7.8398,7.83,18.27,12.1499,29.3701,12.1499Zm.1499-237.3198c102.1196,0,189.6299,20.7698,270.6797,63.0099l-257.4497,148.6-3.2402,1.87c-7.96,4.59-18.0698,3.26-24.5698-3.24l-187.7803-187.78c73.98-14.9301,140.8101-22.4598,202.3604-22.4598Z" style="fill:#fff;"/><path d="m1480,427.26l-111.0098-64.03-628.9702,629.11L110.9102,363.23,0,427.26v1126.34l300.1499-300.14c3.9102-3.9199,6.9502-8.49,9.0103-13.46,2.0498-4.97,3.1299-10.3501,3.1299-15.89v-237.75l216.7798,216.9L0,1732.36v246.8l110.9102,64.02,629.1099-629.11,628.9702,629.11,101.1797-58.35,9.8301-5.67V852.77l-.0303.0399h-.0098l-300.1104,300.11c-3.9092,3.92-6.9492,8.49-9.0098,13.46-2.0596,4.9601-3.1396,10.3401-3.1396,15.8801v237.7599l-216.7598-216.7599,529.0596-529.0701v-246.9299ZM291.1699,1224.11c0,4.7699-1.6099,9.2799-4.6001,12.91-.4297.52-.8799,1.02-1.3599,1.5L16.7197,1507.0099c10.9302-108.39,27.7202-212.18,48.3203-299.83.3999-1.72.8101-3.4299,1.2197-5.1399,1.2202-5.1201,2.4502-10.1702,3.6904-15.1801,1.25-5,2.5098-9.9401,3.7798-14.83.8501-3.25,1.7002-6.48,2.5601-9.6801,1.7197-6.4,3.46-12.6901,5.21-18.86,17.04-59.76,35.8301-108.3,55.8799-144.27,2.0303-3.64,4.0601-7.14,6.1104-10.51,7.7798-12.8201,15.71-23.74,23.7798-32.76,35.3701-31.97,76.5498-34.04,123.8999,9.61v258.55Zm897.6602-41.85c0-4.75,1.6201-9.27,4.5996-12.9.4307-.52.8799-1.02,1.3604-1.5l268.4902-268.4901c-10.9307,108.4001-27.71,212.1802-48.3203,299.8301-.4004,1.72-.7998,3.4299-1.21,5.14-1.2305,5.12-2.46,10.1801-3.7002,15.1801-1.25,5.01-2.5098,9.95-3.7803,14.83-.8496,3.25-1.6992,6.48-2.5596,9.6801-1.7197,6.3999-3.4502,12.6899-5.21,18.8599-17.0303,59.7601-35.8301,108.3-55.8799,144.2801-2.0303,3.63-4.0605,7.13-6.1104,10.5099-7.7793,12.82-15.7197,23.75-23.79,32.77-35.3701,31.97-76.54,34.06-123.8896-9.57v-258.6199Z" style="fill:#fff;"/></g></g></svg>
+          </div>
+
+          <div class="brand-copy">
+            <p class="eyebrow">Official Store Links</p>
+            <h1>Asset Packs &amp; Support</h1>
+          </div>
+        </div>
+
+        <p class="subtitle">
+          Thank you for using an ONX resource. Use the links below to find official asset packs,
+          flagship subscription packs, marketplace releases, showcase access, and customer support.
+        </p>
+      </header>
+
+      <div class="content">
+        <div class="grid">
+          <a class="card primary" href="https://store.onx.gg/" target="_blank" rel="noopener noreferrer">
+            <span class="tag">Store</span>
+            <h2>ONX Asset Store</h2>
+            <p>Browse ONX vehicle packs, emergency assets, maps, scripts, subscriptions, and standalone releases.</p>
+            <span class="url">store.onx.gg</span>
+          </a>
+
+          <a class="card" href="https://store.onx.gg/category/fivem-subscription-packs" target="_blank" rel="noopener noreferrer">
+            <span class="tag">Subscriptions</span>
+            <h2>Flagship Subscription Packs</h2>
+            <p>View ONX flagship FiveM subscription packs, including bundled packs and recurring asset access.</p>
+            <span class="url">store.onx.gg/category/fivem-subscription-packs</span>
+          </a>
+
+          <a class="card" href="https://marketplace.cfx.re/creators/1329291-onx" target="_blank" rel="noopener noreferrer">
+            <span class="tag">Marketplace</span>
+            <h2>Cfx Marketplace</h2>
+            <p>View ONX releases through the official Cfx Marketplace creator profile.</p>
+            <span class="url">marketplace.cfx.re/creators/1329291-onx</span>
+          </a>
+
+          <a class="card" href="https://showcase.onx.gg/" target="_blank" rel="noopener noreferrer">
+            <span class="tag">Showcase</span>
+            <h2>Try Assets In-Game</h2>
+            <p>Join the ONX Showcase server to test supported assets before adding them to your server.</p>
+            <span class="url">showcase.onx.gg</span>
+          </a>
+
+          <a class="card" href="https://onx.gg/discord" target="_blank" rel="noopener noreferrer">
+            <span class="tag">Support</span>
+            <h2>Support Discord</h2>
+            <p>Need help with installation, updates, licensing, or asset support? Join the official support Discord.</p>
+            <span class="url">onx.gg/discord</span>
+          </a>
+        </div>
+
+        <footer class="footer">
+          <span>© ONX / DWG Games Ltd</span>
+          <span>Official ONX links for store, subscriptions, support, marketplace, and showcase access.</span>
+        </footer>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
