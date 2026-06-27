@@ -166,6 +166,7 @@ Config.AuthorizedVehicles = {
         policet = 'Police Car 6',
         sheriff = 'Sheriff Car 1',
         sheriff2 = 'Sheriff Car 2',
+        onx_polscout = 'ONX Police Scout', -- [RME] ONX WiseGuy Police Scout (onx-evp-d-polscout)
     },
 }
 
