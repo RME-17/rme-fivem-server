@@ -11,15 +11,15 @@ function DebugPrint(...)
 end
 
 -- Safezone Effects
-Config.DisableWeapons = true
-Config.GodMode = true
-Config.DisablePVP = true
-Config.GhostMode = true       -- Ghost mode: no collision with other players in safezone
-Config.PlayerAlpha = 200      -- 0~255, ghost transparency (255 = opaque)
+Config.DisableWeapons = true   -- no pulling out weapons
+Config.GodMode = false         -- no invincibility
+Config.DisablePVP = true       -- no combat
+Config.GhostMode = false       -- players keep normal collision
+Config.PlayerAlpha = 255       -- 0~255, players fully visible
 
--- Wall visualization
-Config.WallHeight = 8.0
-Config.WallColor = { r = 0, g = 150, b = 255, a = 40 }
+-- Wall visualization (ring hidden)
+Config.WallHeight = 0.0
+Config.WallColor = { r = 0, g = 150, b = 255, a = 0 }
 Config.WallRenderDistance = 150.0
 
 -- Draw Colors (RGBA 0-255)

@@ -3,11 +3,11 @@
         "id": "22297d69c232d2",
         "type": "polygon",
         "name": "test zone",
-        "debug3d": true,
+        "debug3d": false,
         "height": 5.0,
         "wallColor": {
             "b": 225,
-            "a": 40,
+            "a": 0,
             "r": 27,
             "g": 228
         },
@@ -44,23 +44,23 @@
         },
         "wallColor": {
             "b": 255,
-            "a": 40,
+            "a": 0,
             "r": 0,
             "g": 238
         },
-        "radius": 50.0,
+        "radius": 20.0,
         "height": 9.5,
-        "debug3d": true,
+        "debug3d": false,
         "name": "test zone2"
     },
     {
         "id": "de756569c2798d",
         "type": "polygon",
         "name": "test 1",
-        "debug3d": true,
+        "debug3d": false,
         "wallColor": {
             "r": 92,
-            "a": 40,
+            "a": 0,
             "b": 122,
             "g": 110
         },
@@ -98,11 +98,11 @@
         },
         "wallColor": {
             "b": 26,
-            "a": 40,
+            "a": 0,
             "r": 209,
             "g": 26
         },
-        "debug3d": true,
+        "debug3d": false,
         "height": 8.0,
         "radius": 50.0,
         "name": "test 2"
