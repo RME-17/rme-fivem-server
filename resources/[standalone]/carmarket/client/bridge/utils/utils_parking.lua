@@ -93,23 +93,7 @@ KOJA.Client.createParkingBlips = function()
 end
 
 KOJA.Client.drawParkingMarkersLoop = function()
-    CreateThread(function()
-        while true do
-            Wait(0)
-            local ped = PlayerPedId()
-            local pCoords = GetEntityCoords(ped)
-            local draw = false
-            for _, m in ipairs(parkingMarkers) do
-                local dist = #(pCoords - vector3(m.x, m.y, m.z))
-                if dist < 50.0 then
-                    draw = true
-                    local mine = m.slotId and myOwnedSlots[m.slotId]
-                    local r, g, b = 0, 150, 255
-                    if mine then r, g, b = 0, 255, 100 end
-                    DrawMarker(1, m.x, m.y, m.z - 0.95, 0, 0, 0, 0, 0, m.rotation, m.sx or 2.5, m.sy or 5.0, 0.15, r, g, b, 120, false, false, 2, false, nil, nil, false)
-                end
-            end
-            if not draw then Wait(500) end
-        end
-    end)
+    -- RME_PARKING_CIRCLES_DISABLED: ground parking-slot circles removed by request.
+    -- Players browse vehicles via the Market tablet and talk to the zone NPC instead.
+    return
 end

@@ -127,28 +127,10 @@ KOJA.Client.applyDecodedVehicleProps = function(vehicle, vData)
 end
 
 KOJA.Client.spawnCarsForZone = function(zonePoint, cars)
-    if not cars then return end
-    for carKey, carData in pairs(cars) do
-        local vData = KOJA.Client.mergeListingVehicleProps(carData)
-        local modelHash = tonumber(vData.model) or tonumber(vData.modelHash) or tonumber(vData.hash) or 0
-        if not modelHash or modelHash == 0 then
-            modelHash = Misc.Utils.ExtractVehicleModelHash(carData.vehicle)
-        end
-        if not modelHash or modelHash == 0 then goto continue end
-        Misc.Utils.LoadModel(modelHash)
-        local sx, sy, sz, sh = KOJA.Shared.getVehicleSpawnCoords(zonePoint.id, carData)
-        local vehicle = CreateVehicle(modelHash, sx, sy, sz, sh, false, false)
-        SetEntityAsMissionEntity(vehicle, true, true)
-        KOJA.Client.applyDecodedVehicleProps(vehicle, vData)
-        FreezeEntityPosition(vehicle, true)
-        SetVehicleDoorsLocked(vehicle, 2)
-        SetVehicleNumberPlateText(vehicle, carData.plate)
-        SetEntityAsMissionEntity(vehicle, true, true)
-        SetVehicleHasBeenOwnedByPlayer(vehicle, true)
-        local lk = KOJA.Client.attachVehicleListingInteraction(vehicle, zonePoint.id, carData, carKey)
-        table.insert(spawnedVehicles[zonePoint.id], { vehicle = vehicle, carData = carData, listingKey = lk })
-        ::continue::
-    end
+    -- RME_PARKED_CARS_DISABLED: in-world parked/display vehicles removed by request.
+    -- Vehicles are viewable via the Market tablet; players talk to the zone NPC.
+    -- Spawning is intentionally a no-op so no physical cars appear in zones.
+    return
 end
 
 KOJA.Client.getOrFetchMyIdentifier = function(cb)
