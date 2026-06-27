@@ -148,25 +148,26 @@ end
 
 if not KOJA.Shared.VehicleLabels.IS_SERVER then
     local _categoryByModel = {}
+    local _specByModel = {}
 
-    KOJA.Shared.resolveVehicleCategorySlugFromModel = function(modelHash)
+    -- RME_SPEC_FROM_MODEL: spawn the real model ONCE (cached) and read its true
+    -- class, drivetrain (handling bias) and fuel (electric flag). These are
+    -- model-intrinsic, so they are accurate even when stored listing data is stale.
+    KOJA.Shared.resolveVehicleSpecsFromModel = function(modelHash)
         if type(modelHash) ~= 'number' or modelHash == 0 then return nil end
-        local cached = _categoryByModel[modelHash]
+        local cached = _specByModel[modelHash]
         if cached ~= nil then
             return cached ~= false and cached or nil
         end
 
         if IsThisModelABicycle(modelHash) then
-            _categoryByModel[modelHash] = false
+            _specByModel[modelHash] = false
             return nil
         end
-        if IsThisModelABike(modelHash) then
-            _categoryByModel[modelHash] = 'motorbike'
-            return 'motorbike'
-        end
+        local isBike = IsThisModelABike(modelHash)
 
         if not IsModelInCdimage(modelHash) or not IsModelAVehicle(modelHash) then
-            _categoryByModel[modelHash] = false
+            _specByModel[modelHash] = false
             return nil
         end
 
@@ -175,7 +176,7 @@ if not KOJA.Shared.VehicleLabels.IS_SERVER then
         while not HasModelLoaded(modelHash) and timeout < 100 do Wait(10) timeout = timeout + 1 end
         if not HasModelLoaded(modelHash) then
             SetModelAsNoLongerNeeded(modelHash)
-            _categoryByModel[modelHash] = false
+            _specByModel[modelHash] = false
             return nil
         end
 
@@ -183,24 +184,51 @@ if not KOJA.Shared.VehicleLabels.IS_SERVER then
         local tempVeh = CreateVehicle(modelHash, coords.x + 50.0, coords.y + 50.0, coords.z, 0.0, false, false)
         if not tempVeh or tempVeh == 0 then
             SetModelAsNoLongerNeeded(modelHash)
-            _categoryByModel[modelHash] = false
+            _specByModel[modelHash] = false
             return nil
         end
 
         SetEntityAsMissionEntity(tempVeh, true, true)
         Wait(0)
+
         local vc = GetVehicleClass(tempVeh)
+        local rawCat = isBike and 'motorbike'
+            or (KOJA.Shared.VehicleLabels.VehicleClassToType(vc) or (KOJA.Shared.VehicleLabels.GetVehicleClassToType()[vc]))
+        local catSlug = nil
+        if type(rawCat) == 'string' and rawCat:match('%S') then
+            catSlug = KOJA.Shared.normalizeVehicleCategorySlug(rawCat, nil)
+        end
+
+        local okBias, driveBias = pcall(GetVehicleHandlingFloat, tempVeh, 'CHandlingData', 'fDriveBiasFront')
+        local drive = KOJA.Shared.resolveDriveTypeFromHandlingBias((okBias and driveBias) or nil, catSlug)
+
+        local isElectric = false
+        local okElec, elec = pcall(GetIsVehicleElectric, tempVeh)
+        if okElec then isElectric = elec end
+        local fuel = KOJA.Shared.wireFuelSlugGasOrElectric(isElectric and 'electric' or nil)
+
         DeleteEntity(tempVeh)
         SetModelAsNoLongerNeeded(modelHash)
 
-        local slug = KOJA.Shared.VehicleLabels.VehicleClassToType(vc) or (KOJA.Shared.VehicleLabels.GetVehicleClassToType()[vc])
-        if type(slug) ~= 'string' or not slug:match('%S') then
-            _categoryByModel[modelHash] = false
-            return nil
-        end
+        local spec = {
+            car_type = catSlug,
+            drive_type = drive,
+            fuel_type = fuel,
+        }
+        _specByModel[modelHash] = spec
+        if catSlug then _categoryByModel[modelHash] = catSlug end
+        return spec
+    end
 
-        slug = KOJA.Shared.normalizeVehicleCategorySlug(slug, nil)
-        _categoryByModel[modelHash] = slug
+    KOJA.Shared.resolveVehicleCategorySlugFromModel = function(modelHash)
+        if type(modelHash) ~= 'number' or modelHash == 0 then return nil end
+        local cachedCat = _categoryByModel[modelHash]
+        if cachedCat ~= nil then
+            return cachedCat ~= false and cachedCat or nil
+        end
+        local spec = KOJA.Shared.resolveVehicleSpecsFromModel(modelHash)
+        local slug = spec and spec.car_type or nil
+        _categoryByModel[modelHash] = slug or false
         return slug
     end
 
@@ -213,11 +241,27 @@ if not KOJA.Shared.VehicleLabels.IS_SERVER then
             local rn = veh.respname and tostring(veh.respname):match('%S+')
             if rn then hash = GetHashKey(rn) end
         end
-        local slug = hash and KOJA.Shared.resolveVehicleCategorySlugFromModel(hash) or nil
-        if not slug then return end
-        veh.car_type = slug
-        if vd then
-            vd.car_type = slug
+        local spec = hash and KOJA.Shared.resolveVehicleSpecsFromModel(hash) or nil
+        if not spec then return end
+        if spec.car_type then
+            veh.car_type = spec.car_type
+            if vd then
+                vd.car_type = spec.car_type
+            end
+        end
+        -- RME_DRIVE_FUEL_FROM_MODEL: override stored drivetrain/fuel with the real
+        -- model-derived values so the car-info panel is correct (e.g. T20 -> AWD).
+        if spec.drive_type and tostring(spec.drive_type):match('%S') then
+            veh.drive_type = spec.drive_type
+            if vd then
+                vd.drive_type = spec.drive_type
+            end
+        end
+        if spec.fuel_type and tostring(spec.fuel_type):match('%S') then
+            veh.fuel_type = spec.fuel_type
+            if vd then
+                vd.fuel_type = spec.fuel_type
+            end
         end
     end
 
