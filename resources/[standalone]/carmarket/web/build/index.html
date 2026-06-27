@@ -11,25 +11,33 @@
       (function () {
         var TARGETS = ['my cars', 'mycars'];
         function norm(s) { return (s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+        function isTarget(t) { return TARGETS.indexOf(t) !== -1; }
         function hideMyCars() {
-          var nodes = document.querySelectorAll('button, a, li, [role="button"]');
-          for (var i = 0; i < nodes.length; i++) {
-            var el = nodes[i];
-            if (el.dataset && el.dataset.rmeHidden === '1') continue;
-            var txt = norm(el.textContent);
-            if (!txt) continue;
-            if (TARGETS.indexOf(txt) !== -1) {
-              el.style.setProperty('display', 'none', 'important');
-              if (el.dataset) el.dataset.rmeHidden = '1';
+          var all = document.querySelectorAll('*');
+          for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (!el || (el.dataset && el.dataset.rmeSeen === '1')) continue;
+            if (!isTarget(norm(el.textContent))) continue;
+            // Climb to the outermost ancestor that still contains ONLY this label,
+            // i.e. the full clickable nav row. Stop before the nav container that
+            // also holds the other tabs.
+            var target = el;
+            while (target.parentElement && isTarget(norm(target.parentElement.textContent))) {
+              target = target.parentElement;
             }
+            target.style.setProperty('display', 'none', 'important');
+            if (target.dataset) target.dataset.rmeSeen = '1';
+            if (el.dataset) el.dataset.rmeSeen = '1';
           }
         }
         function start() {
           hideMyCars();
           try {
             var obs = new MutationObserver(function () { hideMyCars(); });
-            obs.observe(document.body, { childList: true, subtree: true });
+            obs.observe(document.documentElement, { childList: true, subtree: true });
           } catch (e) {}
+          // Safety re-runs in case the menu mounts after first paint.
+          var n = 0, iv = setInterval(function () { hideMyCars(); if (++n > 40) clearInterval(iv); }, 250);
         }
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', start);
