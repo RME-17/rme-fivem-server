@@ -67,3 +67,31 @@ CreateThread(function()
         Wait(sleep)
     end
 end)
+
+-- Always-on compass above the minimap (works on foot and in vehicle).
+-- Uses the gameplay camera heading so it points where the player is looking.
+local function currentStreet(ped)
+    local pos = GetEntityCoords(ped)
+    local h = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+    local name = GetStreetNameFromHashKey(h)
+    if name == nil then return '' end
+    return name
+end
+
+CreateThread(function()
+    local lastDir, lastDeg, lastStreet
+    while true do
+        local ped = PlayerPedId()
+        local camRot = GetGameplayCamRot(0)
+        local bearing = (360.0 - ((camRot.z + 360.0) % 360.0)) % 360.0
+        local deg = math.floor(bearing + 0.5) % 360
+        local idx = math.floor(((bearing + 22.5) % 360.0) / 45.0) + 1
+        local dir = DIRS[idx]
+        local street = currentStreet(ped)
+        if dir ~= lastDir or deg ~= lastDeg or street ~= lastStreet then
+            lastDir, lastDeg, lastStreet = dir, deg, street
+            SendNUIMessage({ action = 'compass', dir = dir, heading = deg, street = street })
+        end
+        Wait(200)
+    end
+end)
