@@ -98,8 +98,19 @@ KOJA.Shared.marketEnumDisplayLabel = function(raw)
 end
 
 KOJA.Shared.decodeJsonStringOrTable = function(raw)
+    -- RME_QB_DECODE_FIX_V2: QB stores player_vehicles.vehicle as a bare model name
+    -- string (e.g. "hauler"), which is not valid JSON. Treat such a string as
+    -- { model = name, respname = name } so name resolution works on QBCore.
     local v = raw and (type(raw) == 'string' and json.decode(raw) or raw) or {}
-    return type(v) == 'table' and v or {}
+    if type(v) ~= 'table' then v = {} end
+    if type(raw) == 'string' and next(v) == nil then
+        local s = raw:gsub('^%s+', ''):gsub('%s+$', '')
+        if s ~= '' and not s:match('^[%[{]') then
+            v.model = s
+            v.respname = s
+        end
+    end
+    return v
 end
 
 KOJA.Shared.isGenericVehicleName = function(name)
