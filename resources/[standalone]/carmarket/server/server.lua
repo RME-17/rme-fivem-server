@@ -2842,6 +2842,24 @@ KOJA.Server.RegisterServerCallback(
                     )
                 end
                 doFinalizePurchase = function(sellerId, plateNorm, price)
+                    -- RME fix: standard QBCore garages key off citizenid/license, not Koja's `owner` column.
+                    -- buyVehicle's ownership UPDATE above only sets `owner`, so the buyer never saw the car.
+                    -- Sync citizenid + license (and park it) for the qb framework so qb-garages shows it.
+                    if KOJA.Framework == "qb" then
+                        local qbBuyer = exports["qb-core"]:GetPlayer(source)
+                        if qbBuyer and qbBuyer.PlayerData then
+                            MySQL.Async.execute(
+                                "UPDATE player_vehicles SET citizenid = @cid, license = @lic, garage = @garage, state = 1 WHERE REPLACE(TRIM(`plate`), ' ', '') = @plateNorm",
+                                {
+                                    ["@cid"] = qbBuyer.PlayerData.citizenid,
+                                    ["@lic"] = qbBuyer.PlayerData.license,
+                                    ["@garage"] = "pillboxgarage",
+                                    ["@plateNorm"] = plateNorm,
+                                },
+                                function() end
+                            )
+                        end
+                    end
                     local soldPlate = row.plate and tostring(row.plate):sub(1, 8) or nil
                     local zid = (zoneId and tostring(zoneId):match("%S+")) or nil
                     if zid and zid ~= "" then
