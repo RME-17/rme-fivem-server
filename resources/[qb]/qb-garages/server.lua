@@ -132,6 +132,10 @@ QBCore.Functions.CreateCallback('qb-garages:server:spawnvehicle', function(sourc
     local vehType = sharedVehicles[vehicle] and sharedVehicles[vehicle].type or GetVehicleTypeByModel(vehicle)
     local hash = type(vehicle) == 'number' and vehicle or type(vehicle) == 'string' and GetHashKey(vehicle) or nil
     if not vehicle then return end
+    -- RME: clear any stale copy of this plate before spawning a fresh one.
+    if OutsideVehicles[plate] and OutsideVehicles[plate].entity and DoesEntityExist(OutsideVehicles[plate].entity) then
+        DeleteEntity(OutsideVehicles[plate].entity)
+    end
     local veh = CreateVehicleServerSetter(hash, vehType, coords.x, coords.y, coords.z, coords.w)
     local netId = NetworkGetNetworkIdFromEntity(veh)
     SetVehicleNumberPlateText(veh, plate)
@@ -144,10 +148,15 @@ end)
 
 -- Checks if a vehicle can be spawned based on its type and location.
 QBCore.Functions.CreateCallback('qb-garages:server:IsSpawnOk', function(_, cb, plate, type)
-    if OutsideVehicles[plate] and DoesEntityExist(OutsideVehicles[plate].entity) then
-        cb(false)
-        return
+    -- RME: if a previous copy of this vehicle is still out (or a stale ghost
+    -- from a failed spawn) delete it and clear the registry, then always allow
+    -- the spawn. This stops players getting stuck on "Your vehicle is not in
+    -- depot" forever when an old entity lingers.
+    local existing = OutsideVehicles[plate]
+    if existing and existing.entity and DoesEntityExist(existing.entity) then
+        DeleteEntity(existing.entity)
     end
+    OutsideVehicles[plate] = nil
     cb(true)
 end)
 
