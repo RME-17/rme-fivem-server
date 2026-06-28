@@ -3,13 +3,13 @@
 :root {
     /* RME glass theme */
     --accent: #63b3ff;
-    --accent-bg: rgba(99, 179, 255, 0.16);
-    --accent-border: rgba(99, 179, 255, 0.40);
-    --glass-bg: rgba(18, 18, 22, 0.58);
-    --glass-bg-soft: rgba(18, 18, 22, 0.42);
-    --glass-bg-empty: rgba(18, 18, 22, 0.28);
-    --glass-border: rgba(255, 255, 255, 0.14);
-    --glass-border-hover: rgba(255, 255, 255, 0.30);
+    --accent-bg: rgba(99, 179, 255, 0.18);
+    --accent-border: rgba(99, 179, 255, 0.45);
+    --glass-bg: rgba(18, 18, 22, 0.72);
+    --glass-bg-soft: rgba(18, 18, 22, 0.55);
+    --glass-bg-empty: rgba(18, 18, 22, 0.30);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-border-hover: rgba(255, 255, 255, 0.28);
     --on-surface: #f4f5f7;
     --on-surface-dim: rgba(255, 255, 255, 0.55);
 
@@ -30,10 +30,10 @@
     --warning: #ffd166;
     --error: #ff8f8f;
 
-    --surface-container-high: rgba(30, 30, 36, 0.92);
+    --surface-container-high: rgba(28, 28, 34, 0.96);
 
     /* Tooltip */
-    --v-popper-theme-background-color: rgba(18, 18, 22, 0.92);
+    --v-popper-theme-background-color: rgba(18, 18, 22, 0.96);
     --v-popper-theme-text-color: #f4f5f7;
     --v-popper-theme-border-radius: 10px;
     --v-popper-theme-padding: 12px;
@@ -66,18 +66,18 @@ div {
     position: absolute;
     top: 50vh;
     width: 28vw;
-    height: 47.16vh;
+    height: 60vh;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
 }
 
 .player-inventory-section {
-    left: 14vw;
+    left: 12vw;
 }
 
 .other-inventory-section {
-    right: 14vw;
+    right: 12vw;
 }
 
 .centered-inventory-section {
@@ -95,30 +95,29 @@ div {
     flex-direction: column;
     align-items: flex-start;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-medium);
-    box-shadow: var(--elevation-2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    padding: 10px 14px 12px;
-    margin-bottom: 10px;
+    box-shadow: var(--elevation-1);
+    padding: 12px 16px 14px;
+    margin-bottom: 12px;
 }
 
 .inventory-grid {
     flex-grow: 1;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 
 .labels-container {
     display: flex;
     width: 100%;
     align-items: center;
+    justify-content: space-between;
 }
 
 .inventory-label {
-    flex-grow: 1;
-    font-size: 1.6vh;
+    font-size: 1.7vh;
     letter-spacing: 0.5px;
 }
 
@@ -127,13 +126,12 @@ div {
 }
 
 .item-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    align-content: start;
     width: 100%;
     box-sizing: border-box;
-    justify-content: space-between;
 }
 
 .item-slot {
@@ -142,13 +140,16 @@ div {
     align-items: center;
     justify-content: center;
     width: calc(20% - 5px);
-    height: 10vh;
-    background: var(--glass-bg);
+    height: 9.5vh;
+    background: var(--glass-bg-soft);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-small);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.25);
     box-sizing: border-box;
     transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.item-grid .item-slot {
+    width: auto;
 }
 
 .item-slot-img {
@@ -160,7 +161,7 @@ div {
 }
 
 .item-slot-img img {
-    width: 75%;
+    width: 72%;
     height: auto;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
 }
@@ -171,8 +172,8 @@ div {
     position: absolute;
     top: 5px;
     left: 5px;
-    min-width: 18px;
-    height: 18px;
+    min-width: 17px;
+    height: 17px;
     padding: 0 4px;
     font-size: 1.1vh;
     background: var(--accent);
@@ -180,7 +181,7 @@ div {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px rgba(99, 179, 255, 0.45);
+    box-shadow: 0 2px 5px rgba(99, 179, 255, 0.40);
     z-index: 2;
 }
 
@@ -195,9 +196,6 @@ div {
     position: absolute;
     top: 5px;
     right: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -207,19 +205,13 @@ div {
 
 .item-slot:hover {
     border-color: var(--glass-border-hover);
-    background: rgba(28, 28, 34, 0.66);
-}
-
-.item-slot:empty {
-    background: var(--glass-bg-empty);
-    border: 1px dashed rgba(255, 255, 255, 0.10);
-    box-shadow: none;
+    background: rgba(28, 28, 34, 0.78);
 }
 
 /* Hotbar slots 1-5 highlighted in accent */
 .hotbar-slot {
     border-color: var(--accent-border);
-    box-shadow: inset 0 0 14px rgba(99, 179, 255, 0.10), 0 0 0 1px rgba(99, 179, 255, 0.14), 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(99, 179, 255, 0.18);
 }
 
 .hotbar-slot:hover {
@@ -229,7 +221,7 @@ div {
 /* Selected slot (driven by side action panel) */
 .selected-slot {
     border-color: var(--accent) !important;
-    box-shadow: 0 0 0 2px var(--accent-border), 0 0 16px rgba(99, 179, 255, 0.40) !important;
+    box-shadow: 0 0 0 2px var(--accent-border), 0 0 14px rgba(99, 179, 255, 0.35) !important;
     background: var(--accent-bg) !important;
 }
 
@@ -239,9 +231,6 @@ div {
     position: absolute;
     top: 5px;
     left: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -267,7 +256,7 @@ div {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 5px;
+    height: 4px;
     background: rgba(255, 255, 255, 0.10);
     border-bottom-left-radius: var(--radius-small);
     border-bottom-right-radius: var(--radius-small);
@@ -302,8 +291,9 @@ div {
 
 /* Weight Bar */
 .current-weight {
-    font-size: 1.2vh;
+    font-size: 1.3vh;
     color: var(--on-surface-dim);
+    font-weight: var(--font-weight-medium);
 }
 
 .current-weight > p {
@@ -317,7 +307,7 @@ div {
     background: rgba(255, 255, 255, 0.10);
     border-radius: 20px;
     overflow: hidden;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .weight-bar-fill {
@@ -341,12 +331,13 @@ div {
 /* Side action panel (Use / Give / Drop / Split) */
 .action-panel {
     position: absolute;
-    left: calc(100% + 12px);
+    left: calc(100% + 14px);
     top: 0;
-    width: 6vw;
+    width: 7vw;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    z-index: 60;
 }
 
 .action-panel-title {
@@ -356,33 +347,31 @@ div {
     color: var(--on-surface-dim);
     font-weight: var(--font-weight-bold);
     text-align: center;
-    padding: 2px 0;
+    padding: 2px 0 4px;
 }
 
 .action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    padding: 1.4vh 6px;
+    gap: 8px;
+    padding: 1.5vh 6px;
     font-family: var(--font-primary);
-    font-size: 1.25vh;
+    font-size: 1.3vh;
     font-weight: var(--font-weight-bold);
     color: var(--on-surface);
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-small);
-    box-shadow: var(--elevation-2), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    box-shadow: var(--elevation-1);
     cursor: pointer;
     user-select: none;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .action-btn i {
     color: var(--accent);
-    font-size: 1.2vh;
+    font-size: 1.3vh;
 }
 
 .action-btn:hover {
@@ -393,8 +382,7 @@ div {
 }
 
 .action-btn.disabled {
-    opacity: 0.35;
-    pointer-events: none;
+    opacity: 0.4;
 }
 
 /* Hotbar */
@@ -411,7 +399,7 @@ div {
 .hotbar {
     display: flex;
     justify-content: space-between;
-    gap: 6px;
+    gap: 8px;
     width: 25vw;
     padding: 0 10px;
 }
@@ -434,8 +422,6 @@ div {
     align-items: center;
     justify-content: center;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-medium);
     box-shadow: var(--elevation-2);
@@ -474,6 +460,8 @@ div {
 
 .required-item .item-slot {
     margin-left: 10px;
+    width: 10vh;
+    height: 10vh;
 }
 
 /* Context menu (still available on right-click) */
@@ -481,8 +469,6 @@ div {
     position: absolute;
     font-size: 1.3vh;
     background: var(--surface-container-high);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-small);
     z-index: 1000;
@@ -514,8 +500,6 @@ div {
     left: 100%;
     font-size: 1.2vh;
     background: var(--surface-container-high);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-small);
     list-style-type: none;
@@ -546,12 +530,10 @@ div {
 .input-container {
     position: absolute;
     width: 4%;
-    top: calc(26% + ((47.16% - 3vh) / 2));
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-small);
     padding: 10px;
@@ -593,9 +575,7 @@ div {
 
 /* Tooltip */
 .v-popper--theme-tooltip .v-popper__inner {
-    background: rgba(18, 18, 22, 0.92) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(18, 18, 22, 0.96) !important;
     color: var(--on-surface) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: var(--radius-small) !important;
@@ -605,7 +585,7 @@ div {
 }
 
 .v-popper--theme-tooltip .v-popper__arrow-outer {
-    border-color: rgba(18, 18, 22, 0.92) !important;
+    border-color: rgba(18, 18, 22, 0.96) !important;
 }
 
 .custom-tooltip {
@@ -682,8 +662,6 @@ div {
     width: 100px;
     height: 100px;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-radius: 50%;
     display: flex;
@@ -696,10 +674,6 @@ div {
 .attachment-slot img {
     width: 75%;
     height: auto;
-}
-
-.attachment-slot:nth-child(0) {
-    transform: rotate(0deg) translate(150px) rotate(0deg);
 }
 
 .attachment-slot:nth-child(1) {
