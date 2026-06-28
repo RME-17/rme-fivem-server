@@ -199,10 +199,19 @@ Config = {
             {
                 item = 'diamond_ring',
                 xpRequired = 0,
-                xpGain = 6,
+                xpGain = 7,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 2 },
-                    { item = 'ls_silver_ingot', amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 2 },
+                    { item = 'diamond',       amount = 1 }
+                }
+            },
+            {
+                item = 'diamond_chain',
+                xpRequired = 0,
+                xpGain = 9,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'diamond',       amount = 2 }
                 }
             },
             {
