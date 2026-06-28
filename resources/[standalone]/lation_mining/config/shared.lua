@@ -187,8 +187,8 @@ return {
                 max = 20,
                 xp = { min = 3, max = 6 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 8 },
-                    { item = 'ls_copper_ore', quantity = 8 },
+                    { item = 'ls_coal_ore', quantity = 100 },
+                    { item = 'ls_copper_ore', quantity = 50 },
                 },
                 add = {
                     { item = 'ls_copper_ingot', quantity = 1 },
@@ -202,8 +202,8 @@ return {
                 max = 15,
                 xp = { min = 4, max = 8 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 15 },
-                    { item = 'ls_iron_ore', quantity = 8 },
+                    { item = 'ls_coal_ore', quantity = 150 },
+                    { item = 'ls_iron_ore', quantity = 50 },
                 },
                 add = {
                     { item = 'ls_iron_ingot', quantity = 1 },
@@ -217,8 +217,8 @@ return {
                 max = 10,
                 xp = { min = 5, max = 10 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 22 },
-                    { item = 'ls_silver_ore', quantity = 8 },
+                    { item = 'ls_coal_ore', quantity = 200 },
+                    { item = 'ls_silver_ore', quantity = 50 },
                 },
                 add = {
                     { item = 'ls_silver_ingot', quantity = 1 },
@@ -232,8 +232,8 @@ return {
                 max = 5,
                 xp = { min = 6, max = 12 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 30 },
-                    { item = 'ls_gold_ore', quantity = 8 },
+                    { item = 'ls_coal_ore', quantity = 300 },
+                    { item = 'ls_gold_ore', quantity = 50 },
                 },
                 add = {
                     { item = 'ls_gold_ingot', quantity = 1 },
@@ -247,8 +247,8 @@ return {
                 max = 10,
                 xp = { min = 5, max = 10 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 16 },
-                    { item = 'ls_iron_ore', quantity = 12 },
+                    { item = 'ls_coal_ore', quantity = 200 },
+                    { item = 'ls_iron_ore', quantity = 75 },
                 },
                 add = {
                     { item = 'emerald', quantity = 1 },
@@ -262,8 +262,8 @@ return {
                 max = 8,
                 xp = { min = 6, max = 12 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 24 },
-                    { item = 'ls_silver_ore', quantity = 12 },
+                    { item = 'ls_coal_ore', quantity = 250 },
+                    { item = 'ls_silver_ore', quantity = 75 },
                 },
                 add = {
                     { item = 'sapphire', quantity = 1 },
@@ -277,8 +277,8 @@ return {
                 max = 5,
                 xp = { min = 8, max = 15 },
                 required = {
-                    { item = 'ls_coal_ore', quantity = 32 },
-                    { item = 'ls_gold_ore', quantity = 12 },
+                    { item = 'ls_coal_ore', quantity = 300 },
+                    { item = 'ls_gold_ore', quantity = 75 },
                 },
                 add = {
                     { item = 'ruby', quantity = 1 },
