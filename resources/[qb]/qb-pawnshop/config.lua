@@ -77,6 +77,10 @@ Config.PawnItems = {
     [14] = {
         item = 'sapphire_necklace',
         price = math.random(1800, 2200)
+    },
+    [15] = {
+        item = 'diamond_chain',
+        price = math.random(2500, 3200)
     }
 }
 
@@ -212,6 +216,20 @@ Config.MeltingItems = { -- meltTime is amount of time in minutes per item
         rewards = {
             [1] = {
                 item = 'sapphire',
+                amount = 2
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [11] = {
+        item = 'diamond_chain',
+        rewards = {
+            [1] = {
+                item = 'diamond',
                 amount = 2
             },
             [2] = {
