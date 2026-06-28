@@ -20,6 +20,10 @@ local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
 local camPos = vector3(-30.0, -1090.0, 1000.0)
 local camLookAt = vector3(120.0, -900.0, 200.0)
 
+-- Looping background music for the private viewing room (played via xsound).
+local browseMusicUrl = 'https://www.youtube.com/watch?v=uzg2yglHnzg'
+local browseMusicVolume = 0.2
+
 -- Sales points. block = hide these categories; only = show ONLY these categories.
 local browsePoints = {
     {
@@ -106,6 +110,19 @@ local function categoryAllowed(cat)
     if p.only then return p.only[cat] == true end
     if p.block then return not p.block[cat] end
     return true
+end
+
+-- Looping showroom music (uses xsound, which is already on the server).
+local function startBrowseMusic()
+    if GetResourceState('xsound') ~= 'started' then return end
+    exports['xsound']:PlayUrl('rme_pdm_music', browseMusicUrl, browseMusicVolume, true)
+end
+
+local function stopBrowseMusic()
+    if GetResourceState('xsound') ~= 'started' then return end
+    if exports['xsound']:soundExists('rme_pdm_music') then
+        exports['xsound']:Destroy('rme_pdm_music')
+    end
 end
 
 local function DrawText3D(x, y, z, text)
@@ -270,6 +287,9 @@ local function enterBrowse(point)
     SetCamActive(browseCam, true)
     RenderScriptCams(true, false, 0, true, true)
 
+    -- Loop the showroom music while in the room.
+    startBrowseMusic()
+
     -- Privacy extra (non-blocking): own routing bucket.
     TriggerServerEvent('rme_pdm:server:enterBrowse')
 
@@ -281,6 +301,7 @@ end
 local function exitBrowse()
     if not browseActive then return end
     browseActive = false
+    stopBrowseMusic()
     exports['qb-menu']:closeMenu()
     local ped = PlayerPedId()
     DoScreenFadeOut(500)
@@ -373,13 +394,13 @@ RegisterNetEvent('rme_pdm:client:finance', function(data)
             isMenuHeader = true,
             icon = 'fa-solid fa-triangle-exclamation',
             header = 'Keep up with payments',
-            txt = 'Miss an instalment and the vehicle can be repossessed. No extra interest is charged.',
+            txt = 'Payments are auto-collected from your bank (then cash). If you cannot pay, the vehicle can be repossessed. No extra interest is charged.',
         },
         {
             header = 'Enter finance details',
             txt = 'Choose your deposit & number of payments',
             icon = 'fa-solid fa-pen-to-square',
-            params = { event = 'rme_pdm:client:financeInput', args = data, isAction = true }
+            params = { event = 'rme_pdm:client:financeInput', args = data }
         },
         {
             header = 'Back',
@@ -432,6 +453,7 @@ RegisterCommand('pdmunstuck', function()
         SetEntityVisible(ped, true, false)
         RenderScriptCams(false, false, 0, true, true)
         if browseCam then DestroyCam(browseCam, false); browseCam = nil end
+        stopBrowseMusic()
     end
 end, false)
 
