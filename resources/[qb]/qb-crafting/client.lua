@@ -16,7 +16,8 @@ local function CraftItem(craftedItem, requiredItems, amountToCraft, xpEarned, xp
             end
             if itemAmount < reqItem.amount then
                 hasAllMaterials = false
-                QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')) .. amountToCraft .. 'x ' .. sharedItems[craftedItem].label, 'error')
+                local craftedLabel = (sharedItems[craftedItem] and sharedItems[craftedItem].label) or craftedItem
+                QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')) .. amountToCraft .. 'x ' .. craftedLabel, 'error')
                 break
             end
         end
@@ -24,7 +25,7 @@ local function CraftItem(craftedItem, requiredItems, amountToCraft, xpEarned, xp
             if Config.EnableSkillCheck then
                 local success = exports['qb-minigames']:Skillbar('easy', '12345') -- difficulty and words to enter
                 if success then
-                    QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. sharedItems[craftedItem].label, (math.random(2000, 5000) * amountToCraft), false, true, {
+                    QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. ((sharedItems[craftedItem] and sharedItems[craftedItem].label) or craftedItem), (math.random(2000, 5000) * amountToCraft), false, true, {
                         disableMovement = true,
                         disableCarMovement = true,
                         disableMouse = false,
@@ -44,7 +45,7 @@ local function CraftItem(craftedItem, requiredItems, amountToCraft, xpEarned, xp
                     QBCore.Functions.Notify('Crafting failed, some materials have been lost!', 'error')
                 end
             else
-                QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. sharedItems[craftedItem].label, (math.random(2000, 5000) * amountToCraft), false, true, {
+                QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. ((sharedItems[craftedItem] and sharedItems[craftedItem].label) or craftedItem), (math.random(2000, 5000) * amountToCraft), false, true, {
                     disableMovement = true,
                     disableCarMovement = true,
                     disableMouse = false,
@@ -106,7 +107,10 @@ local function OpenCraftingMenu(benchType)
         local craftableItems = {}
         local nonCraftableItems = {}
         for _, recipe in pairs(recipes) do
-            if currentXP >= recipe.xpRequired then
+            local craftedShared = sharedItems[recipe.item]
+            -- Skip recipes whose output item is not registered yet, so one
+            -- missing item can never stop the whole menu from opening.
+            if craftedShared and currentXP >= recipe.xpRequired then
                 local canCraft = true
                 local itemsText = ''
                 for _, reqItem in pairs(recipe.requiredItems) do
@@ -117,7 +121,8 @@ local function OpenCraftingMenu(benchType)
                             break
                         end
                     end
-                    local itemLabel = sharedItems[reqItem.item].label
+                    local reqShared = sharedItems[reqItem.item]
+                    local itemLabel = (reqShared and reqShared.label) or reqItem.item
                     itemsText = itemsText .. ' x' .. tostring(reqItem.amount) .. ' ' .. itemLabel .. '<br>'
                     if not hasItem then
                         canCraft = false
@@ -125,9 +130,9 @@ local function OpenCraftingMenu(benchType)
                 end
                 itemsText = string.sub(itemsText, 1, -5)
                 local menuItem = {
-                    header = sharedItems[recipe.item].label,
+                    header = craftedShared.label,
                     txt = itemsText,
-                    icon = Config.ImageBasePath .. sharedItems[recipe.item].image,
+                    icon = Config.ImageBasePath .. (craftedShared.image or ''),
                     params = {
                         isAction = true,
                         event = function()
