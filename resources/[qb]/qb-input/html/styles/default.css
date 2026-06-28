@@ -90,12 +90,13 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-    background: var(--md-surface-container-low);
+    background: transparent;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: var(--md-surface-container-high);
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
 }
 
 .main-wrapper {
@@ -325,4 +326,77 @@ body {
     font-size: var(--md-typescale-body-medium-size);
     margin: 5px 0px;
     box-shadow: var(--md-elevation-1);
+}
+
+/* =========================================================
+   RME GLASS THEME - qb-input (FiveM CEF safe, NO backdrop-filter)
+   Polishes the finance / input dialogs to match the menu glass.
+   ========================================================= */
+
+/* Rounded glass header with red accent */
+.heading {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.38), rgba(211, 47, 47, 0.16)) !important;
+    border: 1px solid rgba(244, 67, 54, 0.45);
+    border-radius: 14px 14px 0 0 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    padding: 0.95rem !important;
+    margin-bottom: 12px !important;
+}
+
+.heading h1 {
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Translucent rounded inputs */
+.form-control[type="text"],
+.form-control[type="number"],
+.form-control[type="password"],
+.form-select {
+    background: rgba(28, 27, 31, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.form-control[type="text"]:focus,
+.form-control[type="number"]:focus,
+.form-control[type="password"]:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 2px var(--md-primary) !important;
+}
+
+.form-input-group,
+.label,
+.select-title {
+    background: rgba(28, 27, 31, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28) !important;
+}
+
+.form label {
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.3px;
+}
+
+/* Primary red Finance/submit button */
+.btn {
+    background: linear-gradient(135deg, var(--md-primary), var(--md-secondary)) !important;
+    color: var(--md-on-primary) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 18px rgba(244, 67, 54, 0.35) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 16px !important;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, var(--md-primary), var(--md-secondary)) !important;
+    color: var(--md-on-primary) !important;
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 26px rgba(244, 67, 54, 0.5) !important;
 }
