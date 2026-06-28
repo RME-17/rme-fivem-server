@@ -10,8 +10,7 @@ nexCrafting = nexCrafting or {}
 
 nexCrafting.ConfigData = {
     settings = {
-        -- Verbose logging. Flip to true only when troubleshooting.
-        debug = false,
+        debug = true,
 
         -- UI theme. The panel is monochrome (black + one accent color).
         -- Set accentColor to any hex color to recolor the whole UI, e.g.
@@ -34,14 +33,11 @@ nexCrafting.ConfigData = {
             },
         },
 
-        -- ox_target is installed, so use the eye (target) for benches. NEX
-        -- registers a "Use ..." option on each bench via ox_target:addLocalEntity
-        -- at startup. Hold Left Alt at the bench and click the option to open.
         interaction = {
             useTarget = true,
-            useMarker = false,
+            useMarker = true,
             interactionKey = 38,
-            interactionDistance = 3.5,
+            interactionDistance = 2,
             drawDistance = 10,
             markerType = 27,
             markerColor = { 255, 255, 255, 100 },
@@ -59,7 +55,7 @@ nexCrafting.ConfigData = {
         },
 
         oxInventory = {
-            imagePath = 'nui://qb-inventory/html/images/',
+            imagePath = 'nui://ox_inventory/web/images/',
             benchStash = {
                 enabled = false,
                 slots = 10,

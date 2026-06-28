@@ -7,6 +7,7 @@ Locales['es'] = {
     benchUpdated = "Banco actualizado exitosamente!",
     benchDeleted = "Banco eliminado exitosamente!",
     craftingTitle = "Crafteo",
+    useBench = "Usar %s",
     craftSuccess = "Has crafteado %s exitosamente!",
     craftFailed = "Crafteo fallido! Perdiste algunos materiales.",
     missingItems = "Te faltan materiales requeridos.",

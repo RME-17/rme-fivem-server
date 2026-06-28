@@ -5,7 +5,7 @@ lua54 'yes'
 name 'nex_crafting'
 author 'NEX Development | Donk'
 description 'Advanced Crafting System — React/Tailwind UI, multi-framework (ESX/QBox/QBCore)'
-version '1.0.5'
+version '1.0.6'
 
 shared_scripts {
     '@ox_lib/init.lua',

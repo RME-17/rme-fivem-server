@@ -7,6 +7,7 @@ Locales['pl'] = {
     benchUpdated = "Stol warsztatowy zaktualizowany pomyslnie!",
     benchDeleted = "Stol warsztatowy usuniety pomyslnie!",
     craftingTitle = "Crafting",
+    useBench = "Uzyj %s",
     craftSuccess = "Pomyslnie stworzono %s!",
     craftFailed = "Crafting nieudany! Stracono niektore materialy.",
     missingItems = "Brakuje wymaganych materialow.",

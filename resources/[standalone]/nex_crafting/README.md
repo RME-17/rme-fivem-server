@@ -54,6 +54,46 @@ Open `settings/general.lua` → `settings.permissions.creatorAccess`:
 Set `Config.Discord.botToken` and `Config.Discord.serverId` in
 `settings/discord.lua`. Bot needs `GUILD_MEMBERS` intent.
 
+## Blueprints
+
+Any recipe can be locked behind a **blueprint**. In the creator's recipe editor,
+tick **Require Blueprint**, pick the blueprint item, and choose whether it's
+consumed on learn:
+
+- A blueprint-gated recipe is hidden behind a lock at the bench until the player
+  **learns** it.
+- To learn, the player must be **holding the blueprint item**, then press
+  **Learn** on the recipe. The blueprint is consumed (unless you turned that off)
+  and the unlock is saved per-character — it survives relogs and recipe edits.
+- Crafting is enforced server-side: a player who hasn't learned the recipe can't
+  craft it even with a tampered UI.
+
+Learned recipes are stored in `nex_crafting_player_blueprints` (keyed by the
+recipe's item name). The schema auto-installs and self-heals on resource start —
+**no manual SQL needed** when upgrading; just restart the resource.
+
+**Optional — "use" a blueprint item from the inventory.** To let players unlock
+by *using* the item anywhere (not just at a bench), make it a usable ox_inventory
+item in `ox_inventory/data/items.lua`:
+
+```lua
+['blueprint_pistol'] = {
+    label = 'Pistol Blueprint', weight = 100, stack = true, consume = 1,
+    server = { export = 'nex_crafting.UseBlueprintItem' },
+}
+```
+
+It unlocks every recipe gated by that item name and is consumed only when it
+actually taught the player something new.
+
+## Localization & item labels
+
+- The interaction prompt ("Use <bench>") is fully localized — add/adjust the
+  `useBench` key in `locales/<lang>.lua` and set `nexCrafting.Language` in
+  `settings/runtime.lua`.
+- Ingredient/result names in the bench UI show the **ox_inventory labels** for
+  each item, falling back to the raw item name if it isn't registered.
+
 ## Exports (server)
 
 - `exports.nex_crafting:GetBenches()` → array of benches
@@ -61,3 +101,7 @@ Set `Config.Discord.botToken` and `Config.Discord.serverId` in
 - `exports.nex_crafting:GetBench(id)` → bench or nil
 - `exports.nex_crafting:HasBenchAccess(source, benchId)` → boolean
 - `exports.nex_crafting:CraftForPlayer(source, benchId, recipeIndex, skillPassed?)`
+- `exports.nex_crafting:HasLearnedRecipe(source, recipeName)` → boolean
+- `exports.nex_crafting:GetLearnedRecipes(source)` → array of recipe names
+- `exports.nex_crafting:LearnBlueprintItem(source, blueprintItem)` → number learned
+- `exports.nex_crafting:UseBlueprintItem(...)` — ox_inventory usable-item hook

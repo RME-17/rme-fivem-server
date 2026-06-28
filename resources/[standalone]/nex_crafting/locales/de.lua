@@ -7,6 +7,7 @@ Locales['de'] = {
     benchUpdated = "Werkbank erfolgreich aktualisiert!",
     benchDeleted = "Werkbank erfolgreich geloscht!",
     craftingTitle = "Crafting",
+    useBench = "%s benutzen",
     craftSuccess = "%s erfolgreich hergestellt!",
     craftFailed = "Crafting fehlgeschlagen! Einige Materialien verloren.",
     missingItems = "Dir fehlen benotigte Materialien.",
