@@ -21,10 +21,10 @@
                     <div class="inventory-header">
                         <div class="labels-container">
                             <div class="inventory-label">
-                                <p> inventoryLabel </p>
+                                <p>\u007b\u007b inventoryLabel \u007d\u007d</p>
                             </div>
                             <div class="current-weight">
-                                <p> (playerWeight / 1000).toFixed(1)  /  (maxWeight / 1000).toFixed(1) </p>
+                                <p>\u007b\u007b (playerWeight / 1000).toFixed(1) \u007d\u007d / \u007b\u007b (maxWeight / 1000).toFixed(1) \u007d\u007d</p>
                             </div>
                         </div>
                         <div class="weight-bar">
@@ -35,13 +35,13 @@
                         <div class="item-grid">
                             <div v-for="slot in totalSlots" :key="slot" class="item-slot" :data-slot="slot" :class="{ 'invalid-slot-highlight': errorSlot === slot, 'selected-slot': selectedSlot === slot, 'hotbar-slot': slot <= 5 }" @click="selectSlot(slot)" @dblclick="getItemInSlot(slot, 'player') && useItem(getItemInSlot(slot, 'player'))" @mousedown="event => handleMouseDown(event, slot, 'player')">
                                 <div class="item-slot-key" v-if="slot <= 5">
-                                    <p> slot </p>
+                                    <p>\u007b\u007b slot \u007d\u007d</p>
                                 </div>
                                 <div class="item-slot-img" v-if="getItemInSlot(slot, 'player')" v-tooltip.right-end="{content: generateTooltipContent(getItemInSlot(slot, 'player')), html: true}">
                                     <img :src="'images/' + getItemInSlot(slot, 'player').image" alt="" />
                                 </div>
                                 <div class="item-slot-amount" v-if="getItemInSlot(slot, 'player')">
-                                    <p>x getItemInSlot(slot, 'player').amount </p>
+                                    <p>x\u007b\u007b getItemInSlot(slot, 'player').amount \u007d\u007d</p>
                                 </div>
                                 <div class="item-slot-durability" v-if="getItemInSlot(slot, 'player')">
                                     <div
@@ -81,10 +81,10 @@
                     <div class="inventory-header">
                         <div class="labels-container">
                             <div class="inventory-label">
-                                <p> otherInventoryLabel </p>
+                                <p>\u007b\u007b otherInventoryLabel \u007d\u007d</p>
                             </div>
                             <div class="current-weight">
-                                <p> (otherInventoryWeight / 1000).toFixed(1)  /  (otherInventoryMaxWeight / 1000).toFixed(1) </p>
+                                <p>\u007b\u007b (otherInventoryWeight / 1000).toFixed(1) \u007d\u007d / \u007b\u007b (otherInventoryMaxWeight / 1000).toFixed(1) \u007d\u007d</p>
                             </div>
                         </div>
                         <div class="weight-bar">
@@ -98,10 +98,10 @@
                                     <img :src="'images/' + getItemInSlot(slot, 'other').image" alt="" />
                                 </div>
                                 <div class="item-slot-amount" v-if="getItemInSlot(slot, 'other')">
-                                    <p>x getItemInSlot(slot, 'other').amount </p>
+                                    <p>x\u007b\u007b getItemInSlot(slot, 'other').amount \u007d\u007d</p>
                                 </div>
                                 <div v-if="isShopInventory && getItemInSlot(slot, 'other')" class="item-price">
-                                    <p>$ getItemInSlot(slot, 'other').price </p>
+                                    <p>$\u007b\u007b getItemInSlot(slot, 'other').price \u007d\u007d</p>
                                 </div>
                                 <div class="item-slot-durability" v-if="getItemInSlot(slot, 'other')">
                                     <div
@@ -125,13 +125,13 @@
                 <div class="hotbar">
                     <div v-for="slot in 5" :key="slot" class="item-slot">
                         <div class="item-slot-key">
-                            <p> slot </p>
+                            <p>\u007b\u007b slot \u007d\u007d</p>
                         </div>
                         <div class="item-slot-img" v-if="getHotbarItemInSlot(slot)">
                             <img :src="'images/' + getHotbarItemInSlot(slot).image" alt="" />
                         </div>
                         <div class="item-slot-amount" v-if="getHotbarItemInSlot(slot)">
-                            <p>x getHotbarItemInSlot(slot).amount </p>
+                            <p>x\u007b\u007b getHotbarItemInSlot(slot).amount \u007d\u007d</p>
                         </div>
                         <div class="item-slot-durability" v-if="getHotbarItemInSlot(slot)">
                             <div
@@ -147,7 +147,7 @@
                             <div class="item-slot-durability-fill" v-else style="width: 0%"></div>
                         </div>
                         <div class="item-slot-label" v-if="getHotbarItemInSlot(slot)">
-                            <p> getHotbarItemInSlot(slot).label </p>
+                            <p>\u007b\u007b getHotbarItemInSlot(slot).label \u007d\u007d</p>
                         </div>
                     </div>
                 </div>
@@ -155,16 +155,16 @@
             <div class="notification-container" v-if="showNotification">
                 <div class="notification-slot">
                     <div class="notification-title">
-                        <p> notificationType </p>
+                        <p>\u007b\u007b notificationType \u007d\u007d</p>
                     </div>
                     <div class="item-slot-img">
                         <img :src="notificationImage" alt="" />
                     </div>
                     <div class="item-slot-amount">
-                        <p>x notificationAmount </p>
+                        <p>x\u007b\u007b notificationAmount \u007d\u007d</p>
                     </div>
                     <div class="item-slot-label">
-                        <p> notificationText </p>
+                        <p>\u007b\u007b notificationText \u007d\u007d</p>
                     </div>
                 </div>
             </div>
@@ -175,7 +175,7 @@
                             <img :src="'images/' + item.image" alt="" />
                         </div>
                         <div class="item-slot-label">
-                            <p> item.label </p>
+                            <p>\u007b\u007b item.label \u007d\u007d</p>
                         </div>
                     </div>
                 </div>
@@ -191,10 +191,10 @@
                     <img :src="'images/' + draggedItem.image" alt="" />
                 </div>
                 <div class="item-slot-amount">
-                    <p>x draggedItem.amount </p>
+                    <p>x\u007b\u007b draggedItem.amount \u007d\u007d</p>
                 </div>
                 <div class="item-slot-label">
-                    <p> draggedItem.label </p>
+                    <p>\u007b\u007b draggedItem.label \u007d\u007d</p>
                 </div>
             </div>
             <ul v-if="showContextMenu" class="context-menu" :style="{ top: contextMenuPosition.top, left: contextMenuPosition.left }">
