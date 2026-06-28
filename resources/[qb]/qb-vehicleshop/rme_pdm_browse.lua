@@ -215,27 +215,36 @@ end)
 --  Private viewing room: enter / exit
 -- ============================================================
 
+-- Everything that makes the experience work is done CLIENT-SIDE here so it can
+-- never get stuck waiting on the server. The routing-bucket request is sent as a
+-- non-blocking extra purely for privacy; if it is delayed or unavailable the
+-- player still gets teleported and the menu still opens.
 local function enterBrowse()
     if browseActive then return end
+    browseActive = true
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
     returnCoords = vector4(pos.x, pos.y, pos.z, GetEntityHeading(ped))
-    browseActive = true
-    TriggerServerEvent('rme_pdm:server:enterBrowse')
-end
 
-RegisterNetEvent('rme_pdm:client:enteredBrowse', function()
-    local ped = PlayerPedId()
     DoScreenFadeOut(500)
-    while not IsScreenFadedOut() do Wait(0) end
+    local timeout = 0
+    while not IsScreenFadedOut() and timeout < 1500 do
+        Wait(10)
+        timeout = timeout + 10
+    end
+
     SetEntityCoords(ped, browseSpot.x, browseSpot.y, browseSpot.z, false, false, false, false)
     SetEntityHeading(ped, browseSpot.w)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
-    Wait(500)
+
+    -- Privacy extra (non-blocking): drop us into our own routing bucket.
+    TriggerServerEvent('rme_pdm:server:enterBrowse')
+
+    Wait(400)
     DoScreenFadeIn(500)
     openBrowse()
-end)
+end
 
 local function exitBrowse()
     if not browseActive then return end
@@ -243,15 +252,23 @@ local function exitBrowse()
     exports['qb-menu']:closeMenu()
     local ped = PlayerPedId()
     DoScreenFadeOut(500)
-    while not IsScreenFadedOut() do Wait(0) end
+    local timeout = 0
+    while not IsScreenFadedOut() and timeout < 1500 do
+        Wait(10)
+        timeout = timeout + 10
+    end
+
+    -- Restore our normal instance BEFORE teleporting back so the world is there.
+    TriggerServerEvent('rme_pdm:server:exitBrowse')
+
     FreezeEntityPosition(ped, false)
     SetEntityInvincible(ped, false)
     if returnCoords then
         SetEntityCoords(ped, returnCoords.x, returnCoords.y, returnCoords.z, false, false, false, false)
         SetEntityHeading(ped, returnCoords.w)
     end
-    TriggerServerEvent('rme_pdm:server:exitBrowse')
-    Wait(500)
+
+    Wait(400)
     DoScreenFadeIn(500)
 end
 
@@ -307,6 +324,17 @@ end)
 RegisterCommand('pdmtest', function()
     print('^3[rme_pdm]^7 /pdmtest used - entering private browse room')
     enterBrowse()
+end, false)
+
+-- Safety command in case a player ever gets stuck (frozen) in the viewing room
+RegisterCommand('pdmunstuck', function()
+    if browseActive then
+        exitBrowse()
+    else
+        local ped = PlayerPedId()
+        FreezeEntityPosition(ped, false)
+        SetEntityInvincible(ped, false)
+    end
 end, false)
 
 -- ============================================================
