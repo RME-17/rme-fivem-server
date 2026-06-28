@@ -95,3 +95,20 @@ CreateThread(function()
         Wait(200)
     end
 end)
+
+-- Hide the compass + minimap fade border while the pause menu (Escape) is open,
+-- mirroring how the native minimap hides on pause. Re-shows when it closes.
+CreateThread(function()
+    local paused = false
+    while true do
+        local active = IsPauseMenuActive()
+        if active and not paused then
+            paused = true
+            SendNUIMessage({ action = 'pause', hidden = true })
+        elseif not active and paused then
+            paused = false
+            SendNUIMessage({ action = 'pause', hidden = false })
+        end
+        Wait(150)
+    end
+end)
