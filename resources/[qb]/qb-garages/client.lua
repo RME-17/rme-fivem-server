@@ -237,7 +237,7 @@ function GetSpawnPoint(garage)
                 chosenSpawnPoint.x,
                 chosenSpawnPoint.y,
                 chosenSpawnPoint.z,
-                5.0,   -- range
+                2.5,   -- RME: tighter range so one parked car can't block every point
                 false,
                 true,  -- checkVehicles
                 false, -- checkPeds
@@ -251,11 +251,13 @@ function GetSpawnPoint(garage)
                 break
             end
         end
+        -- RME: if every point looked occupied, force the first one instead of
+        -- silently failing. A tight spawn beats "nothing happens".
+        if not location then
+            location = garage.spawnPoint[1]
+        end
     elseif #garage.spawnPoint == 1 then
         location = garage.spawnPoint[1]
-    end
-    if not location then
-        QBCore.Functions.Notify(Lang:t('error.vehicle_occupied'), 'error')
     end
     return location
 end
