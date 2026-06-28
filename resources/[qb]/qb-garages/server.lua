@@ -86,6 +86,12 @@ QBCore.Functions.CreateCallback('qb-garages:server:GetGarageVehicles', function(
         vehicles = MySQL.rawExecute.await('SELECT * FROM player_vehicles WHERE citizenid = ? AND depotprice > 0', { citizenId })
     elseif Config.SharedGarages then
         vehicles = MySQL.rawExecute.await('SELECT * FROM player_vehicles WHERE citizenid = ?', { citizenId })
+    elseif type == 'public' then
+        -- RME: return ALL of the player's vehicles for public garages so that any
+        -- car parked at another garage can be transferred here for a fee. The
+        -- client only shows same-garage cars as drivable; cars stored elsewhere
+        -- are shown with a "Transfer here" button instead.
+        vehicles = MySQL.rawExecute.await('SELECT * FROM player_vehicles WHERE citizenid = ?', { citizenId })
     else
         vehicles = MySQL.rawExecute.await('SELECT * FROM player_vehicles WHERE citizenid = ? AND garage = ?', { citizenId, garage })
     end
@@ -218,6 +224,44 @@ RegisterNetEvent('qb-garages:server:PayDepotPrice', function(data)
             end
         end
     end)
+end)
+
+-- RME: Transfer a vehicle parked at another garage into the player's current
+-- garage for a flat fee. Charges cash first, then bank.
+RegisterNetEvent('qb-garages:server:transferVehicle', function(plate, targetGarage)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    local citizenid = Player.PlayerData.citizenid
+    local transferFee = 200 -- RME: fee to move a vehicle to your current garage
+
+    local row = MySQL.single.await('SELECT citizenid, garage, state FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    if not row or row.citizenid ~= citizenid then
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_owned'), 'error', 3500)
+        return
+    end
+    if row.garage == targetGarage then
+        return -- already parked here
+    end
+    if row.state == 2 then
+        TriggerClientEvent('QBCore:Notify', src, 'That vehicle is impounded and must be recovered from the depot.', 'error', 5000)
+        return
+    end
+
+    local cashBalance = Player.PlayerData.money['cash']
+    local bankBalance = Player.PlayerData.money['bank']
+    if cashBalance >= transferFee then
+        Player.RemoveMoney('cash', transferFee, 'garage-transfer')
+    elseif bankBalance >= transferFee then
+        Player.RemoveMoney('bank', transferFee, 'garage-transfer')
+    else
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_enough'), 'error', 3500)
+        return
+    end
+
+    MySQL.update('UPDATE player_vehicles SET garage = ?, state = 1, depotprice = 0 WHERE plate = ? AND citizenid = ?', { targetGarage, plate, citizenid })
+    TriggerClientEvent('QBCore:Notify', src, ('Vehicle transferred to your current garage for $%s.'):format(transferFee), 'success', 5000)
+    TriggerClientEvent('qb-garages:client:transferComplete', src)
 end)
 
 -- House Garages
