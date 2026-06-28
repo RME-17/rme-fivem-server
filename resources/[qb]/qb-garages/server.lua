@@ -7,6 +7,9 @@ local OutsideVehicles = {}
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
+        -- RME: clear deadlocks from the previous session and confirm the build
+        -- that is actually running on the live server.
+        print('^2[qb-garages] RME build active: transfer + self-heal + diagnostics^0')
         if Config['AutoRespawn'] then
             MySQL.update('UPDATE player_vehicles SET state = 1 WHERE state = 0', {})
         else
@@ -272,6 +275,47 @@ RegisterNetEvent('qb-garages:server:transferVehicle', function(plate, targetGara
     TriggerClientEvent('QBCore:Notify', src, ('Vehicle transferred to your current garage for $%s.'):format(transferFee), 'success', 5000)
     TriggerClientEvent('qb-garages:client:transferComplete', src)
 end)
+
+-- RME: Diagnostics -- list the calling player's vehicles with the exact fields
+-- that decide whether a garage button works (state / garage / depotprice).
+RegisterCommand('mycars', function(source)
+    if source == 0 then return end
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not Player then return end
+    local rows = MySQL.rawExecute.await('SELECT plate, vehicle, state, garage, depotprice, balance FROM player_vehicles WHERE citizenid = ?', { Player.PlayerData.citizenid })
+    if not rows or #rows == 0 then
+        TriggerClientEvent('chat:addMessage', source, { color = { 255, 180, 0 }, args = { '[Garage]', 'You have no vehicles on record.' } })
+        return
+    end
+    TriggerClientEvent('chat:addMessage', source, { color = { 0, 200, 255 }, args = { '[Garage]', ('You have %s vehicle(s):'):format(#rows) } })
+    for _, r in pairs(rows) do
+        local line = ('%s | %s | state=%s | garage=%s | depot=%s | owed=%s'):format(
+            tostring(r.plate), tostring(r.vehicle), tostring(r.state), tostring(r.garage), tostring(r.depotprice or 0), tostring(r.balance or 0))
+        TriggerClientEvent('chat:addMessage', source, { color = { 200, 200, 200 }, args = { '[Garage]', line } })
+    end
+end, false)
+
+-- RME: Self-repair -- reset the calling player's own vehicles so they can be
+-- pulled out again. Clears stale ghost entities, sets non-impounded cars back
+-- to "stored" (state 1) with no depot fee. Only ever touches the caller's cars.
+RegisterCommand('unstuckmycars', function(source)
+    if source == 0 then return end
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not Player then return end
+    local citizenid = Player.PlayerData.citizenid
+    local rows = MySQL.rawExecute.await('SELECT plate FROM player_vehicles WHERE citizenid = ?', { citizenid })
+    local cleared = 0
+    for _, r in pairs(rows or {}) do
+        local ov = OutsideVehicles[r.plate]
+        if ov and ov.entity and DoesEntityExist(ov.entity) then
+            DeleteEntity(ov.entity)
+            cleared = cleared + 1
+        end
+        OutsideVehicles[r.plate] = nil
+    end
+    MySQL.update('UPDATE player_vehicles SET state = 1, depotprice = 0 WHERE citizenid = ? AND state != 2', { citizenid })
+    TriggerClientEvent('QBCore:Notify', source, ('Your vehicles were reset (%s ghost(s) cleared). Open the garage and try again.'):format(cleared), 'success', 6000)
+end, false)
 
 -- House Garages
 
