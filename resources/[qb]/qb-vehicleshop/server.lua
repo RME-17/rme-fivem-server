@@ -43,6 +43,20 @@ local function GetVehicleTypeByModel(model)
     return vehicleType or 'automobile'
 end
 
+-- RME: where self-service purchases are delivered. Internal garage key stays
+-- 'pillboxgarage' (that's the Legion Square underground garage in qb-garages);
+-- only the on-screen label was renamed to 'Legion Square Garage'.
+local RME_DELIVERY_GARAGE = 'pillboxgarage'
+local RME_DELIVERY_LABEL = 'Legion Square Garage'
+
+local function rme_deliveredNotify(src, vehicle)
+    local data = sharedVehicles[vehicle]
+    local name = data and ((data.brand and (data.brand .. ' ') or '') .. (data.name or '')) or 'vehicle'
+    name = Trim(name)
+    if not name or name == '' then name = 'vehicle' end
+    TriggerClientEvent('QBCore:Notify', src, ('Your %s has been delivered to the %s.'):format(name, RME_DELIVERY_LABEL), 'success', 7500)
+end
+
 QBCore.Functions.CreateCallback('qb-vehicleshop:server:spawnvehicle', function(source, cb, plate, vehicle, coords)
     local vehType = sharedVehicles[vehicle] and sharedVehicles[vehicle].type or GetVehicleTypeByModel(vehicle)
     local veh = CreateVehicleServerSetter(GetHashKey(vehicle), vehType, coords.x, coords.y, coords.z, coords.w)
@@ -239,7 +253,7 @@ RegisterNetEvent('qb-vehicleshop:server:financePaymentFull', function(data)
     end
 end)
 
--- Buy public vehicle outright
+-- Buy public vehicle outright (RME self-service: delivered straight to garage)
 RegisterNetEvent('qb-vehicleshop:server:buyShowroomVehicle', function(vehicle)
     local src = source
     vehicle = vehicle.buyVehicle
@@ -257,11 +271,11 @@ RegisterNetEvent('qb-vehicleshop:server:buyShowroomVehicle', function(vehicle)
             GetHashKey(vehicle),
             '{}',
             plate,
-            'pillboxgarage',
-            0
+            RME_DELIVERY_GARAGE,
+            1
         })
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.purchased'), 'success')
-        TriggerClientEvent('qb-vehicleshop:client:buyShowroomVehicle', src, vehicle, plate)
+        rme_deliveredNotify(src, vehicle)
         pData.Functions.RemoveMoney('cash', vehiclePrice, 'vehicle-bought-in-showroom')
     elseif bank > tonumber(vehiclePrice) then
         MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, garage, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', {
@@ -271,18 +285,18 @@ RegisterNetEvent('qb-vehicleshop:server:buyShowroomVehicle', function(vehicle)
             GetHashKey(vehicle),
             '{}',
             plate,
-            'pillboxgarage',
-            0
+            RME_DELIVERY_GARAGE,
+            1
         })
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.purchased'), 'success')
-        TriggerClientEvent('qb-vehicleshop:client:buyShowroomVehicle', src, vehicle, plate)
+        rme_deliveredNotify(src, vehicle)
         pData.Functions.RemoveMoney('bank', vehiclePrice, 'vehicle-bought-in-showroom')
     else
         TriggerClientEvent('QBCore:Notify', src, Lang:t('error.notenoughmoney'), 'error')
     end
 end)
 
--- Finance public vehicle
+-- Finance public vehicle (RME self-service: delivered straight to garage)
 RegisterNetEvent('qb-vehicleshop:server:financeVehicle', function(downPayment, paymentAmount, vehicle)
     local src = source
     downPayment = tonumber(downPayment)
@@ -307,15 +321,15 @@ RegisterNetEvent('qb-vehicleshop:server:financeVehicle', function(downPayment, p
             GetHashKey(vehicle),
             '{}',
             plate,
-            'pillboxgarage',
-            0,
+            RME_DELIVERY_GARAGE,
+            1,
             balance,
             vehPaymentAmount,
             paymentAmount,
             timer
         })
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.purchased'), 'success')
-        TriggerClientEvent('qb-vehicleshop:client:buyShowroomVehicle', src, vehicle, plate)
+        rme_deliveredNotify(src, vehicle)
         pData.Functions.RemoveMoney('cash', downPayment, 'vehicle-bought-in-showroom')
     elseif bank >= downPayment then
         MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, garage, state, balance, paymentamount, paymentsleft, financetime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', {
@@ -325,15 +339,15 @@ RegisterNetEvent('qb-vehicleshop:server:financeVehicle', function(downPayment, p
             GetHashKey(vehicle),
             '{}',
             plate,
-            'pillboxgarage',
-            0,
+            RME_DELIVERY_GARAGE,
+            1,
             balance,
             vehPaymentAmount,
             paymentAmount,
             timer
         })
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.purchased'), 'success')
-        TriggerClientEvent('qb-vehicleshop:client:buyShowroomVehicle', src, vehicle, plate)
+        rme_deliveredNotify(src, vehicle)
         pData.Functions.RemoveMoney('bank', downPayment, 'vehicle-bought-in-showroom')
     else
         TriggerClientEvent('QBCore:Notify', src, Lang:t('error.notenoughmoney'), 'error')
