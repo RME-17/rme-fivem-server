@@ -22,7 +22,7 @@ return {
         -- Set your interaction system below
         -- Available options are: 'ox_target', 'qb-target', 'interact' & 'custom'
         -- 'custom' needs to be added to client/functions.lua
-        interact = 'ox_target',
+        interact = 'qb-target',
         -- Set your notification system below
         -- Available options are: 'lation_ui', 'ox_lib', 'esx', 'qb', 'okok', 'sd-notify', 'wasabi_notify' & 'custom'
         -- 'custom' needs to be added to client/functions.lua
