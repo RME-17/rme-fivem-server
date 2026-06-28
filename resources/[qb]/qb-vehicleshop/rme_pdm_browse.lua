@@ -19,6 +19,7 @@ local blockedModels = {
     ['ruiner2'] = true, ['deluxo'] = true, ['stromberg'] = true, ['toreador'] = true,
     ['oppressor'] = true, ['oppressor2'] = true, ['jb700'] = true, ['vigilante'] = true,
     ['scramjet'] = true, ['rcbandito'] = true, ['tampa3'] = true, ['menacer'] = true,
+    ['voltic2'] = true,
     -- Arena War weaponized
     ['issi4'] = true, ['issi5'] = true, ['issi6'] = true,
     ['dominator4'] = true, ['dominator5'] = true, ['dominator6'] = true,
