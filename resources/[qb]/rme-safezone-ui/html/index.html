@@ -29,13 +29,13 @@
   .sub { font-size:11px; font-weight:500; color:rgba(255,255,255,0.5); margin-top:3px; }
 
   #zone {
-    position:absolute; top:7%; left:50%;
+    position:absolute; top:2%; left:50%;
     transform:translateX(-50%) translateY(-16px);
     opacity:0; transition:opacity .3s ease, transform .3s ease; pointer-events:none;
   }
   #zone.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-  #wrap { position:absolute; top:calc(7% + 78px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
+  #wrap { position:absolute; top:calc(2% + 78px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
   .toast { opacity:0; transform:translateY(-12px) scale(.98); transition:opacity .28s ease, transform .28s ease; }
   .toast.show { opacity:1; transform:translateY(0) scale(1); }
   .toast.hide { opacity:0; transform:translateY(-12px) scale(.98); }
