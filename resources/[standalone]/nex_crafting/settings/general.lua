@@ -55,7 +55,7 @@ nexCrafting.ConfigData = {
         },
 
         oxInventory = {
-            imagePath = 'nui://ox_inventory/web/images/',
+            imagePath = 'nui://qb-inventory/html/images/',
             benchStash = {
                 enabled = false,
                 slots = 10,

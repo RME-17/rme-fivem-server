@@ -1,51 +1,16 @@
 return {
 
-    -- ⚠️ WARNING: When you are working with this script, never do "restart lation_mining"
-    -- ⚠️ This will cause issues, data loss & more! You must restart the script like this:
-    -- ⚠️ "stop lation_mining" ..wait a couple seconds.. then "ensure lation_mining"
-
-    -- 🔎 Looking for more high quality scripts?
-    -- 🛒 Shop Now: https://lationscripts.com
-    -- 💬 Join Discord: https://discord.gg/9EbY4nM5uu
-    -- 😢 How dare you leave this option false?!
     YouFoundTheBestScripts = false,
 
-    ----------------------------------------------
-    --        🛠️ Setup the basics below
-    ----------------------------------------------
-
     setup = {
-        -- Use only if needed, directed by support or know what you're doing
-        -- Notice: enabling debug features will significantly increase resmon
-        -- And should always be disabled in production
         debug = false,
-        -- Set your interaction system below
-        -- Available options are: 'ox_target', 'qb-target', 'interact' & 'custom'
-        -- 'custom' needs to be added to client/functions.lua
         interact = 'qb-target',
-        -- Set your notification system below
-        -- Available options are: 'lation_ui', 'ox_lib', 'esx', 'qb', 'okok', 'sd-notify', 'wasabi_notify' & 'custom'
-        -- 'custom' needs to be added to client/functions.lua
         notify = 'ox_lib',
-        -- Set your progress bar system below
-        -- Available options are: 'lation_ui', 'ox_lib', 'qbcore' & 'custom'
-        -- 'custom' needs to be added to client/functions.lua
-        -- Any custom progress bar must also support animations
         progress = 'ox_lib',
-        -- Set your context menu system below
-        -- Available options are: 'lation_ui', 'ox_lib' & 'custom'
         menu = 'ox_lib',
-        -- Set your dialog system below
-        -- Available options are: 'lation_ui', 'ox_lib' & 'custom'
         dialogs = 'ox_lib',
-        -- Do you want to be notified via server console if an update is available?
-        -- True if yes, false if no
         version = true,
     },
-
-    ----------------------------------------------
-    --       📈 Customize the XP system
-    ----------------------------------------------
 
     experience = {
         [1] = 0,
@@ -55,43 +20,32 @@ return {
         [5] = 50000,
     },
 
-    ----------------------------------------------
-    --       🪓 Customize your pickaxes
-    ----------------------------------------------
-
     pickaxes = {
-        [1] = { item = 'ls_pickaxe', price = 150, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 1 },
-        [2] = { item = 'ls_copper_pickaxe', price = 300, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 2 },
-        [3] = { item = 'ls_iron_pickaxe', price = 750, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 3 },
-        [4] = { item = 'ls_silver_pickaxe', price = 1500, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 4 },
-        [5] = { item = 'ls_gold_pickaxe', price = 3000, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 5 },
+        [1] = { item = 'ls_pickaxe', degrade = 1 },
+        [2] = { item = 'ls_copper_pickaxe', degrade = 0.75 },
+        [3] = { item = 'ls_iron_pickaxe', degrade = 0.5 },
+        [4] = { item = 'ls_silver_pickaxe', degrade = 0.25 },
+        [5] = { item = 'ls_gold_pickaxe', degrade = 0.1 },
     },
 
-    ----------------------------------------------
-    --          🛒 Setup your shops
-    ----------------------------------------------
-
     shops = {
-        -- The location to spawn the main ped at the mine
         location = vec4(2957.85, 2753.83, 43.71, 289.98),
         model = 'a_m_m_farmer_01',
         scenario = 'WORLD_HUMAN_DRINKING',
         hours = { min = 0, max = 24 },
-        -- Supply shop (sells items to player)
         mine = {
             enable = true,
             account = 'cash',
             items = {
-                [1] = { item = 'ls_pickaxe', price = 150, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 1 },
-                [2] = { item = 'ls_copper_pickaxe', price = 300, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 2 },
-                [3] = { item = 'ls_iron_pickaxe', price = 750, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 3 },
-                [4] = { item = 'ls_silver_pickaxe', price = 1500, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 4 },
-                [5] = { item = 'ls_gold_pickaxe', price = 3000, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 5 },
+                [1] = { item = 'ls_pickaxe', price = 150, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 1 },
+                [2] = { item = 'ls_copper_pickaxe', price = 300, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 2 },
+                [3] = { item = 'ls_iron_pickaxe', price = 750, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 3 },
+                [4] = { item = 'ls_silver_pickaxe', price = 1500, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 4 },
+                [5] = { item = 'ls_gold_pickaxe', price = 3000, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 5 },
                 [6] = { item = 'water', price = 5, icon = 'droplet' },
                 [7] = { item = 'burger', price = 5, icon = 'burger' },
             },
         },
-        -- Pawn shop (buys items from players)
         pawn = {
             enable = true,
             account = 'cash',
@@ -102,7 +56,7 @@ return {
                 [4] = { item = 'ls_silver_ore', price = 10, icon = 'hand-holding-dollar' },
                 [5] = { item = 'ls_gold_ore', price = 20, icon = 'hand-holding-dollar' },
                 [6] = { item = 'ls_copper_ingot', price = 35, icon = 'hand-holding-dollar' },
-                [7] = { item = 'ls_iron_ingot', price = 60, icon = 'hand-holding-dollar'},
+                [7] = { item = 'ls_iron_ingot', price = 60, icon = 'hand-holding-dollar' },
                 [8] = { item = 'ls_silver_ingot', price = 100, icon = 'hand-holding-dollar' },
                 [9] = { item = 'ls_gold_ingot', price = 175, icon = 'hand-holding-dollar' },
             }
@@ -115,10 +69,6 @@ return {
             label = 'The Mines'
         }
     },
-
-    ----------------------------------------------
-    --           ⛏️ Build the mines
-    ----------------------------------------------
 
     mining = {
         center = vec3(2946.6995, 2792.2271, 40.5708),
@@ -226,13 +176,8 @@ return {
         }
     },
 
-    ----------------------------------------------
-    --           🔥 Setup smelting
-    ----------------------------------------------
-
     smelting = {
-        -- Where do you want the smelter to be?
-        coords = vec3(2957.85, 2753.83, 43.71),
+        coords = vec3(1087.85, -2001.9, 30.88),
         ingots = {
             [1] = {
                 name = 'Copper Ingot',
