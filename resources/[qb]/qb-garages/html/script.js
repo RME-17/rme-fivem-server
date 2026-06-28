@@ -76,16 +76,18 @@ function populateVehicleList(garageLabel, vehicles) {
 
         vehicleItem.appendChild(vehicleInfo);
 
-        // Finance Info
+        // Ownership / Finance Info
         const financeDriveContainer = document.createElement("div");
         financeDriveContainer.classList.add("finance-drive-container");
         const financeInfo = document.createElement("div");
         financeInfo.classList.add("finance-info");
 
         if (v.balance && v.balance > 0) {
-            financeInfo.textContent = "Balance: $" + v.balance.toFixed(0);
+            financeInfo.classList.add("status-financed");
+            financeInfo.textContent = "FINANCED \u00B7 $" + v.balance.toFixed(0) + " left";
         } else {
-            financeInfo.textContent = "Paid Off";
+            financeInfo.classList.add("status-bought");
+            financeInfo.textContent = "BOUGHT";
         }
 
         financeDriveContainer.appendChild(financeInfo);
@@ -131,12 +133,12 @@ function populateVehicleList(garageLabel, vehicles) {
         driveButton.textContent = status;
 
         if (status === "Depot" || status === "Impound") {
-            driveButton.style.backgroundColor = "#222";
+            driveButton.classList.add("btn-muted");
             driveButton.disabled = true;
         }
 
         if (status === "Out") {
-            driveButton.style.backgroundColor = "#222";
+            driveButton.classList.add("btn-muted");
         }
 
         driveButton.onclick = function () {
@@ -240,17 +242,10 @@ function populateVehicleList(garageLabel, vehicles) {
 
             if (percentage >= 75) {
                 progress.classList.add("bar-green");
-                if (percentage > 45) {
-                    progressText.style.color = "var(--md-on-success)";
-                }
             } else if (percentage >= 50) {
                 progress.classList.add("bar-yellow");
-                if (percentage > 45) {
-                    progressText.style.color = "var(--md-on-warning)";
-                }
             } else {
                 progress.classList.add("bar-red");
-                // Keep default text color for low percentages
             }
 
             progressBar.appendChild(progressText);
