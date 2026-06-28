@@ -53,18 +53,18 @@ Config.VitrineRewards = {
             ['min'] = 1,
             ['max'] = 4
         },
-        ['probability'] = 0.4
-    },
-    [2] = {
-        ['item'] = 'diamond_ring',
-        ['amount'] = {
-            ['min'] = 1,
-            ['max'] = 4
-        },
         ['probability'] = 0.3
     },
+    [2] = {
+        ['item'] = 'diamond',
+        ['amount'] = {
+            ['min'] = 1,
+            ['max'] = 2
+        },
+        ['probability'] = 0.2
+    },
     [3] = {
-        ['item'] = 'goldchain',
+        ['item'] = 'diamond_ring',
         ['amount'] = {
             ['min'] = 1,
             ['max'] = 4
@@ -72,6 +72,14 @@ Config.VitrineRewards = {
         ['probability'] = 0.2
     },
     [4] = {
+        ['item'] = 'goldchain',
+        ['amount'] = {
+            ['min'] = 1,
+            ['max'] = 4
+        },
+        ['probability'] = 0.2
+    },
+    [5] = {
         ['item'] = 'tenkgoldchain',
         ['amount'] = {
             ['min'] = 1,
