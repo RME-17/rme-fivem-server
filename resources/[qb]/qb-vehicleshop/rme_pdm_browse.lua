@@ -11,6 +11,8 @@ local shopName = 'pdm'
 local browseCoords = vector3(-57.5, -1096.76, 26.42)
 local interactDistance = 3.0
 
+print('^2[rme_pdm]^7 browse-and-buy script LOADED')
+
 local function comma_value(amount)
     local formatted = tostring(amount)
     local k
@@ -63,7 +65,7 @@ local function openBrowse()
         },
     }
     if #sorted == 0 then
-        menu[#menu + 1] = { header = 'No vehicles available', icon = 'fa-solid fa-ban' }
+        menu[#menu + 1] = { header = 'No vehicles assigned to this shop', icon = 'fa-solid fa-ban' }
     end
     for _, cat in ipairs(sorted) do
         menu[#menu + 1] = {
@@ -78,6 +80,12 @@ end
 RegisterNetEvent('rme_pdm:client:openBrowse', function()
     openBrowse()
 end)
+
+-- Debug/test command: opens the browse menu from anywhere
+RegisterCommand('pdmtest', function()
+    print('^3[rme_pdm]^7 /pdmtest used - opening browse menu')
+    openBrowse()
+end, false)
 
 RegisterNetEvent('rme_pdm:client:openCategory', function(data)
     local menu = {
@@ -179,17 +187,20 @@ RegisterNetEvent('rme_pdm:client:finance', function(data)
     end
 end)
 
--- Press-E interaction point at the sales desk
+-- Press-E interaction point at the sales desk (with a visible marker)
 CreateThread(function()
     while true do
         local sleep = 1000
         local pos = GetEntityCoords(PlayerPedId())
         local dist = #(pos - browseCoords)
-        if dist < interactDistance then
+        if dist < 15.0 then
             sleep = 0
-            DrawText3D(browseCoords.x, browseCoords.y, browseCoords.z + 0.2, '[E] Browse Vehicles')
-            if IsControlJustReleased(0, 38) then
-                openBrowse()
+            DrawMarker(2, browseCoords.x, browseCoords.y, browseCoords.z + 1.0, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 0, 150, 255, 200, false, true, 2, false, nil, nil, false)
+            if dist < interactDistance then
+                DrawText3D(browseCoords.x, browseCoords.y, browseCoords.z + 0.2, '[E] Browse Vehicles')
+                if IsControlJustReleased(0, 38) then
+                    openBrowse()
+                end
             end
         end
         Wait(sleep)
