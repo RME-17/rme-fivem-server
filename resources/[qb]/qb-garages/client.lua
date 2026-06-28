@@ -208,6 +208,10 @@ end
 
 function GetSpawnPoint(garage)
     local location = nil
+    if not garage or not garage.spawnPoint then
+        QBCore.Functions.Notify(Lang:t('error.vehicle_occupied'), 'error')
+        return nil
+    end
     if #garage.spawnPoint > 1 then
         local maxTries = #garage.spawnPoint
         for _ = 1, maxTries do
@@ -292,10 +296,23 @@ end
 RegisterNetEvent('qb-garages:client:takeOutGarage', function(data)
     QBCore.Functions.TriggerCallback('qb-garages:server:IsSpawnOk', function(spawn)
         if spawn then
-            local location = GetSpawnPoint(data.garage)
+            -- RME fix: resolve the garage from the LOCAL config by its key. The
+            -- garage object that round-trips through the NUI as JSON loses the
+            -- vector4 spawn-point coordinates, which caused the car to spawn at
+            -- broken coords (never appearing) and then report "not in depot".
+            local garageConfig = Config.Garages[data.index] or data.garage
+            local location = GetSpawnPoint(garageConfig)
             if not location then return end
             QBCore.Functions.TriggerCallback('qb-garages:server:spawnvehicle', function(netId, properties, vehPlate)
-                while not NetworkDoesNetworkIdExist(netId) do Wait(10) end
+                local timeout = 0
+                while not NetworkDoesNetworkIdExist(netId) and timeout < 500 do
+                    Wait(10)
+                    timeout = timeout + 1
+                end
+                if not NetworkDoesNetworkIdExist(netId) then
+                    QBCore.Functions.Notify(Lang:t('error.vehicle_occupied'), 'error', 5000)
+                    return
+                end
                 local veh = NetworkGetEntityFromNetworkId(netId)
                 Citizen.Await(CheckPlate(veh, vehPlate))
                 QBCore.Functions.SetVehicleProperties(veh, properties)
