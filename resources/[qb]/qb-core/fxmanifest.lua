@@ -13,6 +13,7 @@ shared_scripts {
     'shared/main.lua',
     'shared/functions.lua',
     'shared/items.lua',
+    'shared/rme_custom_items.lua',
     'shared/jobs.lua',
     'shared/vehicles.lua',
     'shared/gangs.lua',
