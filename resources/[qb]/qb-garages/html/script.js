@@ -76,143 +76,173 @@ function populateVehicleList(garageLabel, vehicles) {
 
         vehicleItem.appendChild(vehicleInfo);
 
-        // Ownership / Finance Info
+        // Ownership / Finance Info + action button
         const financeDriveContainer = document.createElement("div");
         financeDriveContainer.classList.add("finance-drive-container");
-        const financeInfo = document.createElement("div");
-        financeInfo.classList.add("finance-info");
 
-        if (v.balance && v.balance > 0) {
-            financeInfo.classList.add("status-financed");
-            financeInfo.textContent = "FINANCED \u00B7 $" + v.balance.toFixed(0) + " left";
+        if (v.transferable) {
+            // Vehicle is stored at a different garage. Show where it is and offer
+            // to transfer it into this garage for a flat fee.
+            const parkedInfo = document.createElement("div");
+            parkedInfo.classList.add("finance-info", "status-elsewhere");
+            parkedInfo.textContent = "AT " + String(v.parkedLabel || "ANOTHER GARAGE").toUpperCase();
+            financeDriveContainer.appendChild(parkedInfo);
+
+            const transferButton = document.createElement("button");
+            transferButton.classList.add("drive-btn", "btn-transfer");
+            transferButton.textContent = "Transfer \u00B7 $200";
+            transferButton.onclick = function () {
+                if (transferButton.disabled) return;
+                transferButton.disabled = true;
+                transferButton.textContent = "Transferring...";
+                fetch("https://qb-garages/transferVehicle", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8",
+                    },
+                    body: JSON.stringify({ plate: v.plate, index: v.index }),
+                })
+                    .then((response) => response.json())
+                    .catch(() => {});
+            };
+            financeDriveContainer.appendChild(transferButton);
+            vehicleItem.appendChild(financeDriveContainer);
         } else {
-            financeInfo.classList.add("status-bought");
-            financeInfo.textContent = "BOUGHT";
-        }
+            const financeInfo = document.createElement("div");
+            financeInfo.classList.add("finance-info");
 
-        financeDriveContainer.appendChild(financeInfo);
+            if (v.balance && v.balance > 0) {
+                financeInfo.classList.add("status-financed");
+                financeInfo.textContent = "FINANCED \u00B7 $" + v.balance.toFixed(0) + " left";
+            } else {
+                financeInfo.classList.add("status-bought");
+                financeInfo.textContent = "BOUGHT";
+            }
 
-        // Drive Button
-        let status;
-        let isDepotPrice = false;
+            financeDriveContainer.appendChild(financeInfo);
 
-        if (v.state === 0) {
-            if (v.depotPrice && v.depotPrice > 0) {
-                isDepotPrice = true;
+            // Drive Button
+            let status;
+            let isDepotPrice = false;
 
-                if (v.type === "public") {
-                    status = "Depot";
-                } else if (v.type === "depot") {
-                    status = "$" + v.depotPrice.toFixed(0);
+            if (v.state === 0) {
+                if (v.depotPrice && v.depotPrice > 0) {
+                    isDepotPrice = true;
+
+                    if (v.type === "public") {
+                        status = "Depot";
+                    } else if (v.type === "depot") {
+                        status = "$" + v.depotPrice.toFixed(0);
+                    } else {
+                        status = "Out";
+                    }
                 } else {
                     status = "Out";
                 }
-            } else {
-                status = "Out";
-            }
-        } else if (v.state === 1) {
-            if (v.depotPrice && v.depotPrice > 0) {
-                isDepotPrice = true;
+            } else if (v.state === 1) {
+                if (v.depotPrice && v.depotPrice > 0) {
+                    isDepotPrice = true;
 
-                if (v.type === "depot") {
-                    status = "$" + v.depotPrice.toFixed(0);
-                } else if (v.type === "public") {
-                    status = "Depot";
+                    if (v.type === "depot") {
+                        status = "$" + v.depotPrice.toFixed(0);
+                    } else if (v.type === "public") {
+                        status = "Depot";
+                    } else {
+                        status = "Drive";
+                    }
                 } else {
                     status = "Drive";
                 }
-            } else {
-                status = "Drive";
+            } else if (v.state === 2) {
+                status = "Impound";
             }
-        } else if (v.state === 2) {
-            status = "Impound";
-        }
 
-        const driveButton = document.createElement("button");
-        driveButton.classList.add("drive-btn");
-        driveButton.textContent = status;
+            const driveButton = document.createElement("button");
+            driveButton.classList.add("drive-btn");
+            driveButton.textContent = status;
 
-        if (status === "Depot" || status === "Impound") {
-            driveButton.classList.add("btn-muted");
-            driveButton.disabled = true;
-        }
-
-        if (status === "Out") {
-            driveButton.classList.add("btn-muted");
-        }
-
-        driveButton.onclick = function () {
-            if (driveButton.disabled) return;
-
-            const vehicleStats = {
-                fuel: v.fuel,
-                engine: v.engine,
-                body: v.body,
-            };
-
-            const vehicleData = {
-                vehicle: v.vehicle,
-                garage: v.garage,
-                index: v.index,
-                plate: v.plate,
-                type: v.type,
-                depotPrice: v.depotPrice,
-                stats: vehicleStats,
-            };
+            if (status === "Depot" || status === "Impound") {
+                driveButton.classList.add("btn-muted");
+                driveButton.disabled = true;
+            }
 
             if (status === "Out") {
-                fetch("https://qb-garages/trackVehicle", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    },
-                    body: JSON.stringify(v.plate),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data === "ok") {
-                            closeGarageMenu();
-                        } else {
-                            return;
-                        }
-                    });
-            } else if (isDepotPrice) {
-                fetch("https://qb-garages/takeOutDepo", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    },
-                    body: JSON.stringify(vehicleData),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data === "ok") {
-                            closeGarageMenu();
-                        } else {
-                            console.error("Failed to pay depot price.");
-                        }
-                    });
-            } else {
-                fetch("https://qb-garages/takeOutVehicle", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    },
-                    body: JSON.stringify(vehicleData),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data === "ok") {
-                            closeGarageMenu();
-                        } else {
-                            console.error("Failed to close Garage UI.");
-                        }
-                    });
+                driveButton.classList.add("btn-muted");
             }
-        };
 
-        financeDriveContainer.appendChild(driveButton);
-        vehicleItem.appendChild(financeDriveContainer);
+            driveButton.onclick = function () {
+                if (driveButton.disabled) return;
+
+                const vehicleStats = {
+                    fuel: v.fuel,
+                    engine: v.engine,
+                    body: v.body,
+                };
+
+                const vehicleData = {
+                    vehicle: v.vehicle,
+                    garage: v.garage,
+                    index: v.index,
+                    plate: v.plate,
+                    type: v.type,
+                    depotPrice: v.depotPrice,
+                    stats: vehicleStats,
+                };
+
+                if (status === "Out") {
+                    fetch("https://qb-garages/trackVehicle", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=UTF-8",
+                        },
+                        body: JSON.stringify(v.plate),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data === "ok") {
+                                closeGarageMenu();
+                            } else {
+                                return;
+                            }
+                        });
+                } else if (isDepotPrice) {
+                    fetch("https://qb-garages/takeOutDepo", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=UTF-8",
+                        },
+                        body: JSON.stringify(vehicleData),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data === "ok") {
+                                closeGarageMenu();
+                            } else {
+                                console.error("Failed to pay depot price.");
+                            }
+                        });
+                } else {
+                    fetch("https://qb-garages/takeOutVehicle", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=UTF-8",
+                        },
+                        body: JSON.stringify(vehicleData),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data === "ok") {
+                                closeGarageMenu();
+                            } else {
+                                console.error("Failed to close Garage UI.");
+                            }
+                        });
+                }
+            };
+
+            financeDriveContainer.appendChild(driveButton);
+            vehicleItem.appendChild(financeDriveContainer);
+        }
 
         // Progress Bars: Fuel, Engine, Body
         const stats = document.createElement("div");
