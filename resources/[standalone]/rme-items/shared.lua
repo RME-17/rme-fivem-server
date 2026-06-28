@@ -1,6 +1,6 @@
 -- rme-items: registers custom items that are NOT in qb-core/shared/items.lua
--- Loaded as a shared_script so the item exists on BOTH the server (for
--- giving/crafting) and every client (so menus like qb-crafting can read its
+-- Loaded as a shared_script so the items exist on BOTH the server (for
+-- giving/crafting) and every client (so menus like qb-crafting can read their
 -- label/image without crashing).
 
 local QBCore = exports['qb-core']:GetCoreObject()
@@ -16,6 +16,28 @@ local CustomItems = {
         useable = false,
         shouldClose = true,
         description = 'An ice-cold diamond-encrusted chain. Pure flex.'
+    },
+    gold_earrings = {
+        name = 'gold_earrings',
+        label = 'Gold Earrings',
+        weight = 500,
+        type = 'item',
+        image = 'gold_earring_128x128_17.png',
+        unique = false,
+        useable = false,
+        shouldClose = true,
+        description = 'A glistening pair of solid gold earrings.'
+    },
+    diamond_earrings = {
+        name = 'diamond_earrings',
+        label = 'Diamond Earrings',
+        weight = 500,
+        type = 'item',
+        image = 'diamond_earring_silver_128x128_15.png',
+        unique = false,
+        useable = false,
+        shouldClose = true,
+        description = 'A pair of diamond-studded silver earrings.'
     },
 }
 
