@@ -3,9 +3,9 @@ game 'gta5'
 lua54 'yes'
 
 author 'RME'
-description 'Registers custom RME items at runtime via the qb-core AddItem export (avoids editing qb-core/shared/items.lua directly)'
-version '1.0.0'
+description 'Registers custom items (diamond_chain) not present in qb-core items.lua'
+version '1.1.0'
 
-server_scripts {
-    'server.lua'
+shared_scripts {
+    'shared.lua'
 }
