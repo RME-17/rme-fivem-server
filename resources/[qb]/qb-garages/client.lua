@@ -4,6 +4,7 @@ local PlayerGang = {}
 local PlayerJob = {}
 local garageZones = {}
 local listenForKey = false
+local lastGarageData = nil
 
 -- Functions
 
@@ -26,31 +27,46 @@ local function CheckPlayers(vehicle)
 end
 
 local function OpenGarageMenu(data)
+    lastGarageData = data
     QBCore.Functions.TriggerCallback('qb-garages:server:GetGarageVehicles', function(result)
         if result == nil then return QBCore.Functions.Notify(Lang:t('error.no_vehicles'), 'error', 5000) end
         local formattedVehicles = {}
         for _, v in pairs(result) do
-            local enginePercent = QBCore.Shared.Round(v.engine, 0)
-            local bodyPercent = QBCore.Shared.Round(v.body, 0)
-            local vname = nil
-            pcall(function()
-                vname = QBCore.Shared.Vehicles[v.vehicle].name
-            end)
-            formattedVehicles[#formattedVehicles + 1] = {
-                vehicle = v.vehicle,
-                vehicleLabel = vname or v.vehicle,
-                plate = v.plate,
-                state = v.state,
-                fuel = v.fuel,
-                engine = enginePercent,
-                body = bodyPercent,
-                distance = v.drivingdistance or 0,
-                garage = Config.Garages[data.indexgarage],
-                type = data.type,
-                index = data.indexgarage,
-                depotPrice = v.depotprice or 0,
-                balance = v.balance or 0
-            }
+            local isHere = (v.garage == data.indexgarage)
+            -- RME: in public garages, cars parked at other garages are shown so
+            -- they can be transferred here. Only stored (state 1) cars qualify;
+            -- skip out/impounded cars that live elsewhere to avoid clutter.
+            local skip = (data.type == 'public' and not isHere and v.state ~= 1)
+            if not skip then
+                local enginePercent = QBCore.Shared.Round(v.engine, 0)
+                local bodyPercent = QBCore.Shared.Round(v.body, 0)
+                local vname = nil
+                pcall(function()
+                    vname = QBCore.Shared.Vehicles[v.vehicle].name
+                end)
+                local transferable = (data.type == 'public' and not isHere)
+                local parkedLabel = 'Another Garage'
+                if Config.Garages[v.garage] and Config.Garages[v.garage].label then
+                    parkedLabel = Config.Garages[v.garage].label
+                end
+                formattedVehicles[#formattedVehicles + 1] = {
+                    vehicle = v.vehicle,
+                    vehicleLabel = vname or v.vehicle,
+                    plate = v.plate,
+                    state = v.state,
+                    fuel = v.fuel,
+                    engine = enginePercent,
+                    body = bodyPercent,
+                    distance = v.drivingdistance or 0,
+                    garage = Config.Garages[data.indexgarage],
+                    type = data.type,
+                    index = data.indexgarage,
+                    depotPrice = v.depotprice or 0,
+                    balance = v.balance or 0,
+                    transferable = transferable,
+                    parkedLabel = parkedLabel
+                }
+            end
         end
         SetNuiFocus(true, true)
         SendNUIMessage({
@@ -256,6 +272,12 @@ RegisterNUICallback('takeOutVehicle', function(data, cb)
     cb('ok')
 end)
 
+-- RME: transfer a vehicle from another garage into the current garage for a fee
+RegisterNUICallback('transferVehicle', function(data, cb)
+    TriggerServerEvent('qb-garages:server:transferVehicle', data.plate, data.index)
+    cb('ok')
+end)
+
 RegisterNUICallback('trackVehicle', function(plate, cb)
     TriggerServerEvent('qb-garages:server:trackVehicle', plate)
     cb('ok')
@@ -275,6 +297,14 @@ end)
 
 RegisterNetEvent('qb-garages:client:trackVehicle', function(coords)
     SetNewWaypoint(coords.x, coords.y)
+end)
+
+-- RME: after a successful transfer, refresh the open garage menu so the moved
+-- car now appears as a drivable vehicle in this garage.
+RegisterNetEvent('qb-garages:client:transferComplete', function()
+    if lastGarageData then
+        OpenGarageMenu(lastGarageData)
+    end
 end)
 
 local function CheckPlate(vehicle, plateToSet)
