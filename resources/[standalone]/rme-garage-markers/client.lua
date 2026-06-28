@@ -25,7 +25,7 @@ local carParkingLots = {
     vector3(1737.03, 3718.88, 34.05),   -- Shore Parking
     vector3(76.88, 6397.3, 31.23),      -- Bell Farms Parking
     vector3(165.75, -3227.2, 5.89),     -- Dumbo Private Parking
-    vector3(213.2, -796.05, 30.86),     -- Pillbox Garage Parking
+    vector3(218.72, -801.06, 30.75),    -- Legion Square (Pillbox) Parking
     vector3(2552.68, 4671.8, 33.95),    -- Grapeseed Parking
 }
 
