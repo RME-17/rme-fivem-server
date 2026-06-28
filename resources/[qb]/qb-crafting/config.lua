@@ -175,8 +175,8 @@ Config = {
     },
     -- Jewelry crafting is a LOCATION, not a placed bench/prop.
     -- Players walk to this spot and use the qb-target option to craft.
-    -- Silver is used as the setting/band/clasp across gem and diamond pieces
-    -- to give silver ore a steady sink (rings +1 silver, necklaces/chains +2).
+    -- Metal split: GOLD for rings, chains and the watch; SILVER for the three
+    -- gem necklaces (emerald / ruby / sapphire).
     jewelry_bench = {
         location = vec4(1109.86, -2008.29, 31.06, 241.9),
         xpType = 'craftingrep',
@@ -194,8 +194,7 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 3 },
-                    { item = 'ls_silver_ingot', amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 4 }
                 }
             },
             {
@@ -203,9 +202,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 7,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 3 },
-                    { item = 'ls_silver_ingot', amount = 1 },
-                    { item = 'diamond',         amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'diamond',       amount = 1 }
                 }
             },
             {
@@ -213,9 +211,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 9,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 5 },
-                    { item = 'ls_silver_ingot', amount = 2 },
-                    { item = 'diamond',         amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 5 },
+                    { item = 'diamond',       amount = 2 }
                 }
             },
             {
@@ -223,9 +220,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 3 },
-                    { item = 'ls_silver_ingot', amount = 1 },
-                    { item = 'emerald',         amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'emerald',       amount = 1 }
                 }
             },
             {
@@ -233,9 +229,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 3 },
-                    { item = 'ls_silver_ingot', amount = 1 },
-                    { item = 'ruby',            amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'ruby',          amount = 1 }
                 }
             },
             {
@@ -243,9 +238,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 3 },
-                    { item = 'ls_silver_ingot', amount = 1 },
-                    { item = 'sapphire',        amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'sapphire',      amount = 1 }
                 }
             },
             {
@@ -253,8 +247,7 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 4 },
-                    { item = 'ls_silver_ingot', amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 6 },
                     { item = 'emerald',         amount = 2 }
                 }
             },
@@ -263,8 +256,7 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 4 },
-                    { item = 'ls_silver_ingot', amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 6 },
                     { item = 'ruby',            amount = 2 }
                 }
             },
@@ -273,8 +265,7 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 4 },
-                    { item = 'ls_silver_ingot', amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 6 },
                     { item = 'sapphire',        amount = 2 }
                 }
             },
