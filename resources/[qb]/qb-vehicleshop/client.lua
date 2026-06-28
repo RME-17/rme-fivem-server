@@ -227,11 +227,8 @@ local function createVehZones(shopName, entity)
         end
         local combo = ComboZone:Create(zones, { name = 'vehCombo', debugPoly = false })
         combo:onPlayerInOut(function(isPointInside)
-            if isPointInside then
-                if PlayerData and PlayerData.job and (PlayerData.job.name == Config.Shops[insideShop]['Job'] or Config.Shops[insideShop]['Job'] == 'none') then
-                    exports['qb-menu']:showHeader(vehHeaderMenu)
-                end
-            else
+            -- RME: clickable showroom-car menu disabled in all dealerships (use the press-E browse menu instead)
+            if not isPointInside then
                 exports['qb-menu']:closeMenu()
             end
         end)
