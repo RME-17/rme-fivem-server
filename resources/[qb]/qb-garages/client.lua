@@ -225,7 +225,7 @@ end
 function GetSpawnPoint(garage)
     local location = nil
     if not garage or not garage.spawnPoint then
-        QBCore.Functions.Notify(Lang:t('error.vehicle_occupied'), 'error')
+        QBCore.Functions.Notify('Garage has no spawn point configured.', 'error')
         return nil
     end
     if #garage.spawnPoint > 1 then
@@ -342,7 +342,9 @@ RegisterNetEvent('qb-garages:client:takeOutGarage', function(data)
                     timeout = timeout + 1
                 end
                 if not NetworkDoesNetworkIdExist(netId) then
-                    QBCore.Functions.Notify(Lang:t('error.vehicle_occupied'), 'error', 5000)
+                    -- RME: distinct message so a real spawn failure (bad model /
+                    -- not streamed) is not confused with "all points occupied".
+                    QBCore.Functions.Notify('Vehicle failed to load, please try again.', 'error', 5000)
                     return
                 end
                 local veh = NetworkGetEntityFromNetworkId(netId)
