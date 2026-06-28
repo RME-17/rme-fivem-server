@@ -53,6 +53,30 @@ Config.PawnItems = {
     [8] = {
         item = 'laptop',
         price = math.random(50, 100)
+    },
+    [9] = {
+        item = 'emerald_ring',
+        price = math.random(1000, 1400)
+    },
+    [10] = {
+        item = 'ruby_ring',
+        price = math.random(1000, 1400)
+    },
+    [11] = {
+        item = 'sapphire_ring',
+        price = math.random(1000, 1400)
+    },
+    [12] = {
+        item = 'emerald_necklace',
+        price = math.random(1800, 2200)
+    },
+    [13] = {
+        item = 'ruby_necklace',
+        price = math.random(1800, 2200)
+    },
+    [14] = {
+        item = 'sapphire_necklace',
+        price = math.random(1800, 2200)
     }
 }
 
@@ -105,6 +129,90 @@ Config.MeltingItems = { -- meltTime is amount of time in minutes per item
             [1] = {
                 item = 'diamond',
                 amount = 5
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [5] = {
+        item = 'emerald_ring',
+        rewards = {
+            [1] = {
+                item = 'emerald',
+                amount = 1
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [6] = {
+        item = 'ruby_ring',
+        rewards = {
+            [1] = {
+                item = 'ruby',
+                amount = 1
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [7] = {
+        item = 'sapphire_ring',
+        rewards = {
+            [1] = {
+                item = 'sapphire',
+                amount = 1
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [8] = {
+        item = 'emerald_necklace',
+        rewards = {
+            [1] = {
+                item = 'emerald',
+                amount = 2
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [9] = {
+        item = 'ruby_necklace',
+        rewards = {
+            [1] = {
+                item = 'ruby',
+                amount = 2
+            },
+            [2] = {
+                item = 'goldbar',
+                amount = 1
+            }
+        },
+        meltTime = 0.15
+    },
+    [10] = {
+        item = 'sapphire_necklace',
+        rewards = {
+            [1] = {
+                item = 'sapphire',
+                amount = 2
             },
             [2] = {
                 item = 'goldbar',
