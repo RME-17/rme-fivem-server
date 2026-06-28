@@ -125,49 +125,6 @@ Config = {
                     { item = 'advancedlockpick', amount = 2 }
                 }
             },
-            {
-                item = 'goldchain',
-                xpRequired = 0,
-                xpGain = 5,
-                requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 }
-                }
-            },
-            {
-                item = 'rolex',
-                xpRequired = 0,
-                xpGain = 6,
-                requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 2 },
-                    { item = 'ls_silver_ingot', amount = 1 }
-                }
-            },
-            {
-                item = 'diamond_ring',
-                xpRequired = 0,
-                xpGain = 6,
-                requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 2 },
-                    { item = 'ls_silver_ingot', amount = 1 }
-                }
-            },
-            {
-                item = 'tenkgoldchain',
-                xpRequired = 0,
-                xpGain = 8,
-                requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 6 },
-                    { item = 'ls_silver_ingot', amount = 1 }
-                }
-            },
-            {
-                item = 'goldbar',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 10 }
-                }
-            },
         }
     },
     attachment_bench = {
@@ -212,6 +169,56 @@ Config = {
                     { item = 'metalscrap', amount = 255 },
                     { item = 'steel',      amount = 390 },
                     { item = 'rubber',     amount = 145 }
+                }
+            },
+        }
+    },
+    jewelry_bench = {
+        object = `prop_jewel_01a`,
+        location = vec4(1077.99, -1985.68, 30.96, 50.84),
+        xpType = 'craftingrep',
+        recipes = {
+            {
+                item = 'goldchain',
+                xpRequired = 0,
+                xpGain = 5,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 }
+                }
+            },
+            {
+                item = 'rolex',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'diamond_ring',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'tenkgoldchain',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 6 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'goldbar',
+                xpRequired = 0,
+                xpGain = 10,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 10 }
                 }
             },
         }
