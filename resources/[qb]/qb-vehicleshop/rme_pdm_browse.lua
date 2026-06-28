@@ -1,6 +1,8 @@
 -- RME custom Premium Deluxe Motorsport browse-and-buy menu
--- A single press-E interaction point at the sales desk that opens a browsable
--- vehicle catalog (category -> vehicle -> Buy / Finance).
+-- Press E at the sales desk -> screen fades -> you are teleported into a PRIVATE
+-- viewing room (your own routing bucket, frozen in place) where you browse the
+-- catalog. Closing the menu (ESC) or buying teleports you back to the showroom.
+-- Multiple players can browse at the same time without seeing each other.
 -- Reuses qb-vehicleshop's existing server events so money, DB inserts, plates
 -- and keys all behave exactly like the stock shop.
 
@@ -9,6 +11,14 @@ local sharedVehicles = exports['qb-core']:GetShared('Vehicles')
 
 local browseCoords = vector3(-57.5, -1096.76, 26.42)
 local interactDistance = 3.0
+
+-- Private viewing spot the player is frozen at while browsing. They are alone in
+-- their own routing bucket, so this just needs to be somewhere out of the way.
+-- Change these coords to any location you like (e.g. a showroom MLO).
+local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
+
+local browseActive = false
+local returnCoords = nil
 
 print('^2[rme_pdm]^7 browse-and-buy script LOADED')
 
@@ -56,7 +66,6 @@ local function comma_value(amount)
 end
 
 -- Vehicle preview image URL (matches the carmarket convention).
--- Stock vehicles load from docs.fivem.net; modded ones can be overridden locally.
 local function vehImage(model)
     return 'https://docs.fivem.net/vehicles/' .. tostring(model):lower() .. '.webp'
 end
@@ -85,7 +94,11 @@ local function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
-local function openBrowse()
+-- ============================================================
+--  Menus
+-- ============================================================
+
+function openBrowse()
     local cats = {}
     for model, v in pairs(sharedVehicles) do
         if isSellable(model, v) and v.category then cats[v.category] = true end
@@ -98,7 +111,7 @@ local function openBrowse()
             isMenuHeader = true,
             icon = 'fa-solid fa-warehouse',
             header = 'PREMIUM DELUXE MOTORSPORT',
-            txt = 'Browse our showroom',
+            txt = 'Private viewing room',
         },
     }
     if #sorted == 0 then
@@ -111,18 +124,18 @@ local function openBrowse()
             params = { event = 'rme_pdm:client:openCategory', args = { category = cat } }
         }
     end
+    menu[#menu + 1] = {
+        header = 'Leave Showroom',
+        txt = 'Return to Premium Deluxe Motorsport',
+        icon = 'fa-solid fa-door-open',
+        params = { event = 'rme_pdm:client:exit' }
+    }
     exports['qb-menu']:openMenu(menu)
 end
 
 RegisterNetEvent('rme_pdm:client:openBrowse', function()
     openBrowse()
 end)
-
--- Debug/test command: opens the browse menu from anywhere
-RegisterCommand('pdmtest', function()
-    print('^3[rme_pdm]^7 /pdmtest used - opening browse menu')
-    openBrowse()
-end, false)
 
 RegisterNetEvent('rme_pdm:client:openCategory', function(data)
     local menu = {
@@ -181,20 +194,13 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
             txt = 'Pay the full price up front',
             icon = img,
             image = img,
-            params = {
-                isServer = true,
-                event = 'qb-vehicleshop:server:buyShowroomVehicle',
-                args = { buyVehicle = data.model }
-            }
+            params = { event = 'rme_pdm:client:confirmBuy', args = data }
         },
         {
             header = 'Finance',
             txt = 'Min ' .. Config.MinimumDown .. '% down, up to ' .. Config.MaximumPayments .. ' payments',
             icon = 'fa-solid fa-coins',
-            params = {
-                event = 'rme_pdm:client:finance',
-                args = data
-            }
+            params = { event = 'rme_pdm:client:finance', args = data }
         },
         {
             header = 'Back',
@@ -205,7 +211,74 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
     exports['qb-menu']:openMenu(menu)
 end)
 
+-- ============================================================
+--  Private viewing room: enter / exit
+-- ============================================================
+
+local function enterBrowse()
+    if browseActive then return end
+    local ped = PlayerPedId()
+    local pos = GetEntityCoords(ped)
+    returnCoords = vector4(pos.x, pos.y, pos.z, GetEntityHeading(ped))
+    browseActive = true
+    TriggerServerEvent('rme_pdm:server:enterBrowse')
+end
+
+RegisterNetEvent('rme_pdm:client:enteredBrowse', function()
+    local ped = PlayerPedId()
+    DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do Wait(0) end
+    SetEntityCoords(ped, browseSpot.x, browseSpot.y, browseSpot.z, false, false, false, false)
+    SetEntityHeading(ped, browseSpot.w)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    Wait(500)
+    DoScreenFadeIn(500)
+    openBrowse()
+end)
+
+local function exitBrowse()
+    if not browseActive then return end
+    browseActive = false
+    exports['qb-menu']:closeMenu()
+    local ped = PlayerPedId()
+    DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do Wait(0) end
+    FreezeEntityPosition(ped, false)
+    SetEntityInvincible(ped, false)
+    if returnCoords then
+        SetEntityCoords(ped, returnCoords.x, returnCoords.y, returnCoords.z, false, false, false, false)
+        SetEntityHeading(ped, returnCoords.w)
+    end
+    TriggerServerEvent('rme_pdm:server:exitBrowse')
+    Wait(500)
+    DoScreenFadeIn(500)
+end
+
+-- Explicit "Leave Showroom" button
+RegisterNetEvent('rme_pdm:client:exit', function()
+    exitBrowse()
+end)
+
+-- Player pressed ESC / Backspace to close the menu -> treat as leaving
+RegisterNetEvent('qb-menu:client:menuClosed', function()
+    if browseActive then
+        exitBrowse()
+    end
+end)
+
+-- Buying: leave the private room FIRST so the car spawns normally in the world,
+-- then fire the stock purchase event.
+RegisterNetEvent('rme_pdm:client:confirmBuy', function(data)
+    exitBrowse()
+    Wait(250)
+    TriggerServerEvent('qb-vehicleshop:server:buyShowroomVehicle', { buyVehicle = data.model })
+end)
+
+-- Financing: leave first, then show the finance dialog back at the showroom.
 RegisterNetEvent('rme_pdm:client:finance', function(data)
+    exitBrowse()
+    Wait(250)
     local dialog = exports['qb-input']:ShowInput({
         header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(data.price),
         submitText = 'Finance',
@@ -230,19 +303,27 @@ RegisterNetEvent('rme_pdm:client:finance', function(data)
     end
 end)
 
--- Press-E interaction point at the sales desk (with a visible marker)
+-- Debug/test command: enters the private browse room from anywhere
+RegisterCommand('pdmtest', function()
+    print('^3[rme_pdm]^7 /pdmtest used - entering private browse room')
+    enterBrowse()
+end, false)
+
+-- ============================================================
+--  Press-E interaction point at the sales desk (with a marker)
+-- ============================================================
 CreateThread(function()
     while true do
         local sleep = 1000
         local pos = GetEntityCoords(PlayerPedId())
         local dist = #(pos - browseCoords)
-        if dist < 15.0 then
+        if dist < 15.0 and not browseActive then
             sleep = 0
             DrawMarker(2, browseCoords.x, browseCoords.y, browseCoords.z + 1.0, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 0, 150, 255, 200, false, true, 2, false, nil, nil, false)
             if dist < interactDistance then
                 DrawText3D(browseCoords.x, browseCoords.y, browseCoords.z + 0.2, '[E] Browse Vehicles')
                 if IsControlJustReleased(0, 38) then
-                    openBrowse()
+                    enterBrowse()
                 end
             end
         end
