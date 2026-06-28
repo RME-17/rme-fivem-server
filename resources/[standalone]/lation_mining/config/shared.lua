@@ -239,6 +239,51 @@ return {
                     { item = 'ls_gold_ingot', quantity = 1 },
                 },
             },
+            [5] = {
+                name = 'Emerald',
+                icon = 'fas fa-gem',
+                level = 3,
+                duration = 18000,
+                max = 10,
+                xp = { min = 5, max = 10 },
+                required = {
+                    { item = 'ls_coal_ore', quantity = 10 },
+                    { item = 'ls_iron_ore', quantity = 8 },
+                },
+                add = {
+                    { item = 'emerald', quantity = 1 },
+                },
+            },
+            [6] = {
+                name = 'Sapphire',
+                icon = 'fas fa-gem',
+                level = 4,
+                duration = 22000,
+                max = 8,
+                xp = { min = 6, max = 12 },
+                required = {
+                    { item = 'ls_coal_ore', quantity = 15 },
+                    { item = 'ls_silver_ore', quantity = 8 },
+                },
+                add = {
+                    { item = 'sapphire', quantity = 1 },
+                },
+            },
+            [7] = {
+                name = 'Ruby',
+                icon = 'fas fa-gem',
+                level = 5,
+                duration = 26000,
+                max = 5,
+                xp = { min = 8, max = 15 },
+                required = {
+                    { item = 'ls_coal_ore', quantity = 20 },
+                    { item = 'ls_gold_ore', quantity = 8 },
+                },
+                add = {
+                    { item = 'ruby', quantity = 1 },
+                },
+            },
         },
         blip = {
             enable = true,
