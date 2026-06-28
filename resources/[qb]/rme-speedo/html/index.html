@@ -14,21 +14,21 @@
     --mm-bottom: 4.5vh;
     --mm-width: 31vh;
     --mm-height: 20vh;
-    /* Edge fade controls. --mm-fade = darkness at the very edge.
-       Each gradient eases through a soft midpoint then to fully transparent.
-       Horizontal reaches 28% of width, vertical 44% of height -> the SAME
-       pixel feather on all four sides, spread wide so it dissolves smoothly. */
-    --mm-fade: 0.5;
   }
+  /* Each edge uses a MANY-STOP gradient following a (1-t)^2 ease-out curve so
+     the opacity glides to exactly 0 with a flat slope at the inner end -> no
+     visible inner line / Mach band. Horizontal stops span 30% of the width and
+     vertical stops 46% of the height, which is the same pixel feather on every
+     side. To make it darker/lighter, scale all the alpha values together. */
   #mmfade {
     position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
     width:var(--mm-width); height:var(--mm-height);
     pointer-events:none; border-radius:14px;
     background:
-      linear-gradient(to right,  rgba(0,0,0,var(--mm-fade)), rgba(0,0,0,0.12) 14%, rgba(0,0,0,0) 28%),
-      linear-gradient(to left,   rgba(0,0,0,var(--mm-fade)), rgba(0,0,0,0.12) 14%, rgba(0,0,0,0) 28%),
-      linear-gradient(to bottom, rgba(0,0,0,var(--mm-fade)), rgba(0,0,0,0.12) 22%, rgba(0,0,0,0) 44%),
-      linear-gradient(to top,    rgba(0,0,0,var(--mm-fade)), rgba(0,0,0,0.12) 22%, rgba(0,0,0,0) 44%);
+      linear-gradient(to right,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 4.5%, rgba(0,0,0,0.270) 9%, rgba(0,0,0,0.166) 13.5%, rgba(0,0,0,0.088) 18%, rgba(0,0,0,0.034) 22.5%, rgba(0,0,0,0.006) 27%, rgba(0,0,0,0) 30%),
+      linear-gradient(to left,   rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 4.5%, rgba(0,0,0,0.270) 9%, rgba(0,0,0,0.166) 13.5%, rgba(0,0,0,0.088) 18%, rgba(0,0,0,0.034) 22.5%, rgba(0,0,0,0.006) 27%, rgba(0,0,0,0) 30%),
+      linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 6.9%, rgba(0,0,0,0.270) 13.8%, rgba(0,0,0,0.166) 20.7%, rgba(0,0,0,0.088) 27.6%, rgba(0,0,0,0.034) 34.5%, rgba(0,0,0,0.006) 41.4%, rgba(0,0,0,0) 46%),
+      linear-gradient(to top,    rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 6.9%, rgba(0,0,0,0.270) 13.8%, rgba(0,0,0,0.166) 20.7%, rgba(0,0,0,0.088) 27.6%, rgba(0,0,0,0.034) 34.5%, rgba(0,0,0,0.006) 41.4%, rgba(0,0,0,0) 46%);
   }
   /* Compass centered above the minimap */
   #rmecompass {
