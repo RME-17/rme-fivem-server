@@ -205,6 +205,60 @@ Config = {
                     { item = 'ls_silver_ingot', amount = 1 }
                 }
             },
+            {
+                item = 'emerald_ring',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 2 },
+                    { item = 'emerald',       amount = 1 }
+                }
+            },
+            {
+                item = 'ruby_ring',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 2 },
+                    { item = 'ruby',          amount = 1 }
+                }
+            },
+            {
+                item = 'sapphire_ring',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 2 },
+                    { item = 'sapphire',      amount = 1 }
+                }
+            },
+            {
+                item = 'emerald_necklace',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'emerald',       amount = 2 }
+                }
+            },
+            {
+                item = 'ruby_necklace',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'ruby',          amount = 2 }
+                }
+            },
+            {
+                item = 'sapphire_necklace',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 },
+                    { item = 'sapphire',      amount = 2 }
+                }
+            },
         }
     }
 }
