@@ -16,6 +16,7 @@ shared_scripts {
     'shared/rme_custom_items.lua',
     'shared/jobs.lua',
     'shared/vehicles.lua',
+    'shared/rme_vehicle_prices.lua',
     'shared/gangs.lua',
     'shared/weapons.lua',
     'shared/locations.lua'
