@@ -23,6 +23,12 @@ local function comma_value(amount)
     return formatted
 end
 
+-- Vehicle preview image URL (matches the carmarket convention).
+-- Stock vehicles load from docs.fivem.net; modded ones can be overridden locally.
+local function vehImage(model)
+    return 'https://docs.fivem.net/vehicles/' .. tostring(model):lower() .. '.webp'
+end
+
 local function isInShop(v)
     if type(v.shop) == 'table' then
         for _, s in pairs(v.shop) do
@@ -108,10 +114,12 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
     end
     table.sort(list, function(a, b) return a.name < b.name end)
     for _, v in ipairs(list) do
+        local img = vehImage(v.model)
         menu[#menu + 1] = {
             header = v.brand .. ' ' .. v.name,
             txt = 'Price: $' .. comma_value(v.price),
-            icon = 'fa-solid fa-car-side',
+            icon = img,
+            image = img,
             params = {
                 event = 'rme_pdm:client:vehicleOptions',
                 args = {
@@ -128,6 +136,7 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
 end)
 
 RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
+    local img = vehImage(data.model)
     local menu = {
         {
             isMenuHeader = true,
@@ -137,7 +146,8 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
         {
             header = 'Buy Now',
             txt = 'Pay the full price up front',
-            icon = 'fa-solid fa-hand-holding-dollar',
+            icon = img,
+            image = img,
             params = {
                 isServer = true,
                 event = 'qb-vehicleshop:server:buyShowroomVehicle',
