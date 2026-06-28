@@ -336,6 +336,9 @@ RegisterNetEvent('qb-garages:client:takeOutGarage', function(data)
             local location = GetSpawnPoint(garageConfig)
             if not location then return end
             QBCore.Functions.TriggerCallback('qb-garages:server:spawnvehicle', function(netId, properties, vehPlate)
+                -- RME: nil means the server failed to create the entity and has
+                -- already told the player which model/type failed. Stop here.
+                if not netId then return end
                 local timeout = 0
                 while not NetworkDoesNetworkIdExist(netId) and timeout < 500 do
                     Wait(10)
