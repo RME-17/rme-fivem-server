@@ -207,16 +207,35 @@ RegisterNetEvent('qb-crafting:client:useCraftingTable', function(benchType)
 end)
 
 -- Permanent Jewelry Bench (spawned at a fixed location, no item required)
+local function LoadModelWithTimeout(model, attempts)
+    RequestModel(model)
+    local tries = 0
+    while not HasModelLoaded(model) and tries < attempts do
+        Wait(50)
+        tries = tries + 1
+    end
+    return HasModelLoaded(model)
+end
+
 CreateThread(function()
     local bench = Config.jewelry_bench
     if not bench or not bench.location then return end
+
     local model = bench.object
-    RequestModel(model)
-    while not HasModelLoaded(model) do Wait(10) end
+    if not LoadModelWithTimeout(model, 60) then
+        print('[qb-crafting] Jewelry bench primary model failed to load, using fallback prop')
+        model = bench.fallbackObject or `prop_tool_bench02`
+        if not LoadModelWithTimeout(model, 60) then
+            print('[qb-crafting] Jewelry bench FALLBACK model also failed to load - no bench spawned')
+            return
+        end
+    end
+
     local obj = CreateObject(model, bench.location.x, bench.location.y, bench.location.z, false, false, false)
     SetEntityHeading(obj, bench.location.w)
     FreezeEntityPosition(obj, true)
     SetModelAsNoLongerNeeded(model)
+
     exports['qb-target']:AddTargetEntity(obj, {
         options = {
             {
@@ -229,4 +248,6 @@ CreateThread(function()
         },
         distance = 2.5
     })
+
+    print(('[qb-crafting] Jewelry bench spawned with model %s at %s, %s, %s'):format(model, bench.location.x, bench.location.y, bench.location.z))
 end)
