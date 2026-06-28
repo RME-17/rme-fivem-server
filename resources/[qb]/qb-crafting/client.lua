@@ -206,37 +206,17 @@ RegisterNetEvent('qb-crafting:client:useCraftingTable', function(benchType)
     })
 end)
 
--- Permanent Jewelry Bench (spawned at a fixed location, no item required)
-local function LoadModelWithTimeout(model, attempts)
-    RequestModel(model)
-    local tries = 0
-    while not HasModelLoaded(model) and tries < attempts do
-        Wait(50)
-        tries = tries + 1
-    end
-    return HasModelLoaded(model)
-end
-
+-- Permanent Jewelry Crafting Spot (no prop -- players walk to this location and use the target option)
 CreateThread(function()
-    local bench = Config.jewelry_bench
-    if not bench or not bench.location then return end
+    local spot = Config.jewelry_bench
+    if not spot or not spot.location then return end
+    local loc = spot.location
 
-    local model = bench.object
-    if not LoadModelWithTimeout(model, 60) then
-        print('[qb-crafting] Jewelry bench primary model failed to load, using fallback prop')
-        model = bench.fallbackObject or `prop_tool_bench02`
-        if not LoadModelWithTimeout(model, 60) then
-            print('[qb-crafting] Jewelry bench FALLBACK model also failed to load - no bench spawned')
-            return
-        end
-    end
-
-    local obj = CreateObject(model, bench.location.x, bench.location.y, bench.location.z, false, false, false)
-    SetEntityHeading(obj, bench.location.w)
-    FreezeEntityPosition(obj, true)
-    SetModelAsNoLongerNeeded(model)
-
-    exports['qb-target']:AddTargetEntity(obj, {
+    exports['qb-target']:AddCircleZone('jewelry_craft_spot', vector3(loc.x, loc.y, loc.z), 1.5, {
+        name = 'jewelry_craft_spot',
+        useZ = true,
+        debugPoly = false,
+    }, {
         options = {
             {
                 icon = 'fas fa-gem',
@@ -246,8 +226,26 @@ CreateThread(function()
                 end
             }
         },
-        distance = 2.5
+        distance = 2.0
     })
 
-    print(('[qb-crafting] Jewelry bench spawned with model %s at %s, %s, %s'):format(model, bench.location.x, bench.location.y, bench.location.z))
+    print(('[qb-crafting] Jewelry crafting spot registered at %s, %s, %s'):format(loc.x, loc.y, loc.z))
+end)
+
+-- Ground marker so players can find the jewelry crafting spot
+CreateThread(function()
+    local spot = Config.jewelry_bench
+    if not spot or not spot.location then return end
+    local loc = spot.location
+    local center = vector3(loc.x, loc.y, loc.z)
+    while true do
+        local sleep = 1500
+        local pcoords = GetEntityCoords(PlayerPedId())
+        local dist = #(pcoords - center)
+        if dist < 25.0 then
+            sleep = 0
+            DrawMarker(2, center.x, center.y, center.z + 0.6, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 255, 215, 0, 180, false, true, 2, false, nil, nil, false)
+        end
+        Wait(sleep)
+    end
 end)
