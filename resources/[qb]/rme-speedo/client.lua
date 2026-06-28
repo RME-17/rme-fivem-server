@@ -79,7 +79,6 @@ local function currentStreet(ped)
 end
 
 CreateThread(function()
-    local lastDir, lastDeg, lastStreet
     while true do
         local ped = PlayerPedId()
         local camRot = GetGameplayCamRot(0)
@@ -88,10 +87,10 @@ CreateThread(function()
         local idx = math.floor(((bearing + 22.5) % 360.0) / 45.0) + 1
         local dir = DIRS[idx]
         local street = currentStreet(ped)
-        if dir ~= lastDir or deg ~= lastDeg or street ~= lastStreet then
-            lastDir, lastDeg, lastStreet = dir, deg, street
-            SendNUIMessage({ action = 'compass', dir = dir, heading = deg, street = street })
-        end
+        -- Always push the current state (not only on change) so a freshly
+        -- (re)loaded NUI page immediately shows the compass even when the player
+        -- is standing still and nothing has changed yet.
+        SendNUIMessage({ action = 'compass', dir = dir, heading = deg, street = street })
         Wait(200)
     end
 end)
