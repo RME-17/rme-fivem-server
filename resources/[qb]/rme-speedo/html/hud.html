@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
+  html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+  /* === Minimap fade overlay ===
+     A soft vignette drawn over the square minimap so its edges feather out
+     instead of ending in a hard rectangle. Nudge these 4 vars to line it up
+     exactly on the map (left/bottom = position, width/height = size). */
+  :root{
+    --mm-left: 1vw;
+    --mm-bottom: 4.5vh;
+    --mm-width: 31vh;
+    --mm-height: 20vh;
+  }
+  /* Each edge uses a MANY-STOP gradient following a (1-t)^2 ease-out curve so
+     the opacity glides to exactly 0 with a flat slope at the inner end -> no
+     visible inner line / Mach band. Horizontal stops span 30% of the width and
+     vertical stops 46% of the height, which is the same pixel feather on every
+     side. To make it darker/lighter, scale all the alpha values together. */
+  #mmfade {
+    position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
+    width:var(--mm-width); height:var(--mm-height);
+    pointer-events:none; border-radius:14px;
+    background:
+      linear-gradient(to right,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 4.5%, rgba(0,0,0,0.270) 9%, rgba(0,0,0,0.166) 13.5%, rgba(0,0,0,0.088) 18%, rgba(0,0,0,0.034) 22.5%, rgba(0,0,0,0.006) 27%, rgba(0,0,0,0) 30%),
+      linear-gradient(to left,   rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 4.5%, rgba(0,0,0,0.270) 9%, rgba(0,0,0,0.166) 13.5%, rgba(0,0,0,0.088) 18%, rgba(0,0,0,0.034) 22.5%, rgba(0,0,0,0.006) 27%, rgba(0,0,0,0) 30%),
+      linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 6.9%, rgba(0,0,0,0.270) 13.8%, rgba(0,0,0,0.166) 20.7%, rgba(0,0,0,0.088) 27.6%, rgba(0,0,0,0.034) 34.5%, rgba(0,0,0,0.006) 41.4%, rgba(0,0,0,0) 46%),
+      linear-gradient(to top,    rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.397) 6.9%, rgba(0,0,0,0.270) 13.8%, rgba(0,0,0,0.166) 20.7%, rgba(0,0,0,0.088) 27.6%, rgba(0,0,0,0.034) 34.5%, rgba(0,0,0,0.006) 41.4%, rgba(0,0,0,0) 46%);
+  }
+  /* Compass centered above the minimap */
+  #rmecompass {
+    position:absolute; left:var(--mm-left); bottom:21vh; width:var(--mm-width);
+    display:none; text-align:center; color:#ffffff;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+  }
+  #rmecompass.visible { display:block; }
+  #rmecompass .rc-dir { font-size:22px; font-weight:800; letter-spacing:1px; }
+  #rmecompass .rc-deg { font-size:13px; font-weight:600; color:rgba(255,255,255,0.78); margin-left:6px; }
+  #rmecompass .rc-street { font-size:12px; font-weight:600; color:rgba(255,255,255,0.86); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* When the pause menu (Escape) is open, hide the minimap fade + compass so
+     they disappear along with the native minimap. */
+  body.paused #mmfade,
+  body.paused #rmecompass { display:none !important; }
+  /* Speedometer (bottom-right) */
+  #speedo {
+    position:absolute; right:24px; bottom:28px; width:172px;
+    color:#ffffff; display:none; -webkit-font-smoothing:antialiased;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+  }
+  #speedo.visible { display:block; }
+  .gauge { position:relative; width:160px; height:160px; margin:0 auto; }
+  .gauge svg.dial { width:160px; height:160px; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7)); }
+  .track { fill:none; stroke:rgba(255,255,255,0.22); stroke-width:12; stroke-linecap:round; }
+  .prog { fill:none; stroke:#63e6a0; stroke-width:12; stroke-linecap:round; transition:stroke-dasharray .15s linear, stroke .2s; }
+  .center { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .val { font-size:46px; font-weight:800; line-height:1; letter-spacing:-1px; }
+  .unit { font-size:11px; font-weight:700; color:rgba(255,255,255,0.72); letter-spacing:1.5px; margin-top:4px; }
+  .gearbadge { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.25); border-radius:7px; padding:1px 9px; font-size:12px; font-weight:700; }
+  .footer { margin-top:4px; display:flex; align-items:center; padding:0 8px; }
+  .fuel { display:flex; align-items:center; gap:8px; width:100%; }
+  .ficon { width:14px; height:14px; flex-shrink:0; }
+  .fbar { flex:1; height:6px; background:rgba(0,0,0,0.42); border:1px solid rgba(255,255,255,0.15); border-radius:6px; overflow:hidden; }
+  .fbar > i { display:block; height:100%; width:100%; background:#ffffff; transition:width .3s ease; }
+  .fuel.low .fbar > i { background:#ff6b6b; }
+  .airinfo { margin-top:5px; text-align:center; }
+  .albl { font-size:11px; color:rgba(255,255,255,0.72); font-weight:700; letter-spacing:1px; }
+  .aval { font-weight:800; color:#7cc6ff; font-size:17px; margin-left:5px; }
+  .aunit { color:rgba(255,255,255,0.72); margin-left:2px; font-size:11px; }
+</style>
+</head>
+<body>
+  <div id="mmfade"></div>
+  <div id="rmecompass">
+    <div><span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span></div>
+    <div class="rc-street" id="rcstreet"></div>
+  </div>
+  <div id="speedo">
+    <div class="gauge">
+      <svg class="dial" viewBox="0 0 200 200">
+        <circle class="track" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="376.99 502.65"></circle>
+        <circle class="prog" id="prog" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="0 502.65"></circle>
+      </svg>
+      <div class="center">
+        <div class="val" id="spd">0</div>
+        <div class="unit" id="unit">MPH</div>
+      </div>
+      <div class="gearbadge" id="gear">N</div>
+    </div>
+    <div class="footer" id="footer">
+      <span class="fuel" id="fuelWrap">
+        <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="15" y1="22" y2="22"></line><line x1="4" x2="14" y1="9" y2="9"></line><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"></path></svg>
+        <span class="fbar"><i id="fuelFill"></i></span>
+      </span>
+    </div>
+    <div class="airinfo" id="airRow" style="display:none;">
+      <span class="albl">ALTITUDE</span><span class="aval" id="alt">0</span><span class="aunit">m</span>
+    </div>
+  </div>
+<script>
+  var ARC = 376.99, FULL = 502.65;
+  function el(id){ return document.getElementById(id); }
+  function showSpeedo(s){
+    var sp = el('speedo');
+    if (s) { sp.classList.add('visible'); }
+    else { sp.classList.remove('visible'); }
+  }
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.action === 'pause') {
+      if (d.hidden) { document.body.classList.add('paused'); }
+      else { document.body.classList.remove('paused'); }
+      return;
+    }
+    if (d.action === 'compass') {
+      var c = el('rmecompass');
+      c.classList.add('visible');
+      if (d.dir !== undefined) { el('rcdir').textContent = d.dir; }
+      if (d.heading !== undefined) { el('rcdeg').textContent = d.heading + '\u00b0'; }
+      if (d.street !== undefined) { el('rcstreet').textContent = d.street || ''; }
+      return;
+    }
+    if (d.action === 'speedo') { showSpeedo(d.show); return; }
+    if (d.action === 'update') {
+      showSpeedo(true);
+      el('spd').textContent = d.speed;
+      el('unit').textContent = d.unit;
+      var max = d.isAir ? 260 : 180;
+      var frac = Math.max(0, Math.min(1, (d.speed || 0) / max));
+      var len = (frac * ARC).toFixed(1);
+      var prog = el('prog');
+      prog.setAttribute('stroke-dasharray', len + ' ' + FULL);
+      var col = frac < 0.55 ? '#63e6a0' : (frac < 0.82 ? '#f5c451' : '#ff6b6b');
+      prog.style.stroke = col;
+      if (d.isAir) {
+        el('gear').style.display = 'none';
+        el('footer').style.display = 'none';
+        el('airRow').style.display = 'block';
+        el('alt').textContent = d.altitude;
+      } else {
+        el('gear').style.display = 'block';
+        el('footer').style.display = 'flex';
+        el('airRow').style.display = 'none';
+        el('gear').textContent = (d.speed < 2) ? 'N' : ('' + d.gear);
+        var fuel = Math.max(0, Math.min(100, d.fuel || 0));
+        el('fuelFill').style.width = fuel + '%';
+        var fw = el('fuelWrap');
+        if (fuel <= 20) { fw.classList.add('low'); } else { fw.classList.remove('low'); }
+      }
+    }
+  });
+</script>
+</body>
+</html>
