@@ -229,7 +229,7 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
         },
         {
             header = 'Finance',
-            txt = 'Min ' .. Config.MinimumDown .. '% down, up to ' .. Config.MaximumPayments .. ' payments',
+            txt = 'Pay a deposit now, the rest in instalments',
             icon = 'fa-solid fa-coins',
             params = { event = 'rme_pdm:client:finance', args = data }
         },
@@ -319,21 +319,101 @@ RegisterNetEvent('rme_pdm:client:confirmBuy', function(data)
     TriggerServerEvent('qb-vehicleshop:server:buyShowroomVehicle', { buyVehicle = data.model })
 end)
 
+-- ============================================================
+--  Finance: a clear breakdown screen, then the input form.
+--  IMPORTANT: this whole flow stays INSIDE the private viewing
+--  room. We only leave the room once a finance deal is actually
+--  confirmed (so the financed car can spawn outside to collect).
+--  Cancelling / going Back keeps you in the room.
+-- ============================================================
+
+-- Step 1: explain the deal with real numbers for THIS vehicle.
 RegisterNetEvent('rme_pdm:client:finance', function(data)
-    exitBrowse()
-    Wait(250)
+    local price = data.price or 0
+    local minDownPct = Config.MinimumDown
+    local maxPayments = Config.MaximumPayments
+    local interval = Config.PaymentInterval
+    local minDown = math.floor(price * minDownPct / 100)
+    local balanceMin = price - minDown
+    local perPaymentMin = math.floor((balanceMin / maxPayments) + 0.5)
+    local img = vehImage(data.model)
+
+    local menu = {
+        {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-file-invoice-dollar',
+            header = (data.brand .. ' ' .. data.name):upper() .. ' - FINANCE',
+            txt = 'Drive now, pay it off over time',
+        },
+        {
+            isMenuHeader = true,
+            icon = img,
+            image = img,
+            header = 'Vehicle price: $' .. comma_value(price),
+        },
+        {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-hand-holding-dollar',
+            header = 'Minimum deposit: $' .. comma_value(minDown),
+            txt = minDownPct .. '% of the price, paid now up front. Pay more to shrink your instalments.',
+        },
+        {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-calendar-days',
+            header = 'Up to ' .. maxPayments .. ' payments',
+            txt = 'One instalment due every ' .. interval .. ' hours until it is paid off.',
+        },
+        {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-calculator',
+            header = 'Example: $' .. comma_value(perPaymentMin) .. ' per payment',
+            txt = 'Deposit $' .. comma_value(minDown) .. ' now, then about $' .. comma_value(perPaymentMin) .. ' x ' .. maxPayments .. ' instalments.',
+        },
+        {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-triangle-exclamation',
+            header = 'Keep up with payments',
+            txt = 'Miss an instalment and the vehicle can be repossessed. No extra interest is charged.',
+        },
+        {
+            header = 'Enter finance details',
+            txt = 'Choose your deposit & number of payments',
+            icon = 'fa-solid fa-pen-to-square',
+            params = { event = 'rme_pdm:client:financeInput', args = data, isAction = true }
+        },
+        {
+            header = 'Back',
+            icon = 'fa-solid fa-angle-left',
+            params = { event = 'rme_pdm:client:vehicleOptions', args = data }
+        },
+    }
+    exports['qb-menu']:openMenu(menu)
+end)
+
+-- Step 2: the actual input form (stays in the room).
+RegisterNetEvent('rme_pdm:client:financeInput', function(data)
+    local price = data.price or 0
+    local minDown = math.floor(price * Config.MinimumDown / 100)
     local dialog = exports['qb-input']:ShowInput({
-        header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(data.price),
-        submitText = 'Finance',
+        header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(price),
+        submitText = 'Confirm finance',
         inputs = {
-            { type = 'number', isRequired = true, name = 'downPayment', text = 'Down payment ($) - min ' .. Config.MinimumDown .. '%' },
-            { type = 'number', isRequired = true, name = 'paymentAmount', text = 'Number of payments - max ' .. Config.MaximumPayments }
+            { type = 'number', isRequired = true, name = 'downPayment', text = 'Deposit ($) - minimum $' .. minDown .. ' (' .. Config.MinimumDown .. '%)' },
+            { type = 'number', isRequired = true, name = 'paymentAmount', text = 'Number of payments (max ' .. Config.MaximumPayments .. ')' }
         }
     })
-    if dialog then
-        if not dialog.downPayment or not dialog.paymentAmount then return end
-        TriggerServerEvent('qb-vehicleshop:server:financeVehicle', dialog.downPayment, dialog.paymentAmount, data.model)
+    -- Cancelled or incomplete -> go back to the finance breakdown, stay in room.
+    if not dialog or not dialog.downPayment or not dialog.paymentAmount then
+        TriggerEvent('rme_pdm:client:finance', data)
+        return
     end
+    -- Confirmed: now leave the room so the financed car spawns outside to collect.
+    local model = data.model
+    local down = dialog.downPayment
+    local pays = dialog.paymentAmount
+    exitBrowse()
+    Wait(250)
+    TriggerServerEvent('qb-vehicleshop:server:financeVehicle', down, pays, model)
 end)
 
 RegisterCommand('pdmtest', function()
