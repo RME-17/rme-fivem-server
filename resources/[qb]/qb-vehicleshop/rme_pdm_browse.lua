@@ -7,11 +7,42 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local sharedVehicles = exports['qb-core']:GetShared('Vehicles')
 
-local shopName = 'pdm'
 local browseCoords = vector3(-57.5, -1096.76, 26.42)
 local interactDistance = 3.0
 
 print('^2[rme_pdm]^7 browse-and-buy script LOADED')
+
+-- Weaponized / armored vehicles that should NOT be sellable at PDM.
+-- (Models not present on the server are simply ignored - harmless.)
+local blockedModels = {
+    -- Weaponized (machine guns / rockets)
+    ['ruiner2'] = true, ['deluxo'] = true, ['stromberg'] = true, ['toreador'] = true,
+    ['oppressor'] = true, ['oppressor2'] = true, ['jb700'] = true, ['vigilante'] = true,
+    ['scramjet'] = true, ['rcbandito'] = true, ['tampa3'] = true, ['menacer'] = true,
+    -- Arena War weaponized
+    ['issi4'] = true, ['issi5'] = true, ['issi6'] = true,
+    ['dominator4'] = true, ['dominator5'] = true, ['dominator6'] = true,
+    ['impaler2'] = true, ['impaler3'] = true, ['impaler4'] = true,
+    ['imperator'] = true, ['imperator2'] = true, ['imperator3'] = true,
+    ['deathbike'] = true, ['deathbike2'] = true, ['deathbike3'] = true,
+    ['scarab'] = true, ['scarab2'] = true, ['scarab3'] = true,
+    ['zr380'] = true, ['zr3802'] = true, ['zr3803'] = true,
+    ['brutus'] = true, ['brutus2'] = true, ['brutus3'] = true,
+    ['cerberus'] = true, ['cerberus2'] = true, ['cerberus3'] = true,
+    ['bruiser'] = true, ['bruiser2'] = true, ['bruiser3'] = true,
+    ['monster3'] = true, ['monster4'] = true, ['monster5'] = true,
+    ['slamvan4'] = true, ['slamvan5'] = true, ['slamvan6'] = true,
+    ['dune3'] = true, ['dune4'] = true, ['dune5'] = true,
+    -- Military / armored troop carriers and tanks
+    ['insurgent'] = true, ['insurgent2'] = true, ['insurgent3'] = true,
+    ['technical'] = true, ['technical2'] = true, ['technical3'] = true,
+    ['nightshark'] = true, ['halftrack'] = true, ['apc'] = true, ['barrage'] = true,
+    ['chernobog'] = true, ['khanjali'] = true, ['rhino'] = true, ['trailersmall2'] = true,
+    ['vetir'] = true,
+    -- Armored civilian (bullet resistant)
+    ['kuruma2'] = true, ['baller5'] = true, ['baller6'] = true,
+    ['boxville5'] = true, ['dukes2'] = true, ['schafter5'] = true, ['schafter6'] = true,
+}
 
 local function comma_value(amount)
     local formatted = tostring(amount)
@@ -29,14 +60,13 @@ local function vehImage(model)
     return 'https://docs.fivem.net/vehicles/' .. tostring(model):lower() .. '.webp'
 end
 
-local function isInShop(v)
-    if type(v.shop) == 'table' then
-        for _, s in pairs(v.shop) do
-            if s == shopName then return true end
-        end
-        return false
-    end
-    return v.shop == shopName
+-- A vehicle is sellable at PDM if it is NOT on the weaponized/armored blocklist.
+-- We intentionally ignore the per-vehicle 'shop' field so the whole catalog is
+-- available here.
+local function isSellable(model, v)
+    if blockedModels[model] then return false end
+    if v and v.shop == 'none' then return false end
+    return true
 end
 
 local function DrawText3D(x, y, z, text)
@@ -56,8 +86,8 @@ end
 
 local function openBrowse()
     local cats = {}
-    for _, v in pairs(sharedVehicles) do
-        if isInShop(v) then cats[v.category] = true end
+    for model, v in pairs(sharedVehicles) do
+        if isSellable(model, v) and v.category then cats[v.category] = true end
     end
     local sorted = {}
     for cat in pairs(cats) do sorted[#sorted + 1] = cat end
@@ -71,7 +101,7 @@ local function openBrowse()
         },
     }
     if #sorted == 0 then
-        menu[#menu + 1] = { header = 'No vehicles assigned to this shop', icon = 'fa-solid fa-ban' }
+        menu[#menu + 1] = { header = 'No vehicles available', icon = 'fa-solid fa-ban' }
     end
     for _, cat in ipairs(sorted) do
         menu[#menu + 1] = {
@@ -107,26 +137,28 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
         },
     }
     local list = {}
-    for _, v in pairs(sharedVehicles) do
-        if isInShop(v) and v.category == data.category then
+    for model, v in pairs(sharedVehicles) do
+        if isSellable(model, v) and v.category == data.category then
+            v._model = model
             list[#list + 1] = v
         end
     end
-    table.sort(list, function(a, b) return a.name < b.name end)
+    table.sort(list, function(a, b) return (a.name or '') < (b.name or '') end)
     for _, v in ipairs(list) do
-        local img = vehImage(v.model)
+        local model = v._model
+        local img = vehImage(model)
         menu[#menu + 1] = {
-            header = v.brand .. ' ' .. v.name,
-            txt = 'Price: $' .. comma_value(v.price),
+            header = (v.brand or '') .. ' ' .. (v.name or model),
+            txt = 'Price: $' .. comma_value(v.price or 0),
             icon = img,
             image = img,
             params = {
                 event = 'rme_pdm:client:vehicleOptions',
                 args = {
-                    model = v.model,
-                    name = v.name,
-                    brand = v.brand,
-                    price = v.price,
+                    model = model,
+                    name = v.name or model,
+                    brand = v.brand or '',
+                    price = v.price or 0,
                     category = v.category
                 }
             }
