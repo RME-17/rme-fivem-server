@@ -20,9 +20,14 @@ local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
 local camPos = vector3(-30.0, -1090.0, 1000.0)
 local camLookAt = vector3(120.0, -900.0, 200.0)
 
--- Looping background music for the private viewing room (played via xsound).
-local browseMusicUrl = 'https://www.youtube.com/watch?v=uzg2yglHnzg'
-local browseMusicVolume = 0.2
+-- Looping background music for the PDM showroom (MLO). It plays via xsound while
+-- the player is physically inside the dealership. The private viewing room is
+-- left SILENT (the player is teleported far away while browsing, so this music
+-- naturally stops up there).
+local mloMusicUrl = 'https://www.youtube.com/watch?v=uzg2yglHnzg'
+local mloMusicVolume = 0.2
+local mloMusicCenter = vector3(-45.0, -1098.0, 26.4)
+local mloMusicRadius = 23.0
 
 -- Sales points. block = hide these categories; only = show ONLY these categories.
 local browsePoints = {
@@ -110,19 +115,6 @@ local function categoryAllowed(cat)
     if p.only then return p.only[cat] == true end
     if p.block then return not p.block[cat] end
     return true
-end
-
--- Looping showroom music (uses xsound, which is already on the server).
-local function startBrowseMusic()
-    if GetResourceState('xsound') ~= 'started' then return end
-    exports['xsound']:PlayUrl('rme_pdm_music', browseMusicUrl, browseMusicVolume, true)
-end
-
-local function stopBrowseMusic()
-    if GetResourceState('xsound') ~= 'started' then return end
-    if exports['xsound']:soundExists('rme_pdm_music') then
-        exports['xsound']:Destroy('rme_pdm_music')
-    end
 end
 
 local function DrawText3D(x, y, z, text)
@@ -287,9 +279,6 @@ local function enterBrowse(point)
     SetCamActive(browseCam, true)
     RenderScriptCams(true, false, 0, true, true)
 
-    -- Loop the showroom music while in the room.
-    startBrowseMusic()
-
     -- Privacy extra (non-blocking): own routing bucket.
     TriggerServerEvent('rme_pdm:server:enterBrowse')
 
@@ -301,7 +290,6 @@ end
 local function exitBrowse()
     if not browseActive then return end
     browseActive = false
-    stopBrowseMusic()
     exports['qb-menu']:closeMenu()
     local ped = PlayerPedId()
     DoScreenFadeOut(500)
@@ -453,9 +441,46 @@ RegisterCommand('pdmunstuck', function()
         SetEntityVisible(ped, true, false)
         RenderScriptCams(false, false, 0, true, true)
         if browseCam then DestroyCam(browseCam, false); browseCam = nil end
-        stopBrowseMusic()
     end
 end, false)
+
+-- ============================================================
+--  PDM showroom (MLO) ambient music
+--  Loops the track via xsound while the player is inside the
+--  dealership. While in the private viewing room the player is
+--  teleported far away, so this stops on its own (room is silent).
+-- ============================================================
+CreateThread(function()
+    local playing = false
+    while true do
+        local sleep = 1500
+        if GetResourceState('xsound') == 'started' then
+            local pos = GetEntityCoords(PlayerPedId())
+            local dist = #(pos - mloMusicCenter)
+            if dist < mloMusicRadius then
+                sleep = 800
+                if not playing then
+                    exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, mloMusicVolume, true)
+                    playing = true
+                end
+            elseif playing then
+                if exports['xsound']:soundExists('rme_pdm_music') then
+                    exports['xsound']:Destroy('rme_pdm_music')
+                end
+                playing = false
+            end
+        end
+        Wait(sleep)
+    end
+end)
+
+-- Make sure the music never lingers if the resource stops/restarts.
+AddEventHandler('onResourceStop', function(res)
+    if res ~= GetCurrentResourceName() then return end
+    if GetResourceState('xsound') == 'started' and exports['xsound']:soundExists('rme_pdm_music') then
+        exports['xsound']:Destroy('rme_pdm_music')
+    end
+end)
 
 -- ============================================================
 --  Press-E interaction points (with markers)
