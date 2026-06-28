@@ -184,7 +184,7 @@ Config = {
                 xpRequired = 0,
                 xpGain = 5,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 }
+                    { item = 'ls_gold_ingot', amount = 5 }
                 }
             },
             {
@@ -192,8 +192,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 2 },
-                    { item = 'ls_silver_ingot', amount = 1 }
+                    { item = 'ls_gold_ingot',   amount = 4 },
+                    { item = 'ls_silver_ingot', amount = 2 }
                 }
             },
             {
@@ -201,8 +201,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 7,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 2 },
-                    { item = 'diamond',       amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 4 },
+                    { item = 'diamond',       amount = 2 }
                 }
             },
             {
@@ -210,8 +210,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 9,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 },
-                    { item = 'diamond',       amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 6 },
+                    { item = 'diamond',       amount = 4 }
                 }
             },
             {
@@ -219,8 +219,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 2 },
-                    { item = 'emerald',       amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 4 },
+                    { item = 'emerald',       amount = 2 }
                 }
             },
             {
@@ -228,8 +228,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 2 },
-                    { item = 'ruby',          amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 4 },
+                    { item = 'ruby',          amount = 2 }
                 }
             },
             {
@@ -237,8 +237,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 6,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 2 },
-                    { item = 'sapphire',      amount = 1 }
+                    { item = 'ls_gold_ingot', amount = 4 },
+                    { item = 'sapphire',      amount = 2 }
                 }
             },
             {
@@ -246,8 +246,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 },
-                    { item = 'emerald',       amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 6 },
+                    { item = 'emerald',       amount = 4 }
                 }
             },
             {
@@ -255,8 +255,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 },
-                    { item = 'ruby',          amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 6 },
+                    { item = 'ruby',          amount = 4 }
                 }
             },
             {
@@ -264,8 +264,8 @@ Config = {
                 xpRequired = 0,
                 xpGain = 8,
                 requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 3 },
-                    { item = 'sapphire',      amount = 2 }
+                    { item = 'ls_gold_ingot', amount = 6 },
+                    { item = 'sapphire',      amount = 4 }
                 }
             },
         }
