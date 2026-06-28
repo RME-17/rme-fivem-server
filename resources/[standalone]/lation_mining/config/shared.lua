@@ -60,11 +60,11 @@ return {
     ----------------------------------------------
 
     pickaxes = {
-        [1] = { item = 'ls_pickaxe', degrade = 1 },
-        [2] = { item = 'ls_copper_pickaxe', degrade = 0.75 },
-        [3] = { item = 'ls_iron_pickaxe', degrade = 0.5 },
-        [4] = { item = 'ls_silver_pickaxe', degrade = 0.25 },
-        [5] = { item = 'ls_gold_pickaxe', degrade = 0.1 },
+        [1] = { item = 'ls_pickaxe', price = 150, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 1 },
+        [2] = { item = 'ls_copper_pickaxe', price = 300, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 2 },
+        [3] = { item = 'ls_iron_pickaxe', price = 750, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 3 },
+        [4] = { item = 'ls_silver_pickaxe', price = 1500, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 4 },
+        [5] = { item = 'ls_gold_pickaxe', price = 3000, icon = 'hammer', metadata = { ['quality'] = 100 }, level = 5 },
     },
 
     ----------------------------------------------
