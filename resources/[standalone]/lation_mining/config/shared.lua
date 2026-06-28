@@ -48,15 +48,11 @@ return {
     ----------------------------------------------
 
     experience = {
-        -- The number in these [brackets] are the level
-        -- The number after = is the exp required to reach that level
-        -- Be sure levels *always* start at level 1 with 0 exp
         [1] = 0,
         [2] = 2500,
         [3] = 10000,
         [4] = 20000,
         [5] = 50000,
-        -- You can add or remove levels as you wish
     },
 
     ----------------------------------------------
@@ -64,20 +60,11 @@ return {
     ----------------------------------------------
 
     pickaxes = {
-        -- The number in [brackets] is the level required to buy/craft/use this pickaxe
-        -- item: is the actual pickaxe item spawn name
-        -- degrade: is how much the pickaxe degrades per mining action
-        -- By default, normal pickaxe can mine 100 ores before breaking
         [1] = { item = 'ls_pickaxe', degrade = 1 },
-        -- The copper pickaxe can mine 133 ores before breaking
         [2] = { item = 'ls_copper_pickaxe', degrade = 0.75 },
-        -- The iron pickaxe can mine 200 ores before breaking
         [3] = { item = 'ls_iron_pickaxe', degrade = 0.5 },
-        -- The silver pickaxe can mine 400 ores
         [4] = { item = 'ls_silver_pickaxe', degrade = 0.25 },
-        -- And the gold pickaxe can mine 1,000 ores
         [5] = { item = 'ls_gold_pickaxe', degrade = 0.1 },
-        -- The number of ores mined per pickaxe is simply: 100 / X
     },
 
     ----------------------------------------------
@@ -86,35 +73,15 @@ return {
 
     shops = {
         -- The location to spawn the main ped at the mine
-        -- Both shops are available at this main ped, but you can toggle
-        -- Either shop on or off as needed
-        location = vec4(2943.1362, 2747.8320, 43.3318, 252.1999),
-        -- The ped model used
-        -- More models: https://docs.fivem.net/docs/game-references/ped-models/
+        location = vec4(2957.85, 2753.83, 43.71, 289.98),
         model = 'a_m_m_farmer_01',
-        -- The scenario assigned to the ped (or nil/false for no scenario)
-        -- More scenarios: https://github.com/DioneB/gtav-scenarios
         scenario = 'WORLD_HUMAN_DRINKING',
-        -- What hours is this shop available?
-        -- By default, it's 24/7, but for example - if you wish to only
-        -- Allow access during the day, set hours = { min = 6, max = 20 }
         hours = { min = 0, max = 24 },
-        -- Customize the mines supply shop
-        -- This shop sells items to player
+        -- Supply shop (sells items to player)
         mine = {
-            -- Optionally disable this shop if you wish to grant access to
-            -- Mining supplies via another method
             enable = true,
-            -- Use cash or bank when purchasing here?
             account = 'cash',
-            -- Items available for sale in this shop
             items = {
-                -- item: item spawn name
-                -- price: price of item
-                -- icon: icon for item
-                -- metadata: optional metadata for item
-                -- metadata: ⚠️ use 'durability' if using ox_inventory, otherwise use 'quality'
-                -- level: optional player level requirement to purchase item
                 [1] = { item = 'ls_pickaxe', price = 150, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 1 },
                 [2] = { item = 'ls_copper_pickaxe', price = 300, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 2 },
                 [3] = { item = 'ls_iron_pickaxe', price = 750, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 3 },
@@ -122,11 +89,9 @@ return {
                 [5] = { item = 'ls_gold_pickaxe', price = 3000, icon = 'hammer', metadata = { ['durability'] = 100 }, level = 5 },
                 [6] = { item = 'water', price = 5, icon = 'droplet' },
                 [7] = { item = 'burger', price = 5, icon = 'burger' },
-                -- Add or remove items as you wish
             },
         },
-        -- Customize the mines pawn shop
-        -- This shop will buy items from players
+        -- Pawn shop (buys items from players)
         pawn = {
             enable = true,
             account = 'cash',
@@ -140,16 +105,14 @@ return {
                 [7] = { item = 'ls_iron_ingot', price = 60, icon = 'hand-holding-dollar'},
                 [8] = { item = 'ls_silver_ingot', price = 100, icon = 'hand-holding-dollar' },
                 [9] = { item = 'ls_gold_ingot', price = 175, icon = 'hand-holding-dollar' },
-                -- Add or remove items as you wish
             }
         },
-        -- Manage blip settings if desired
         blip = {
-            enable = true, -- Enable or disable the blip for this shop
-            sprite = 618, -- Sprite ID (https://docs.fivem.net/docs/game-references/blips/)
-            color = 5, -- Color (https://docs.fivem.net/docs/game-references/blips/#blip-colors)
-            scale = 0.9, -- Size/scale
-            label = 'The Mines' -- Label
+            enable = true,
+            sprite = 618,
+            color = 5,
+            scale = 0.9,
+            label = 'The Mines'
         }
     },
 
@@ -158,38 +121,18 @@ return {
     ----------------------------------------------
 
     mining = {
-        -- The center-most coords of the entire mining area
         center = vec3(2946.6995, 2792.2271, 40.5708),
-        -- What hours is mining allowed to happen?
-        -- By default, it's 24/7, but for example - if you wish to only
-        -- Allow mining during the day, set hours = { min = 6, max = 20 }
         hours = { min = 0, max = 24 },
-        -- Build individual mining areas with specific ores
         zones = {
             [1] = {
-                -- The models spawned in this area
-                -- You can use one or more models, it will select at random for each ore spawn
                 models = { 'prop_rock_3_b', 'prop_rock_3_d', 'prop_rock_3_f' },
-                -- What level must the player be to mine these?
                 level = 1,
-                -- How long it takes to mine these ores (in milliseconds)
                 duration = { min = 2500, max = 2500 },
-                -- A table containing all possible rewards from these rocks
-                -- item: the item spawn name
-                -- min: the minimum amount to reward
-                -- max: the maximum amount to reward
-                -- chance: optional percentage chance variable
-                -- (if no chance is set, it will be considered 100%)
                 reward = {
                     { item = 'ls_copper_ore', min = 1, max = 2 },
-                    -- { item = 'example_rare_item', min = 1, max = 1, chance = 5 },
-                    -- Add or remove items as desired following the format above
                 },
-                -- How much XP is given for each (x1) ore mined?
                 xp = { min = 1, max = 3 },
-                -- How long after being mined do these ores respawn (in milliseconds)
                 respawn = 25000,
-                -- The coordinates these ores spawn at
                 ores = {
                     [1] = vec3(2949.8770, 2851.0256, 48.3509),
                     [2] = vec3(2955.0566, 2850.1597, 47.6026),
@@ -280,8 +223,6 @@ return {
                     [10] = vec3(3060.2603, 2750.5828, 64.3339),
                 }
             },
-            -- You can add or remove zones as you wish
-            -- Be sure to follow the same format as above
         }
     },
 
@@ -291,33 +232,21 @@ return {
 
     smelting = {
         -- Where do you want the smelter to be?
-        coords = vec3(1087.6827, -2002.1394, 31.4841),
-        -- The types of ingots that can be smelted from ores
+        coords = vec3(2957.85, 2753.83, 43.71),
         ingots = {
             [1] = {
-                -- The display name for this ingot in the menu
                 name = 'Copper Ingot',
-                -- The icon used
                 icon = 'fas fa-fire',
-                -- The player level required to smelt this
                 level = 1,
-                -- How long it takes to smelt x1 ingot (in milliseconds)
                 duration = 10000,
-                -- The maximum amount you can smelt in one session
-                -- This is an optional feature to combat excessive AFK
                 max = 20,
-                -- How much XP to add for each ingot smelted?
                 xp = { min = 3, max = 6 },
-                -- Ores/items that are required to smelt this
                 required = {
                     { item = 'ls_coal_ore', quantity = 5 },
                     { item = 'ls_copper_ore', quantity = 5 },
-                    -- You can add or remove additional items as desired
                 },
-                -- Ingots/items that are added after smelting
                 add = {
                     { item = 'ls_copper_ingot', quantity = 1 },
-                    -- You can add or remove additional items as desired
                 },
             },
             [2] = {
@@ -366,15 +295,13 @@ return {
                 },
             },
         },
-        -- Manage blip settings if desired
         blip = {
-            enable = true, -- Enable or disable the blip for this area
-            sprite = 648, -- Sprite ID (https://docs.fivem.net/docs/game-references/blips/)
-            color = 17, -- Color (https://docs.fivem.net/docs/game-references/blips/#blip-colors)
-            scale = 0.9, -- Size/scale
-            label = 'Smelter' -- Label
+            enable = true,
+            sprite = 648,
+            color = 17,
+            scale = 0.9,
+            label = 'Smelter'
         }
     }
-
 
 }
