@@ -1,36 +1,55 @@
 -- RME custom Premium Deluxe Motorsport browse-and-buy menu
--- Press E at the sales desk -> screen fades -> you are teleported into a PRIVATE
--- viewing room (your own routing bucket, frozen in place) where you browse the
--- catalog. Closing the menu (ESC) or buying teleports you back to the showroom.
--- Multiple players can browse at the same time without seeing each other.
+-- Press E at a sales point -> screen fades -> you are taken into a PRIVATE viewing
+-- room (your own routing bucket, invisible & frozen, with a scenic camera) where
+-- you browse the catalog. Closing the menu (ESC) or buying takes you back.
+-- Two sales points:
+--   * PDM desk  -> all ground vehicles (no aircraft)
+--   * Hangar    -> aircraft only (planes + helicopters)
 -- Reuses qb-vehicleshop's existing server events so money, DB inserts, plates
 -- and keys all behave exactly like the stock shop.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local sharedVehicles = exports['qb-core']:GetShared('Vehicles')
 
-local browseCoords = vector3(-57.5, -1096.76, 26.42)
 local interactDistance = 3.0
 
--- Private viewing spot the player is frozen at while browsing. They are alone in
--- their own routing bucket, so this just needs to be somewhere out of the way.
--- Change these coords to any location you like (e.g. a showroom MLO).
+-- Private viewing spot (invisible ped is parked & frozen here while browsing).
 local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
+-- Scenic camera shown while browsing (points away from the player at the city).
+-- Tweak these to aim the view anywhere you like.
+local camPos = vector3(-30.0, -1090.0, 1000.0)
+local camLookAt = vector3(120.0, -900.0, 200.0)
+
+-- Sales points. block = hide these categories; only = show ONLY these categories.
+local browsePoints = {
+    {
+        coords = vector3(-57.5, -1096.76, 26.42),
+        label = 'Browse Vehicles',
+        title = 'PREMIUM DELUXE MOTORSPORT',
+        block = { helicopters = true, planes = true },
+    },
+    {
+        coords = vector3(-1656.63, -3150.84, 13.99),
+        label = 'Browse Aircraft',
+        title = 'AIRCRAFT HANGAR',
+        only = { helicopters = true, planes = true },
+    },
+}
 
 local browseActive = false
+local activePoint = nil
 local returnCoords = nil
+local browseCam = nil
 
 print('^2[rme_pdm]^7 browse-and-buy script LOADED')
 
--- Weaponized / armored vehicles that should NOT be sellable at PDM.
--- (Models not present on the server are simply ignored - harmless.)
+-- Weaponized / armored vehicles that should NOT be sellable. Models not present
+-- on the server are simply ignored.
 local blockedModels = {
-    -- Weaponized (machine guns / rockets)
     ['ruiner2'] = true, ['deluxo'] = true, ['stromberg'] = true, ['toreador'] = true,
     ['oppressor'] = true, ['oppressor2'] = true, ['jb700'] = true, ['vigilante'] = true,
     ['scramjet'] = true, ['rcbandito'] = true, ['tampa3'] = true, ['menacer'] = true,
     ['voltic2'] = true,
-    -- Arena War weaponized
     ['issi4'] = true, ['issi5'] = true, ['issi6'] = true,
     ['dominator4'] = true, ['dominator5'] = true, ['dominator6'] = true,
     ['impaler2'] = true, ['impaler3'] = true, ['impaler4'] = true,
@@ -44,15 +63,20 @@ local blockedModels = {
     ['monster3'] = true, ['monster4'] = true, ['monster5'] = true,
     ['slamvan4'] = true, ['slamvan5'] = true, ['slamvan6'] = true,
     ['dune3'] = true, ['dune4'] = true, ['dune5'] = true,
-    -- Military / armored troop carriers and tanks
     ['insurgent'] = true, ['insurgent2'] = true, ['insurgent3'] = true,
     ['technical'] = true, ['technical2'] = true, ['technical3'] = true,
     ['nightshark'] = true, ['halftrack'] = true, ['apc'] = true, ['barrage'] = true,
     ['chernobog'] = true, ['khanjali'] = true, ['rhino'] = true, ['trailersmall2'] = true,
     ['vetir'] = true,
-    -- Armored civilian (bullet resistant)
     ['kuruma2'] = true, ['baller5'] = true, ['baller6'] = true,
     ['boxville5'] = true, ['dukes2'] = true, ['schafter5'] = true, ['schafter6'] = true,
+    -- Weaponized aircraft (never sellable, even at the hangar)
+    ['hydra'] = true, ['lazer'] = true, ['besra'] = true, ['savage'] = true,
+    ['hunter'] = true, ['akula'] = true, ['annihilator'] = true, ['annihilator2'] = true,
+    ['valkyrie'] = true, ['valkyrie2'] = true, ['buzzard'] = true, ['bombushka'] = true,
+    ['volatol'] = true, ['molotok'] = true, ['rogue'] = true, ['nokota'] = true,
+    ['pyro'] = true, ['starling'] = true, ['seabreeze'] = true, ['strikeforce'] = true,
+    ['avenger'] = true, ['avenger2'] = true, ['tula'] = true, ['alkonost'] = true,
 }
 
 local function comma_value(amount)
@@ -65,17 +89,22 @@ local function comma_value(amount)
     return formatted
 end
 
--- Vehicle preview image URL (matches the carmarket convention).
 local function vehImage(model)
     return 'https://docs.fivem.net/vehicles/' .. tostring(model):lower() .. '.webp'
 end
 
--- A vehicle is sellable at PDM if it is NOT on the weaponized/armored blocklist.
--- We intentionally ignore the per-vehicle 'shop' field so the whole catalog is
--- available here.
 local function isSellable(model, v)
     if blockedModels[model] then return false end
     if v and v.shop == 'none' then return false end
+    return true
+end
+
+-- Category filter based on which sales point we entered from.
+local function categoryAllowed(cat)
+    local p = activePoint
+    if not p then return true end
+    if p.only then return p.only[cat] == true end
+    if p.block then return not p.block[cat] end
     return true
 end
 
@@ -101,7 +130,9 @@ end
 function openBrowse()
     local cats = {}
     for model, v in pairs(sharedVehicles) do
-        if isSellable(model, v) and v.category then cats[v.category] = true end
+        if isSellable(model, v) and v.category and categoryAllowed(v.category) then
+            cats[v.category] = true
+        end
     end
     local sorted = {}
     for cat in pairs(cats) do sorted[#sorted + 1] = cat end
@@ -110,7 +141,7 @@ function openBrowse()
         {
             isMenuHeader = true,
             icon = 'fa-solid fa-warehouse',
-            header = 'PREMIUM DELUXE MOTORSPORT',
+            header = (activePoint and activePoint.title) or 'PREMIUM DELUXE MOTORSPORT',
             txt = 'Private viewing room',
         },
     }
@@ -125,8 +156,8 @@ function openBrowse()
         }
     end
     menu[#menu + 1] = {
-        header = 'Leave Showroom',
-        txt = 'Return to Premium Deluxe Motorsport',
+        header = 'Leave',
+        txt = 'Return outside',
         icon = 'fa-solid fa-door-open',
         params = { event = 'rme_pdm:client:exit' }
     }
@@ -152,7 +183,7 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
     }
     local list = {}
     for model, v in pairs(sharedVehicles) do
-        if isSellable(model, v) and v.category == data.category then
+        if isSellable(model, v) and v.category == data.category and categoryAllowed(v.category) then
             v._model = model
             list[#list + 1] = v
         end
@@ -212,33 +243,34 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
 end)
 
 -- ============================================================
---  Private viewing room: enter / exit
+--  Private viewing room: enter / exit (all client-side)
 -- ============================================================
 
--- Everything that makes the experience work is done CLIENT-SIDE here so it can
--- never get stuck waiting on the server. The routing-bucket request is sent as a
--- non-blocking extra purely for privacy; if it is delayed or unavailable the
--- player still gets teleported and the menu still opens.
-local function enterBrowse()
+local function enterBrowse(point)
     if browseActive then return end
     browseActive = true
+    activePoint = point
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
     returnCoords = vector4(pos.x, pos.y, pos.z, GetEntityHeading(ped))
 
     DoScreenFadeOut(500)
     local timeout = 0
-    while not IsScreenFadedOut() and timeout < 1500 do
-        Wait(10)
-        timeout = timeout + 10
-    end
+    while not IsScreenFadedOut() and timeout < 1500 do Wait(10); timeout = timeout + 10 end
 
     SetEntityCoords(ped, browseSpot.x, browseSpot.y, browseSpot.z, false, false, false, false)
     SetEntityHeading(ped, browseSpot.w)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
+    SetEntityVisible(ped, false, false) -- hide the player in this view
 
-    -- Privacy extra (non-blocking): drop us into our own routing bucket.
+    -- Scenic camera pointing away from the player.
+    browseCam = CreateCamWithParams('DEFAULT_SCRIPTED_CAMERA', camPos.x, camPos.y, camPos.z, 0.0, 0.0, 0.0, 50.0, false, 0)
+    PointCamAtCoord(browseCam, camLookAt.x, camLookAt.y, camLookAt.z)
+    SetCamActive(browseCam, true)
+    RenderScriptCams(true, false, 0, true, true)
+
+    -- Privacy extra (non-blocking): own routing bucket.
     TriggerServerEvent('rme_pdm:server:enterBrowse')
 
     Wait(400)
@@ -253,46 +285,40 @@ local function exitBrowse()
     local ped = PlayerPedId()
     DoScreenFadeOut(500)
     local timeout = 0
-    while not IsScreenFadedOut() and timeout < 1500 do
-        Wait(10)
-        timeout = timeout + 10
-    end
+    while not IsScreenFadedOut() and timeout < 1500 do Wait(10); timeout = timeout + 10 end
 
-    -- Restore our normal instance BEFORE teleporting back so the world is there.
+    RenderScriptCams(false, false, 0, true, true)
+    if browseCam then DestroyCam(browseCam, false); browseCam = nil end
+
     TriggerServerEvent('rme_pdm:server:exitBrowse')
 
     FreezeEntityPosition(ped, false)
     SetEntityInvincible(ped, false)
+    SetEntityVisible(ped, true, false)
     if returnCoords then
         SetEntityCoords(ped, returnCoords.x, returnCoords.y, returnCoords.z, false, false, false, false)
         SetEntityHeading(ped, returnCoords.w)
     end
+    activePoint = nil
 
     Wait(400)
     DoScreenFadeIn(500)
 end
 
--- Explicit "Leave Showroom" button
 RegisterNetEvent('rme_pdm:client:exit', function()
     exitBrowse()
 end)
 
--- Player pressed ESC / Backspace to close the menu -> treat as leaving
 RegisterNetEvent('qb-menu:client:menuClosed', function()
-    if browseActive then
-        exitBrowse()
-    end
+    if browseActive then exitBrowse() end
 end)
 
--- Buying: leave the private room FIRST so the car spawns normally in the world,
--- then fire the stock purchase event.
 RegisterNetEvent('rme_pdm:client:confirmBuy', function(data)
     exitBrowse()
     Wait(250)
     TriggerServerEvent('qb-vehicleshop:server:buyShowroomVehicle', { buyVehicle = data.model })
 end)
 
--- Financing: leave first, then show the finance dialog back at the showroom.
 RegisterNetEvent('rme_pdm:client:finance', function(data)
     exitBrowse()
     Wait(250)
@@ -300,18 +326,8 @@ RegisterNetEvent('rme_pdm:client:finance', function(data)
         header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(data.price),
         submitText = 'Finance',
         inputs = {
-            {
-                type = 'number',
-                isRequired = true,
-                name = 'downPayment',
-                text = 'Down payment ($) - min ' .. Config.MinimumDown .. '%'
-            },
-            {
-                type = 'number',
-                isRequired = true,
-                name = 'paymentAmount',
-                text = 'Number of payments - max ' .. Config.MaximumPayments
-            }
+            { type = 'number', isRequired = true, name = 'downPayment', text = 'Down payment ($) - min ' .. Config.MinimumDown .. '%' },
+            { type = 'number', isRequired = true, name = 'paymentAmount', text = 'Number of payments - max ' .. Config.MaximumPayments }
         }
     })
     if dialog then
@@ -320,13 +336,12 @@ RegisterNetEvent('rme_pdm:client:finance', function(data)
     end
 end)
 
--- Debug/test command: enters the private browse room from anywhere
 RegisterCommand('pdmtest', function()
     print('^3[rme_pdm]^7 /pdmtest used - entering private browse room')
-    enterBrowse()
+    enterBrowse(browsePoints[1])
 end, false)
 
--- Safety command in case a player ever gets stuck (frozen) in the viewing room
+-- Safety command if a player ever gets stuck in the viewing room
 RegisterCommand('pdmunstuck', function()
     if browseActive then
         exitBrowse()
@@ -334,24 +349,31 @@ RegisterCommand('pdmunstuck', function()
         local ped = PlayerPedId()
         FreezeEntityPosition(ped, false)
         SetEntityInvincible(ped, false)
+        SetEntityVisible(ped, true, false)
+        RenderScriptCams(false, false, 0, true, true)
+        if browseCam then DestroyCam(browseCam, false); browseCam = nil end
     end
 end, false)
 
 -- ============================================================
---  Press-E interaction point at the sales desk (with a marker)
+--  Press-E interaction points (with markers)
 -- ============================================================
 CreateThread(function()
     while true do
         local sleep = 1000
-        local pos = GetEntityCoords(PlayerPedId())
-        local dist = #(pos - browseCoords)
-        if dist < 15.0 and not browseActive then
-            sleep = 0
-            DrawMarker(2, browseCoords.x, browseCoords.y, browseCoords.z + 1.0, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 0, 150, 255, 200, false, true, 2, false, nil, nil, false)
-            if dist < interactDistance then
-                DrawText3D(browseCoords.x, browseCoords.y, browseCoords.z + 0.2, '[E] Browse Vehicles')
-                if IsControlJustReleased(0, 38) then
-                    enterBrowse()
+        if not browseActive then
+            local pos = GetEntityCoords(PlayerPedId())
+            for _, point in ipairs(browsePoints) do
+                local dist = #(pos - point.coords)
+                if dist < 15.0 then
+                    sleep = 0
+                    DrawMarker(2, point.coords.x, point.coords.y, point.coords.z + 1.0, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 0, 150, 255, 200, false, true, 2, false, nil, nil, false)
+                    if dist < interactDistance then
+                        DrawText3D(point.coords.x, point.coords.y, point.coords.z + 0.2, '[E] ' .. point.label)
+                        if IsControlJustReleased(0, 38) then
+                            enterBrowse(point)
+                        end
+                    end
                 end
             end
         end
