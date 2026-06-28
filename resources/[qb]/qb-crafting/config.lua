@@ -125,6 +125,49 @@ Config = {
                     { item = 'advancedlockpick', amount = 2 }
                 }
             },
+            {
+                item = 'goldchain',
+                xpRequired = 0,
+                xpGain = 5,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 3 }
+                }
+            },
+            {
+                item = 'rolex',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'diamond_ring',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 2 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'tenkgoldchain',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_gold_ingot',   amount = 6 },
+                    { item = 'ls_silver_ingot', amount = 1 }
+                }
+            },
+            {
+                item = 'goldbar',
+                xpRequired = 0,
+                xpGain = 10,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 10 }
+                }
+            },
         }
     },
     attachment_bench = {
