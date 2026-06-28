@@ -173,12 +173,10 @@ Config = {
             },
         }
     },
+    -- Jewelry crafting is a LOCATION, not a placed bench/prop.
+    -- Players walk to this spot and use the qb-target option to craft.
     jewelry_bench = {
-        -- Primary prop: Casino DLC glass jewelry display case.
-        -- If this model isn't on your build, client.lua falls back to prop_tool_bench02.
-        object = `vw_prop_vw_colle_dispcase_01a`,
-        fallbackObject = `prop_tool_bench02`,
-        location = vec4(1077.99, -1985.68, 30.96, 50.84),
+        location = vec4(1109.86, -2008.29, 31.06, 241.9),
         xpType = 'craftingrep',
         recipes = {
             {
@@ -205,23 +203,6 @@ Config = {
                 requiredItems = {
                     { item = 'ls_gold_ingot',   amount = 2 },
                     { item = 'ls_silver_ingot', amount = 1 }
-                }
-            },
-            {
-                item = 'tenkgoldchain',
-                xpRequired = 0,
-                xpGain = 8,
-                requiredItems = {
-                    { item = 'ls_gold_ingot',   amount = 6 },
-                    { item = 'ls_silver_ingot', amount = 1 }
-                }
-            },
-            {
-                item = 'goldbar',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'ls_gold_ingot', amount = 10 }
                 }
             },
         }
