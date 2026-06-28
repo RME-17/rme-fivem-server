@@ -19,13 +19,12 @@
     position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
     width:var(--mm-width); height:var(--mm-height);
     pointer-events:none; border-radius:14px;
-    /* Soft, gradual feather: several layered inset shadows from a light inner
-       haze to a wider, darker outer edge so the transition reads smoothly. */
+    /* Small, subtle feather: shallow reach into the map and low opacity so the
+       edge softens gently without darkening much of the map. */
     box-shadow:
-      inset 0 0 14px 2px rgba(0,0,0,0.22),
-      inset 0 0 30px 8px rgba(0,0,0,0.34),
-      inset 0 0 52px 16px rgba(0,0,0,0.46),
-      inset 0 0 78px 26px rgba(0,0,0,0.50);
+      inset 0 0 8px 1px rgba(0,0,0,0.14),
+      inset 0 0 16px 4px rgba(0,0,0,0.18),
+      inset 0 0 26px 7px rgba(0,0,0,0.22);
   }
   /* Compass centered above the minimap */
   #rmecompass {
@@ -37,6 +36,10 @@
   #rmecompass .rc-dir { font-size:22px; font-weight:800; letter-spacing:1px; }
   #rmecompass .rc-deg { font-size:13px; font-weight:600; color:rgba(255,255,255,0.78); margin-left:6px; }
   #rmecompass .rc-street { font-size:12px; font-weight:600; color:rgba(255,255,255,0.86); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* When the pause menu (Escape) is open, hide the minimap fade + compass so
+     they disappear along with the native minimap. */
+  body.paused #mmfade,
+  body.paused #rmecompass { display:none !important; }
   /* Speedometer (bottom-right) */
   #speedo {
     position:absolute; right:24px; bottom:28px; width:172px;
@@ -102,6 +105,11 @@
   }
   window.addEventListener('message', function(e){
     var d = e.data || {};
+    if (d.action === 'pause') {
+      if (d.hidden) { document.body.classList.add('paused'); }
+      else { document.body.classList.remove('paused'); }
+      return;
+    }
     if (d.action === 'compass') {
       var c = el('rmecompass');
       c.classList.add('visible');
