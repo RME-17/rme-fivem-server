@@ -139,7 +139,7 @@ QBCore.Shared.Items = {
     nvscope_attachment           = { name = 'nvscope_attachment', label = 'Night Vision Scope', weight = 1000, type = 'item', image = 'nvscope_attachment.png', unique = false, useable = true, shouldClose = true, description = 'A night vision scope for a weapon' },
     thermalscope_attachment      = { name = 'thermalscope_attachment', label = 'Thermal Scope', weight = 1000, type = 'item', image = 'thermalscope_attachment.png', unique = false, useable = true, shouldClose = true, description = 'A thermal scope for a weapon' },
     flat_muzzle_brake            = { name = 'flat_muzzle_brake', label = 'Flat Muzzle Brake', weight = 1000, type = 'item', image = 'flat_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brake for a weapon' },
-    tactical_muzzle_brake        = { name = 'tactical_muzzle_brake', label = 'Tactical Muzzle Brake', weight = 1000, type = 'item', image = 'tactical_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brakee for a weapon' },
+    tactical_muzzle_brake        = { name = 'tactical_muzzle_brake', label = 'Tactical Muzzle Brake', weight = 1000, type = 'item', image = 'tactical_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brake for a weapon' },
     fat_end_muzzle_brake         = { name = 'fat_end_muzzle_brake', label = 'Fat End Muzzle Brake', weight = 1000, type = 'item', image = 'fat_end_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brake for a weapon' },
     precision_muzzle_brake       = { name = 'precision_muzzle_brake', label = 'Precision Muzzle Brake', weight = 1000, type = 'item', image = 'precision_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brake for a weapon' },
     heavy_duty_muzzle_brake      = { name = 'heavy_duty_muzzle_brake', label = 'HD Muzzle Brake', weight = 1000, type = 'item', image = 'heavy_duty_muzzle_brake.png', unique = false, useable = true, shouldClose = true, description = 'A muzzle brake for a weapon' },
@@ -401,5 +401,18 @@ ls_copper_ingot = { name = 'ls_copper_ingot', label = 'Copper Ingot', weight = 5
 ls_iron_ingot = { name = 'ls_iron_ingot', label = 'Iron Ingot', weight = 500, type = 'item', image = 'ls_iron_ingot.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = nil },
 ls_silver_ingot = { name = 'ls_silver_ingot', label = 'Silver Ingot', weight = 500, type = 'item', image = 'ls_silver_ingot.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = nil },
 ls_gold_ingot = { name = 'ls_gold_ingot', label = 'Gold Ingot', weight = 500, type = 'item', image = 'ls_gold_ingot.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = nil },
+
+-- Gems (refined at the smelter)
+emerald = { name = 'emerald', label = 'Emerald', weight = 500, type = 'item', image = 'emerald.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A flawless green gemstone, refined at the smelter' },
+sapphire = { name = 'sapphire', label = 'Sapphire', weight = 500, type = 'item', image = 'sapphire.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A flawless blue gemstone, refined at the smelter' },
+ruby = { name = 'ruby', label = 'Ruby', weight = 500, type = 'item', image = 'ruby.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A flawless red gemstone, refined at the smelter' },
+
+-- Gem Jewelry (crafted at the jewelry spot)
+emerald_ring = { name = 'emerald_ring', label = 'Emerald Ring', weight = 1500, type = 'item', image = 'emerald_ring.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold ring set with a brilliant emerald' },
+ruby_ring = { name = 'ruby_ring', label = 'Ruby Ring', weight = 1500, type = 'item', image = 'ruby_ring.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold ring set with a brilliant ruby' },
+sapphire_ring = { name = 'sapphire_ring', label = 'Sapphire Ring', weight = 1500, type = 'item', image = 'sapphire_ring.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold ring set with a brilliant sapphire' },
+emerald_necklace = { name = 'emerald_necklace', label = 'Emerald Necklace', weight = 2000, type = 'item', image = 'emerald_necklace.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold necklace set with emeralds' },
+ruby_necklace = { name = 'ruby_necklace', label = 'Ruby Necklace', weight = 2000, type = 'item', image = 'ruby_necklace.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold necklace set with rubies' },
+sapphire_necklace = { name = 'sapphire_necklace', label = 'Sapphire Necklace', weight = 2000, type = 'item', image = 'sapphire_necklace.png', unique = false, useable = false, shouldClose = true, combinable = nil, description = 'A gold necklace set with sapphires' },
 
 }
