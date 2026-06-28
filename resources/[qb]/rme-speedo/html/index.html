@@ -5,9 +5,25 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
   html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+  /* === Minimap fade overlay ===
+     A soft vignette drawn over the square minimap so its edges feather out
+     instead of ending in a hard rectangle. Nudge these 4 vars to line it up
+     exactly on the map (left/bottom = position, width/height = size). */
+  :root{
+    --mm-left: 4vw;
+    --mm-bottom: 2.4vh;
+    --mm-width: 29vh;
+    --mm-height: 18.5vh;
+  }
+  #mmfade {
+    position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
+    width:var(--mm-width); height:var(--mm-height);
+    pointer-events:none; border-radius:12px;
+    box-shadow: inset 0 0 16px 7px rgba(0,0,0,0.60), inset 0 0 5px 2px rgba(0,0,0,0.45);
+  }
   /* Compass above the minimap (bottom-left) */
   #rmecompass {
-    position:absolute; left:1vw; bottom:21vh; width:15vw;
+    position:absolute; left:var(--mm-left); bottom:21vh; width:15vw;
     display:none; text-align:center; color:#ffffff;
     text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
   }
@@ -43,6 +59,7 @@
 </style>
 </head>
 <body>
+  <div id="mmfade"></div>
   <div id="rmecompass">
     <div><span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span></div>
     <div class="rc-street" id="rcstreet"></div>
