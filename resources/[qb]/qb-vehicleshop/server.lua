@@ -477,21 +477,85 @@ RegisterNetEvent('qb-vehicleshop:server:sellfinanceVehicle', function(downPaymen
     end
 end)
 
+-- ============================================================
+--  RME debit-order finance collection
+-- ------------------------------------------------------------
+--  When a vehicle payment is due we first try to AUTO-COLLECT
+--  the instalment from the player's bank (then cash), exactly
+--  like a real debit order. Only if they genuinely cannot
+--  afford it do we fall back to a warning + repossession.
+-- ============================================================
+local function rme_collectPayment(player, v)
+    -- Returns true if the instalment was collected (or nothing was owed).
+    if not player then return false end
+    local owed = tonumber(v.balance) or 0
+    if owed <= 0 then return true end
+    -- On the final instalment, clear the exact remaining balance.
+    local payment = tonumber((v.paymentsleft and v.paymentsleft <= 1) and v.balance or v.paymentamount) or 0
+    if payment <= 0 then payment = owed end
+    if payment > owed then payment = owed end
+
+    local bank = player.PlayerData.money['bank']
+    local cash = player.PlayerData.money['cash']
+    local paidFrom
+    if bank >= payment then
+        player.Functions.RemoveMoney('bank', payment, 'vehicle-finance-debit')
+        paidFrom = 'bank'
+    elseif cash >= payment then
+        player.Functions.RemoveMoney('cash', payment, 'vehicle-finance-debit')
+        paidFrom = 'cash'
+    else
+        return false
+    end
+
+    local timer = (Config.PaymentInterval * 60)
+    local newBalance = owed - payment
+    local newPaymentsLeft = (v.paymentsleft or 1) - 1
+    if newBalance <= 0 or newPaymentsLeft <= 0 then
+        MySQL.update('UPDATE player_vehicles SET balance = ?, paymentamount = ?, paymentsleft = ?, financetime = ? WHERE plate = ?', { 0, 0, 0, 0, v.plate })
+        TriggerClientEvent('QBCore:Notify', player.PlayerData.source, ('Debit order: $%s from your %s. %s is now fully paid off!'):format(comma_value(payment), paidFrom, v.plate), 'success')
+    else
+        MySQL.update('UPDATE player_vehicles SET balance = ?, paymentsleft = ?, financetime = ? WHERE plate = ?', { newBalance, newPaymentsLeft, timer, v.plate })
+        TriggerClientEvent('QBCore:Notify', player.PlayerData.source, ('Debit order: $%s from your %s for %s (balance left $%s).'):format(comma_value(payment), paidFrom, v.plate, comma_value(newBalance)), 'success')
+    end
+    return true
+end
+
 -- Check if payment is due
 RegisterNetEvent('qb-vehicleshop:server:checkFinance', function()
     local src = source
     local player = exports['qb-core']:GetPlayer(src)
+    if not player then return end
     local query = 'SELECT * FROM player_vehicles WHERE citizenid = ? AND balance > 0 AND financetime < 1'
     local result = MySQL.query.await(query, { player.PlayerData.citizenid })
-    if result[1] then
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('general.paymentduein', { time = Config.PaymentWarning }))
-        Wait(Config.PaymentWarning * 60000)
-        local vehicles = MySQL.query.await(query, { player.PlayerData.citizenid })
-        for _, v in pairs(vehicles) do
-            local plate = v.plate
-            MySQL.query('DELETE FROM player_vehicles WHERE plate = @plate', { ['@plate'] = plate })
-            --MySQL.update('UPDATE player_vehicles SET citizenid = ? WHERE plate = ?', {'REPO-'..v.citizenid, plate}) -- Use this if you don't want them to be deleted
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('error.repossessed', { plate = plate }), 'error')
+    if not result[1] then return end
+
+    -- First pass: auto-debit everything we can afford right now.
+    local stillDue = {}
+    for _, v in pairs(result) do
+        local fresh = exports['qb-core']:GetPlayer(src)
+        if not rme_collectPayment(fresh, v) then
+            stillDue[#stillDue + 1] = v.plate
+        end
+    end
+
+    if not stillDue[1] then return end
+
+    -- Couldn't afford some: warn the player, give them the grace period to top
+    -- up, then try once more before repossessing.
+    TriggerClientEvent('QBCore:Notify', src, Lang:t('general.paymentduein', { time = Config.PaymentWarning }), 'error')
+    Wait(Config.PaymentWarning * 60000)
+
+    for _, plate in pairs(stillDue) do
+        local current = MySQL.single.await('SELECT * FROM player_vehicles WHERE plate = ?', { plate })
+        if current and current.balance > 0 and current.financetime < 1 then
+            local fresh = exports['qb-core']:GetPlayer(src)
+            if not rme_collectPayment(fresh, current) then
+                -- Still can't pay -> repossess.
+                MySQL.query('DELETE FROM player_vehicles WHERE plate = @plate', { ['@plate'] = plate })
+                --MySQL.update('UPDATE player_vehicles SET citizenid = ? WHERE plate = ?', {'REPO-'..current.citizenid, plate}) -- swap the DELETE above for this to keep repossessed cars recoverable
+                TriggerClientEvent('QBCore:Notify', src, Lang:t('error.repossessed', { plate = plate }), 'error')
+            end
         end
     end
 end)
