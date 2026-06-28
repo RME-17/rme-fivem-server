@@ -12,13 +12,16 @@
   :root{
     --mm-left: 4vw;
     --mm-bottom: 2.4vh;
-    --mm-width: 24vh;
-    --mm-height: 18vh;
+    --mm-width: 29vh;
+    --mm-height: 20vh;
   }
   #mmfade {
     position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
     width:var(--mm-width); height:var(--mm-height);
     pointer-events:none; border-radius:12px;
+    /* TEMP cyan guide line so the exact box edge is visible for alignment.
+       Will be removed once the 4 vars above are dialed in. */
+    border:2px solid rgba(0,229,255,0.9);
     box-shadow: inset 0 0 16px 7px rgba(0,0,0,0.60), inset 0 0 5px 2px rgba(0,0,0,0.45);
   }
   /* Compass above the minimap (bottom-left) */
