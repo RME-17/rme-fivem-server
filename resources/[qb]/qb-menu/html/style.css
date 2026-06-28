@@ -107,12 +107,13 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-    background: var(--md-surface-container-low);
+    background: transparent;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: var(--md-surface-container-high);
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
 }
 
 #container {
@@ -242,41 +243,41 @@ div > .header {
 }
 
 /* =========================================================
-   RME GLASS THEME (glassmorphism) - applies to all qb-menu
+   RME GLASS THEME (FiveM CEF safe - NO backdrop-filter)
+   backdrop-filter is unsupported in FiveM's Chromium and
+   renders as a solid black box, so we use true translucent
+   rgba fills instead to get the glass look.
    ========================================================= */
+
+/* No panel/box behind the list - let buttons float over the game */
 #buttons {
-    background: rgba(18, 20, 28, 0.32);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .button,
 .title {
-    background: rgba(255, 255, 255, 0.06) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    backdrop-filter: blur(8px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(28, 27, 31, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
     transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
 }
 
 .title {
-    background: rgba(244, 67, 54, 0.16) !important;
-    border-color: rgba(244, 67, 54, 0.35);
+    background: rgba(244, 67, 54, 0.30) !important;
+    border-color: rgba(244, 67, 54, 0.45);
 }
 
 .button:hover {
-    background: rgba(244, 67, 54, 0.30) !important;
-    border-color: rgba(244, 67, 54, 0.55);
+    background: rgba(244, 67, 54, 0.42) !important;
+    border-color: rgba(244, 67, 54, 0.65);
     transform: translateX(3px);
 }
 
 .disabled {
-    background: rgba(255, 255, 255, 0.03) !important;
+    background: rgba(28, 27, 31, 0.32) !important;
     border-color: rgba(255, 255, 255, 0.06);
 }
 
