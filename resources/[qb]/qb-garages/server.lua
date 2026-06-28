@@ -9,7 +9,7 @@ AddEventHandler('onResourceStart', function(resource)
         Wait(100)
         -- RME: clear deadlocks from the previous session and confirm the build
         -- that is actually running on the live server.
-        print('^2[qb-garages] RME build active: transfer + self-heal + diagnostics^0')
+        print('^2[qb-garages] RME build active: transfer + self-heal + spawn diagnostics^0')
         if Config['AutoRespawn'] then
             MySQL.update('UPDATE player_vehicles SET state = 1 WHERE state = 0', {})
         else
@@ -131,21 +131,55 @@ end
 -- Backwards Compat
 
 -- Spawns a vehicle and returns its network ID and properties.
+-- RME: now waits for the entity to actually exist server-side and reports the
+-- exact failing model/type both to the console and to the player, so a spawn
+-- failure is diagnosable instead of a silent "failed to load".
 QBCore.Functions.CreateCallback('qb-garages:server:spawnvehicle', function(source, cb, plate, vehicle, coords)
-    local vehType = sharedVehicles[vehicle] and sharedVehicles[vehicle].type or GetVehicleTypeByModel(vehicle)
-    local hash = type(vehicle) == 'number' and vehicle or type(vehicle) == 'string' and GetHashKey(vehicle) or nil
-    if not vehicle then return end
+    if not vehicle then
+        print('^1[qb-garages] spawnvehicle: no model supplied for plate ' .. tostring(plate) .. '^0')
+        cb(nil)
+        return
+    end
+
+    local vehType = (sharedVehicles[vehicle] and sharedVehicles[vehicle].type) or GetVehicleTypeByModel(vehicle)
+    local hash = (type(vehicle) == 'number') and vehicle or GetHashKey(vehicle)
+
     -- RME: clear any stale copy of this plate before spawning a fresh one.
     if OutsideVehicles[plate] and OutsideVehicles[plate].entity and DoesEntityExist(OutsideVehicles[plate].entity) then
         DeleteEntity(OutsideVehicles[plate].entity)
     end
-    local veh = CreateVehicleServerSetter(hash, vehType, coords.x, coords.y, coords.z, coords.w)
+
+    local x = coords.x + 0.0
+    local y = coords.y + 0.0
+    local z = coords.z + 0.0
+    local w = ((coords.w or coords.h) or 0.0) + 0.0
+
+    local veh = CreateVehicleServerSetter(hash, vehType, x, y, z, w)
+
+    -- Wait for the entity to come into existence on the server.
+    local tries = 0
+    while not DoesEntityExist(veh) and tries < 100 do
+        Wait(10)
+        tries = tries + 1
+    end
+
+    if not DoesEntityExist(veh) then
+        print(('^1[qb-garages] SPAWN FAILED -> model="%s" hash=%s type="%s" coords=%.2f,%.2f,%.2f (entity never created -- check the model exists / OneSync is on)^0')
+            :format(tostring(vehicle), tostring(hash), tostring(vehType), x, y, z))
+        TriggerClientEvent('QBCore:Notify', source,
+            ('Spawn failed for model "%s" (type %s). The model may be missing or its resource not started.'):format(tostring(vehicle), tostring(vehType)),
+            'error', 9000)
+        cb(nil)
+        return
+    end
+
     local netId = NetworkGetNetworkIdFromEntity(veh)
     SetVehicleNumberPlateText(veh, plate)
     local vehProps = {}
     local result = MySQL.rawExecute.await('SELECT mods FROM player_vehicles WHERE plate = ?', { plate })
-    if result and result[1] then vehProps = json.decode(result[1].mods) end
+    if result and result[1] and result[1].mods then vehProps = json.decode(result[1].mods) end
     OutsideVehicles[plate] = { netID = netId, entity = veh }
+    print(('^2[qb-garages] spawned model="%s" plate=%s netId=%s^0'):format(tostring(vehicle), tostring(plate), tostring(netId)))
     cb(netId, vehProps, plate)
 end)
 
