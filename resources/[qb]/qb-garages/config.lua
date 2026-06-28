@@ -199,7 +199,7 @@ Config.Garages = {
         category = Config.VehicleClass['car']
     },
     pillboxgarage = {
-        label = 'Pillbox Garage Parking',
+        label = 'Legion Square Garage',
         takeVehicle = vector3(213.2, -796.05, 30.86),
         spawnPoint = {
             vector4(222.02, -804.19, 30.26, 248.19),
