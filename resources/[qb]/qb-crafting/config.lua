@@ -175,8 +175,8 @@ Config = {
     },
     -- Jewelry crafting is a LOCATION, not a placed bench/prop.
     -- Players walk to this spot and use the qb-target option to craft.
-    -- Metal split: GOLD for rings, chains and the watch; SILVER for the three
-    -- gem necklaces (emerald / ruby / sapphire).
+    -- Metal split: GOLD for rings, chains, the watch and gold earrings; SILVER
+    -- for the three gem necklaces and the diamond earrings.
     jewelry_bench = {
         location = vec4(1109.86, -2008.29, 31.06, 241.9),
         xpType = 'craftingrep',
@@ -198,6 +198,14 @@ Config = {
                 }
             },
             {
+                item = 'gold_earrings',
+                xpRequired = 0,
+                xpGain = 5,
+                requiredItems = {
+                    { item = 'ls_gold_ingot', amount = 2 }
+                }
+            },
+            {
                 item = 'diamond_ring',
                 xpRequired = 0,
                 xpGain = 7,
@@ -213,6 +221,15 @@ Config = {
                 requiredItems = {
                     { item = 'ls_gold_ingot', amount = 5 },
                     { item = 'diamond',       amount = 2 }
+                }
+            },
+            {
+                item = 'diamond_earrings',
+                xpRequired = 0,
+                xpGain = 8,
+                requiredItems = {
+                    { item = 'ls_silver_ingot', amount = 2 },
+                    { item = 'diamond',         amount = 2 }
                 }
             },
             {
