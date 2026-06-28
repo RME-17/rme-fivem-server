@@ -121,47 +121,32 @@ function populateVehicleList(garageLabel, vehicles) {
 
             financeDriveContainer.appendChild(financeInfo);
 
-            // Drive Button
+            // Drive Button -- RME: in normal (non-depot) garages your stored cars
+            // are always drivable. Only the dedicated depot/impound lot charges a
+            // fee. This stops stale depotprice values leaving a dead button.
             let status;
             let isDepotPrice = false;
 
-            if (v.state === 0) {
+            if (v.type === "depot") {
                 if (v.depotPrice && v.depotPrice > 0) {
                     isDepotPrice = true;
-
-                    if (v.type === "public") {
-                        status = "Depot";
-                    } else if (v.type === "depot") {
-                        status = "$" + v.depotPrice.toFixed(0);
-                    } else {
-                        status = "Out";
-                    }
-                } else {
-                    status = "Out";
-                }
-            } else if (v.state === 1) {
-                if (v.depotPrice && v.depotPrice > 0) {
-                    isDepotPrice = true;
-
-                    if (v.type === "depot") {
-                        status = "$" + v.depotPrice.toFixed(0);
-                    } else if (v.type === "public") {
-                        status = "Depot";
-                    } else {
-                        status = "Drive";
-                    }
+                    status = "$" + v.depotPrice.toFixed(0);
                 } else {
                     status = "Drive";
                 }
+            } else if (v.state === 0) {
+                status = "Out";
             } else if (v.state === 2) {
                 status = "Impound";
+            } else {
+                status = "Drive";
             }
 
             const driveButton = document.createElement("button");
             driveButton.classList.add("drive-btn");
             driveButton.textContent = status;
 
-            if (status === "Depot" || status === "Impound") {
+            if (status === "Impound") {
                 driveButton.classList.add("btn-muted");
                 driveButton.disabled = true;
             }
