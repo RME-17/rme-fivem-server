@@ -44,6 +44,10 @@ const InventoryContainer = Vue.createApp({
         shouldCenterInventory() {
             return this.isOtherInventoryEmpty;
         },
+        selectedItemData() {
+            if (this.selectedSlot === null || this.selectedSlot === undefined) return null;
+            return this.playerInventory[this.selectedSlot] || null;
+        },
     },
     watch: {
         transferAmount(newVal) {
@@ -104,6 +108,8 @@ const InventoryContainer = Vue.createApp({
                 ghostElement: null,
                 dragStartInventoryType: "player",
                 transferAmount: null,
+                // Selected slot (drives the side action panel)
+                selectedSlot: null,
             };
         },
         openInventory(data) {
@@ -112,6 +118,7 @@ const InventoryContainer = Vue.createApp({
             }
 
             this.isInventoryOpen = true;
+            this.selectedSlot = null;
             this.maxWeight = data.maxweight;
             this.totalSlots = data.slots;
             this.playerInventory = {};
@@ -209,6 +216,34 @@ const InventoryContainer = Vue.createApp({
         },
         getHotbarItemInSlot(slot) {
             return this.hotbarItems[slot - 1] || null;
+        },
+        selectSlot(slot) {
+            const item = this.getItemInSlot(slot, "player");
+            if (!item) {
+                this.selectedSlot = null;
+                return;
+            }
+            this.selectedSlot = this.selectedSlot === slot ? null : slot;
+        },
+        useSelected() {
+            const item = this.selectedItemData;
+            if (item) this.useItem(item);
+        },
+        giveSelected() {
+            const item = this.selectedItemData;
+            if (!item) return;
+            this.giveItem(item, this.transferAmount || 1);
+            this.selectedSlot = null;
+        },
+        dropSelected() {
+            const item = this.selectedItemData;
+            if (!item) return;
+            this.dropItem(item, this.transferAmount || 1);
+            this.selectedSlot = null;
+        },
+        splitSelected() {
+            const item = this.selectedItemData;
+            if (item) this.splitAndPlaceItem(item, "player");
         },
         containerMouseDownAction(event) {
             if (event.button === 0 && this.showContextMenu) {
