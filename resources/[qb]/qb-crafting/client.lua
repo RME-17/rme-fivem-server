@@ -98,8 +98,8 @@ end
 
 local function OpenCraftingMenu(benchType)
     local PlayerData = QBCore.Functions.GetPlayerData()
-    local xpType = benchType == 'item_bench' and Config.item_bench.xpType or Config.attachment_bench.xpType
-    local recipes = benchType == 'item_bench' and Config.item_bench.recipes or Config.attachment_bench.recipes
+    local xpType = Config[benchType].xpType
+    local recipes = Config[benchType].recipes
     local currentXP = PlayerData.metadata[xpType] or 0
 
     QBCore.Functions.TriggerCallback('crafting:getPlayerInventory', function(inventory)
@@ -200,6 +200,31 @@ RegisterNetEvent('qb-crafting:client:useCraftingTable', function(benchType)
                 action = function()
                     PickupBench(benchType)
                 end,
+            }
+        },
+        distance = 2.5
+    })
+end)
+
+-- Permanent Jewelry Bench (spawned at a fixed location, no item required)
+CreateThread(function()
+    local bench = Config.jewelry_bench
+    if not bench or not bench.location then return end
+    local model = bench.object
+    RequestModel(model)
+    while not HasModelLoaded(model) do Wait(10) end
+    local obj = CreateObject(model, bench.location.x, bench.location.y, bench.location.z, false, false, false)
+    SetEntityHeading(obj, bench.location.w)
+    FreezeEntityPosition(obj, true)
+    SetModelAsNoLongerNeeded(model)
+    exports['qb-target']:AddTargetEntity(obj, {
+        options = {
+            {
+                icon = 'fas fa-gem',
+                label = 'Craft Jewelry',
+                action = function()
+                    OpenCraftingMenu('jewelry_bench')
+                end
             }
         },
         distance = 2.5
