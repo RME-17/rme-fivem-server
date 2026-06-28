@@ -174,7 +174,10 @@ Config = {
         }
     },
     jewelry_bench = {
-        object = `prop_jewel_01a`,
+        -- Primary prop: Casino DLC glass jewelry display case.
+        -- If this model isn't on your build, client.lua falls back to prop_tool_bench02.
+        object = `vw_prop_vw_colle_dispcase_01a`,
+        fallbackObject = `prop_tool_bench02`,
         location = vec4(1077.99, -1985.68, 30.96, 50.84),
         xpType = 'craftingrep',
         recipes = {
