@@ -26,3 +26,7 @@ build/
 
 # Externally-cloned resources that ship with their own .git (RDE scripts check for git metadata)
 resources/rde_oxmedia/
+
+# Paid / escrow resources kept local-only (never committed; prevents a stub from clobbering the real install on deploy)
+resources/\[standalone\]/lc_fuel/
+resources/\[standalone\]/lc_utils/
