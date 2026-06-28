@@ -72,9 +72,12 @@ RegisterNetEvent('qb-crafting:server:receiveItem', function(craftedItem, require
 end)
 
 -- Items
+-- Only register PORTABLE benches as useable items. Permanent benches (those with a
+-- fixed `location` in Config, e.g. jewelry_bench) are spawned in client.lua and are
+-- NOT placeable items, so skip them here.
 
 for benchType, v in pairs(Config) do
-    if type(v) == 'table' then
+    if type(v) == 'table' and not v.location then
         QBCore.Functions.CreateUseableItem(benchType, function(source)
             TriggerClientEvent('qb-crafting:client:useCraftingTable', source, benchType)
         end)
