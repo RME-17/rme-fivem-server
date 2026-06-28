@@ -233,21 +233,7 @@ local function createVehZones(shopName, entity)
             end
         end)
     else
-        exports['qb-target']:AddTargetEntity(entity, {
-            options = {
-                {
-                    type = 'client',
-                    event = 'qb-vehicleshop:client:showVehOptions',
-                    icon = 'fas fa-car',
-                    label = Lang:t('general.vehinteraction'),
-                    canInteract = function()
-                        local closestShop = insideShop
-                        return closestShop and (Config.Shops[closestShop]['Job'] == 'none' or PlayerData.job.name == Config.Shops[closestShop]['Job'])
-                    end
-                },
-            },
-            distance = 3.0
-        })
+        -- RME: qb-target 'Vehicle Interaction' on showroom cars disabled in all dealerships (use the press-E browse menu instead)
     end
 end
 
