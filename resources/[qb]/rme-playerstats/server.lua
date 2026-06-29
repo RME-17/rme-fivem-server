@@ -90,3 +90,17 @@ RegisterNetEvent('rme-playerstats:server:save', function(stats)
     if not player then return end
     saveStats(player.PlayerData.citizenid, stats)
 end)
+
+-- Reset the calling player's own stats back to default (Lv1 everything). Wipes
+-- the saved row and hands a fresh table straight back to the client so it can
+-- swap its live stats without a relog.
+RegisterNetEvent('rme-playerstats:server:reset', function()
+    local src = source
+    local player = exports['qb-core']:GetPlayer(src)
+    if not player then return end
+    local cid = player.PlayerData.citizenid
+    local fresh = defaultStats()
+    local enc = json.encode(fresh)
+    MySQL.update('INSERT INTO player_stats (citizenid, stats) VALUES (?, ?) ON DUPLICATE KEY UPDATE stats = ?', { cid, enc, enc })
+    TriggerClientEvent('rme-playerstats:client:reset', src, fresh)
+end)

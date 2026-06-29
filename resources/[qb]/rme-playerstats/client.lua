@@ -7,7 +7,8 @@
 --   * Strength level -> more melee damage
 -- Skills run from Lv1 to Config.MaxLevel (5). Press END to open/close the
 -- panel. Stats persist per character (citizenid) and slowly regress while a
--- player is away (handled server-side).
+-- player is away (handled server-side). Run /resetstats to wipe your own
+-- progress back to Level 1.
 --
 -- Other resources (e.g. the gym) can grant skill XP via:
 --   exports['rme-playerstats']:train('strength', 10)
@@ -372,6 +373,24 @@ RegisterKeyMapping('rme_playerstats_toggle', 'Open / close Player Stats panel', 
 
 RegisterCommand('mystats', function()
     if statsOpen then closeStats() else openStats() end
+end, false)
+
+-- ---------- reset ----------
+-- Server hands back a fresh (all-zero) stat table; swap it in live so perks and
+-- the open panel update immediately without needing a relog.
+RegisterNetEvent('rme-playerstats:client:reset', function(fresh)
+    if type(fresh) == 'table' then Stats = fresh end
+    recomputePerks()
+    if statsOpen then SendNUIMessage({ action = 'update', data = buildPayload() }) end
+    TriggerEvent('QBCore:Notify', 'Your stats have been reset to Level 1.', 'success')
+end)
+
+RegisterCommand('resetstats', function()
+    if not Stats then
+        TriggerEvent('QBCore:Notify', 'Your stats are still loading...', 'error')
+        return
+    end
+    TriggerServerEvent('rme-playerstats:server:reset')
 end, false)
 
 -- ---------- debug / test ----------
