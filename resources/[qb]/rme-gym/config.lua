@@ -3,7 +3,7 @@ Config = {}
 -- Interaction tuning.
 Config.MarkerDistance = 8.0  -- how close before the floor marker shows
 Config.UseDistance    = 1.4  -- how close before you can press E to use it
-Config.TickMs         = 2000 -- grant XP every this many ms while working out
+Config.TickMs         = 3000 -- grant XP every this many ms while working out
 Config.WorkoutSeconds = 60   -- each workout auto-stops after this many seconds; press E to start another set
 
 -- ---------------------------------------------------------------------------
@@ -41,49 +41,51 @@ Config.WeightProps = {
 --
 -- Trainable skills: running, swimming, shooting, driving, flying, stamina, strength
 --
--- LEVELLING PACE: with rme-playerstats capped at Lv5, a skill needs 1000 total
--- XP to fully max (100/200/300/400 per level). At 2s per tick these rates make
--- maxing one skill at the gym a ~7-10 minute grind. Want it slower/faster?
--- Lower/raise these numbers (or raise/lower Config.TickMs).
+-- LEVELLING PACE (deliberately a slow grind so working out actually feels like
+-- effort): rme-playerstats is capped at Lv5 and a skill needs 1000 total XP to
+-- fully max (100/200/300/400 per level). XP ticks every 3s, so at 1 XP/tick a
+-- skill takes ~50 min of solid working out to max (heavy lifts at 2/tick ~25
+-- min); the first level alone is ~5 min. Want it faster/slower? Raise/lower
+-- these numbers or lower/raise Config.TickMs.
 Config.Stations = {
     treadmill = {
         label = 'Treadmill',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { running = 3, stamina = 2 },
+        train = { running = 1, stamina = 1 },
     },
     freeweights = {
         label = 'Free Weights',
         scenario = 'WORLD_HUMAN_MUSCLE_FREE_WEIGHTS',
-        train = { strength = 4 },
+        train = { strength = 2 },
     },
     pushups = {
         label = 'Push-ups',
         scenario = 'WORLD_HUMAN_PUSH_UPS',
-        train = { strength = 3, stamina = 2 },
+        train = { strength = 1, stamina = 1 },
     },
     yoga = {
         label = 'Yoga Mat',
         scenario = 'WORLD_HUMAN_YOGA',
-        train = { stamina = 4 },
+        train = { stamina = 1 },
     },
     benchpress = {
         label = 'Bench Press',
         scenario = 'WORLD_HUMAN_MUSCLE_FREE_WEIGHTS',
-        train = { strength = 5 },
+        train = { strength = 2 },
     },
     situps = {
         label = 'Sit-ups',
         scenario = 'WORLD_HUMAN_SIT_UPS',
-        train = { strength = 2, stamina = 2 },
+        train = { strength = 1, stamina = 1 },
     },
     punchingbag = {
         label = 'Punching Bag',
         scenario = 'WORLD_HUMAN_MUSCLE_FLEX',
-        train = { strength = 3, shooting = 1 },
+        train = { strength = 1, shooting = 1 },
     },
     stationarybike = {
         label = 'Exercise Bike',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { stamina = 4, running = 2 },
+        train = { stamina = 1, running = 1 },
     },
 }
