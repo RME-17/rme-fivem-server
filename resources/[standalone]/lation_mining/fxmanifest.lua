@@ -31,9 +31,16 @@ files {
     'install/images/*.png'
 }
 
+-- NOTE: interact = 'qb-target' in config/shared.lua, and the framework bridge
+-- detects qb-core at load time. These MUST be started before lation_mining or
+-- the mine/smelter blips, ped and targets never register. Declaring them as
+-- dependencies guarantees FiveM starts them first on every boot.
 dependencies {
 	'oxmysql',
-	'ox_lib'
+	'ox_lib',
+	'qb-core',
+	'qb-target',
+	'qb-inventory'
 }
 
 ox_libs {
