@@ -1,20 +1,26 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&display=swap");
 
 :root {
-    --rme-red: #e11d2a;
-    --rme-red-dark: #b3141f;
-    --rme-text: #f4f4f6;
-    --rme-text-dim: #a7a7b0;
-    --rme-green: #36d07f;
-    --rme-green-soft: rgba(54, 208, 127, 0.18);
-    --rme-amber: #ffb443;
-    --rme-amber-soft: rgba(255, 180, 67, 0.18);
-    --rme-blue: #2d6cdf;
-    --rme-blue-dark: #1f4fb0;
-    --rme-card: rgba(18, 18, 22, 0.9);
-    --rme-card-hover: rgba(28, 28, 34, 0.94);
-    --rme-border: rgba(255, 255, 255, 0.09);
-    --rme-radius-sm: 10px;
+    --rme-text: #ffffff;
+    --rme-text-dim: rgba(255, 255, 255, 0.62);
+    /* Frosted white glass surfaces (NO backdrop-filter -- it renders as a
+       black box in FiveM's CEF; we fake frost with layered white gradients). */
+    --rme-glass: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.07));
+    --rme-glass-hover: linear-gradient(150deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.11));
+    --rme-glass-flat: rgba(255, 255, 255, 0.14);
+    --rme-glass-flat-hover: rgba(255, 255, 255, 0.22);
+    --rme-border: rgba(255, 255, 255, 0.22);
+    --rme-border-strong: rgba(255, 255, 255, 0.42);
+    --rme-border-soft: rgba(255, 255, 255, 0.14);
+    --rme-inset: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    /* Soft pastel accents -- used sparingly for text/low-stat warnings only. */
+    --rme-green-text: #a6ecc6;
+    --rme-amber-text: #ffd6a1;
+    --rme-blue-text: #c8d8ff;
+    --rme-bar: rgba(255, 255, 255, 0.62);
+    --rme-bar-amber: rgba(255, 190, 90, 0.72);
+    --rme-bar-red: rgba(235, 96, 96, 0.78);
+    --rme-radius-sm: 12px;
     --font-primary: "Exo 2", sans-serif;
 }
 
@@ -41,7 +47,7 @@ span {
 
 ::-webkit-scrollbar-thumb {
     border-radius: 50px;
-    background: var(--rme-red);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 /* Transparent wrapper - no background box, just floating cards */
@@ -78,9 +84,9 @@ span {
     font-weight: 800;
     letter-spacing: 0.4px;
     text-transform: uppercase;
-    border-left: 4px solid var(--rme-red);
+    border-left: 3px solid rgba(255, 255, 255, 0.7);
     padding-left: 12px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
 }
 
 /* Vehicle list */
@@ -91,10 +97,9 @@ span {
     padding-right: 4px;
 }
 
+/* Frosted white card -- no backdrop-filter (that caused the black box). */
 .vehicle-item {
-    background: var(--rme-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--rme-glass);
     border: 1px solid var(--rme-border);
     display: flex;
     flex-wrap: wrap;
@@ -102,13 +107,13 @@ span {
     margin-bottom: 12px;
     padding: 14px;
     border-radius: var(--rme-radius-sm);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), var(--rme-inset);
     transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .vehicle-item:hover {
-    border-color: rgba(225, 29, 42, 0.55);
-    background: var(--rme-card-hover);
+    border-color: var(--rme-border-strong);
+    background: var(--rme-glass-hover);
 }
 
 .vehicle-info {
@@ -132,6 +137,7 @@ span {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
 }
 
 .plate {
@@ -172,7 +178,8 @@ span {
 
 .progress-bar {
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 50px;
     height: 16px;
     overflow: hidden;
@@ -186,7 +193,7 @@ span {
     left: 50%;
     transform: translate(-50%, -50%);
     color: #fff;
-    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.75);
     font-weight: 600;
     z-index: 2;
 }
@@ -196,16 +203,17 @@ span {
     height: 100%;
 }
 
+/* Healthy stats read as clean frosted white; only low values tint softly. */
 .progress-bar span.bar-green {
-    background-color: var(--rme-green);
+    background-color: var(--rme-bar);
 }
 
 .progress-bar span.bar-yellow {
-    background-color: var(--rme-amber);
+    background-color: var(--rme-bar-amber);
 }
 
 .progress-bar span.bar-red {
-    background-color: var(--rme-red);
+    background-color: var(--rme-bar-red);
 }
 
 /* Ownership row */
@@ -225,31 +233,27 @@ span {
     padding: 5px 12px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
+    background: var(--rme-glass-flat);
+    border: 1px solid var(--rme-border-soft);
 }
 
 .finance-info.status-bought {
-    color: var(--rme-green);
-    background-color: var(--rme-green-soft);
-    border: 1px solid rgba(54, 208, 127, 0.4);
+    color: var(--rme-green-text);
 }
 
 .finance-info.status-financed {
-    color: var(--rme-amber);
-    background-color: var(--rme-amber-soft);
-    border: 1px solid rgba(255, 180, 67, 0.4);
+    color: var(--rme-amber-text);
 }
 
 .finance-info.status-elsewhere {
     color: var(--rme-text-dim);
-    background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .drive-btn {
     font-family: var(--font-primary);
     color: #fff;
-    background: linear-gradient(145deg, var(--rme-red), var(--rme-red-dark));
-    border: none;
+    background: var(--rme-glass-flat);
+    border: 1px solid var(--rme-border);
     border-radius: 50px;
     padding: 7px 22px;
     cursor: pointer;
@@ -257,33 +261,34 @@ span {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    box-shadow: 0 4px 14px rgba(225, 29, 42, 0.35);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: var(--rme-inset);
+    transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
 }
 
 .drive-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(225, 29, 42, 0.5);
+    background: var(--rme-glass-flat-hover);
+    border-color: var(--rme-border-strong);
 }
 
 .drive-btn.btn-muted {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--rme-text-dim);
     box-shadow: none;
 }
 
 .drive-btn.btn-transfer {
-    background: linear-gradient(145deg, var(--rme-blue), var(--rme-blue-dark));
-    box-shadow: 0 4px 14px rgba(45, 108, 223, 0.35);
+    color: var(--rme-blue-text);
 }
 
 .drive-btn.btn-transfer:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(45, 108, 223, 0.5);
+    background: var(--rme-glass-flat-hover);
+    border-color: var(--rme-border-strong);
 }
 
 .drive-btn:disabled {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--rme-text-dim);
     cursor: not-allowed;
     box-shadow: none;
