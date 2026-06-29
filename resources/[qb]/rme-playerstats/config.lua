@@ -17,7 +17,7 @@ Config.Xp = {
     swimPerMeter   = 0.20, -- Swimming skill
     drivePerMeter  = 0.02, -- Driving skill
     flyPerMeter    = 0.015, -- Flying skill
-    hit            = 3,    -- Shooting skill, per shot that lands on a ped
+    hit            = 3,    -- Shooting skill, per FIREARM shot that lands on a ped
     kill           = 12,   -- Strength skill, per takedown
     staminaSprint  = 0.05, -- Stamina skill, per metre sprinted
     staminaSwim    = 0.08, -- Stamina skill, per metre swum
@@ -50,15 +50,16 @@ Config.Stamina = {
     maxRestore = 0.07, -- stamina restored per 0.4s tick at fullLevel and above
 }
 
--- Inactivity decay: skill stats slowly regress the longer a player is away.
--- Applied when they next load in, based on real time since their last save, so
--- daily players (within graceDays) lose nothing but someone gone for a week
--- comes back weaker.
+-- 'Use it or lose it' decay, tied to ACTIVE time in the city - NOT real-world
+-- time away. Stats only bleed down while the player is connected and spawned in
+-- (Stats are loaded). Being offline, on another server, or otherwise away from
+-- the city never reduces anything. While actively playing, every skill-driving
+-- counter slowly trickles down, so players must keep training to hold a level.
 Config.Decay = {
-    perDay    = 0.04, -- ~4% lost per day of inactivity (a week away ~= -22%)
-    graceDays = 1.0,  -- no decay for the first day away
-    floor     = 0.10, -- never drop below 10% of accumulated progress
-    keys = {          -- which counters regress (skill-driving stats + training)
+    enabled         = true,
+    perActiveHour   = 0.04, -- fraction of progress lost per HOUR actively in the city (~4%/hr)
+    intervalSeconds = 60,   -- apply a slice of the decay this often while active
+    keys = {                -- which counters regress (skill-driving stats + training)
         'run_distance', 'sprint_distance', 'swim_distance',
         'drive_distance', 'fly_distance',
         'shots_fired', 'shots_hit', 'kills',

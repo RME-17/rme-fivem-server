@@ -6,9 +6,9 @@
 --   * Stamina level  -> how long you keep that boosted speed before tiring
 --   * Strength level -> more melee damage
 -- Skills run from Lv1 to Config.MaxLevel (5). Press END to open/close the
--- panel. Stats persist per character (citizenid) and slowly regress while a
--- player is away (handled server-side). Run /resetstats to wipe your own
--- progress back to Level 1.
+-- panel. Stats persist per character (citizenid) and slowly regress only while
+-- the player is actively in the city (see the decay thread below). Run
+-- /resetstats to wipe your own progress back to Level 1.
 --
 -- Other resources (e.g. the gym) can grant skill XP via:
 --   exports['rme-playerstats']:train('strength', 10)
@@ -200,6 +200,28 @@ CreateThread(function()
     end
 end)
 
+-- 'Use it or lose it' decay - applied ONLY while the player is actively in the
+-- city (Stats loaded = connected + spawned). Each slice trims a small fraction
+-- off every skill-driving counter so levels gradually trend down unless the
+-- player keeps training. Time spent offline / away never decays anything (the
+-- server does not decay on load), so this is purely active-play based.
+CreateThread(function()
+    while true do
+        local interval = (Config.Decay and Config.Decay.intervalSeconds) or 60
+        Wait(interval * 1000)
+        if Stats and Config.Decay and Config.Decay.enabled and (Config.Decay.perActiveHour or 0) > 0 then
+            local frac = Config.Decay.perActiveHour * (interval / 3600.0)
+            local factor = 1.0 - frac
+            if factor < 0.0 then factor = 0.0 end
+            for _, k in ipairs(Config.Decay.keys or {}) do
+                local v = tonumber(Stats[k])
+                if v and v > 0 then Stats[k] = v * factor end
+            end
+            recomputePerks()
+        end
+    end
+end)
+
 -- External training hook: other resources grant skill XP through this.
 exports('train', function(skill, amount)
     if not Stats then return false end
@@ -284,6 +306,9 @@ CreateThread(function()
 end)
 
 -- Hits & kills via the local player damaging peds.
+--   * Shooting skill: only FIREARM hits count (IsPedArmed gun check), so melee
+--     swings and punches never raise Shooting.
+--   * Strength skill: fed by kills (takedowns), regardless of weapon used.
 local countedDeaths = {}
 AddEventHandler('gameEventTriggered', function(event, data)
     if event ~= 'CEventNetworkEntityDamage' then return end
@@ -294,7 +319,10 @@ AddEventHandler('gameEventTriggered', function(event, data)
     if attacker ~= ped or not victim or victim == 0 or victim == ped then return end
     if not IsEntityAPed(victim) then return end
 
-    Stats.shots_hit = (Stats.shots_hit or 0) + 1
+    -- Only count toward Shooting when the player is using a gun.
+    if IsPedArmed(ped, 4) then
+        Stats.shots_hit = (Stats.shots_hit or 0) + 1
+    end
 
     local v = victim
     CreateThread(function()
