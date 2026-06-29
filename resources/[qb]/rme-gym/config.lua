@@ -21,7 +21,7 @@ Config.Membership = {
     pedCoords = vector4(746.06, -891.81, 25.44, 330.78),
     -- Fine-tune the ped height (metres). Use a +value if it sinks into the
     -- floor, or a -value if it floats above it, on your MLO.
-    pedZOffset = 0.7,
+    pedZOffset = 1.0,
 }
 
 -- Prop models the free-weights / bench scenarios spawn in the player's hands.
