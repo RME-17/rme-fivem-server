@@ -53,12 +53,20 @@ Config.Stamina = {
 -- 'Use it or lose it' decay, tied to ACTIVE time in the city - NOT real-world
 -- time away. Stats only bleed down while the player is connected and spawned in
 -- (Stats are loaded). Being offline, on another server, or otherwise away from
--- the city never reduces anything. While actively playing, every skill-driving
--- counter slowly trickles down, so players must keep training to hold a level.
+-- the city never reduces anything (the server does not decay on load).
+--
+-- This drains EVERY skill, including ones you are actively using - none are
+-- exempt. The bleed is always ticking, so a skill you neglect visibly falls,
+-- while a skill you actively grind still climbs (your training simply has to
+-- out-earn the drain). At perActiveHour = 0.10 a fully maxed but neglected
+-- skill loses ~10% of its progress per hour of in-city play.
+--   * Want stats to fall faster   -> raise perActiveHour (e.g. 0.20 = 20%/hr)
+--   * Want them to fall slower     -> lower perActiveHour (e.g. 0.05 = 5%/hr)
+--   * Smoother / choppier ticking  -> lower / raise intervalSeconds
 Config.Decay = {
     enabled         = true,
-    perActiveHour   = 0.06, -- fraction of progress lost per HOUR actively in the city (~6%/hr)
-    intervalSeconds = 60,   -- apply a slice of the decay this often while active
+    perActiveHour   = 0.10, -- fraction of progress lost per HOUR actively in the city (~10%/hr)
+    intervalSeconds = 30,   -- apply a slice of the decay this often while active
     keys = {                -- which counters regress (skill-driving stats + training)
         'run_distance', 'sprint_distance', 'swim_distance',
         'drive_distance', 'fly_distance',
