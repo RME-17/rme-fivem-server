@@ -14,6 +14,11 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local Stats = nil      -- live stat table for the current character
 local statsOpen = false
 
+-- Cached perk multipliers (re-asserted every frame so other resources cannot
+-- silently override them).
+local curRunMult, curSwimMult = 1.0, 1.0
+local perkTestMax = false -- /statsmaxtest toggles a temporary max-perk preview
+
 -- ---------- helpers ----------
 local function comma(n)
     local s = tostring(math.floor(tonumber(n) or 0))
@@ -71,33 +76,62 @@ local function skillXp()
 end
 
 -- ---------- gameplay perks ----------
--- Apply the perks granted by the player's current skill levels. Multipliers and
--- the stamina stat reset on respawn, so we re-apply on a short loop.
-local function applyPerks()
-    if not Stats then return end
-    local pid = PlayerId()
+-- Front-loaded curve (sqrt) so early levels give a noticeable boost and it ramps
+-- to the full bonus at max level. Returns a 0..1 factor.
+local function perkFactor(level)
+    local f = math.sqrt(math.min(level, Config.MaxLevel) / Config.MaxLevel)
+    if f < 0 then f = 0 elseif f > 1 then f = 1 end
+    return f
+end
+
+local function recomputePerks()
+    if not Stats then
+        curRunMult, curSwimMult = 1.0, 1.0
+        return
+    end
     local xp = skillXp()
-    local runLvl  = levelInfo(xp.running)
-    local swimLvl = levelInfo(xp.swimming)
-    local stamLvl = levelInfo(xp.stamina)
-
-    -- Running level -> sprint speed (1.0 .. 1.49)
-    local runMult = 1.0 + (math.min(runLvl, Config.MaxLevel) / Config.MaxLevel) * Config.Perks.maxRunBonus
-    SetRunSprintMultiplierForPlayer(pid, runMult)
-
-    -- Swimming level -> swim speed (1.0 .. 1.49)
-    local swimMult = 1.0 + (math.min(swimLvl, Config.MaxLevel) / Config.MaxLevel) * Config.Perks.maxSwimBonus
-    SetSwimMultiplierForPlayer(pid, swimMult)
-
-    -- Stamina level -> how long the boosted sprint speed lasts before tiring.
-    -- This drives the freemode stamina stat (0..100) the engine uses for sprint
-    -- duration, so higher Stamina = run fast for longer.
-    StatSetInt(GetHashKey('MP0_STAMINA'), math.floor((math.min(stamLvl, Config.MaxLevel) / Config.MaxLevel) * 100), true)
+    local rf = perkFactor((levelInfo(xp.running)))
+    local sf = perkFactor((levelInfo(xp.swimming)))
+    if perkTestMax then rf, sf = 1.0, 1.0 end
+    curRunMult = 1.0 + rf * Config.Perks.maxRunBonus
+    curSwimMult = 1.0 + sf * Config.Perks.maxSwimBonus
 end
 
 AddEventHandler('playerSpawned', function()
     Wait(1000)
-    applyPerks()
+    recomputePerks()
+end)
+
+-- Re-assert the run/swim multipliers every frame so they always win over other
+-- movement scripts. Values are cached, so this loop is cheap.
+CreateThread(function()
+    while true do
+        if Stats then
+            local pid = PlayerId()
+            SetRunSprintMultiplierForPlayer(pid, curRunMult)
+            SetSwimMultiplierForPlayer(pid, curSwimMult)
+            Wait(0)
+        else
+            Wait(500)
+        end
+    end
+end)
+
+-- Stamina perk: while sprinting (or swimming) top up stamina based on Stamina
+-- level. High level = stays topped up = run fast for much longer; low level =
+-- little help = tires normally. This only ever ADDS stamina, never removes it.
+CreateThread(function()
+    while true do
+        Wait(400)
+        if Stats then
+            local ped = PlayerPedId()
+            if IsPedSprinting(ped) or IsPedSwimming(ped) then
+                local frac = perkFactor((levelInfo(skillXp().stamina)))
+                if perkTestMax then frac = 1.0 end
+                if frac > 0.0 then RestorePlayerStamina(PlayerId(), frac) end
+            end
+        end
+    end
 end)
 
 -- ---------- load / save ----------
@@ -105,7 +139,7 @@ local function fetchStats()
     QBCore.Functions.TriggerCallback('rme-playerstats:server:get', function(data)
         if data and type(data) == 'table' then
             Stats = data
-            applyPerks()
+            recomputePerks()
         end
     end)
 end
@@ -121,6 +155,7 @@ end)
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     saveStats()
     Stats = nil
+    curRunMult, curSwimMult = 1.0, 1.0
 end)
 
 AddEventHandler('onResourceStart', function(res)
@@ -143,7 +178,6 @@ end)
 -- ---------- activity tracking ----------
 -- Distance-based: measure how far the ped moves each tick and bucket that
 -- distance by what they were doing (swimming / driving / flying / on foot).
--- The same loop re-applies the gameplay perks.
 CreateThread(function()
     local last = GetEntityCoords(PlayerPedId())
     local wasDead = false
@@ -186,7 +220,8 @@ CreateThread(function()
             if dead and not wasDead then Stats.deaths = (Stats.deaths or 0) + 1 end
             wasDead = dead
 
-            applyPerks()
+            -- Keep perks in sync as levels change.
+            recomputePerks()
         end
     end
 end)
@@ -308,6 +343,21 @@ RegisterKeyMapping('rme_playerstats_toggle', 'Open / close Player Stats panel', 
 -- Chat fallback in case the key is unbound: /mystats
 RegisterCommand('mystats', function()
     if statsOpen then closeStats() else openStats() end
+end, false)
+
+-- ---------- debug / test ----------
+-- Toggle a TEMPORARY max-perk preview (not saved) so you can feel the maxed
+-- run/swim speed + endless stamina right away to confirm the perks work.
+RegisterCommand('statsmaxtest', function()
+    perkTestMax = not perkTestMax
+    recomputePerks()
+    TriggerEvent('QBCore:Notify', perkTestMax and 'Perk TEST: MAX run/swim/stamina ON' or 'Perk TEST: off (back to your real level)', 'primary')
+end, false)
+
+-- Print the multipliers currently being applied.
+RegisterCommand('statsperk', function()
+    recomputePerks()
+    TriggerEvent('QBCore:Notify', string.format('Sprint x%.2f  |  Swim x%.2f', curRunMult, curSwimMult), 'primary')
 end, false)
 
 -- Refresh the panel live while it is open.
