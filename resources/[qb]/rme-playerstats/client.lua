@@ -5,8 +5,9 @@
 --   * Swimming level -> faster swim speed
 --   * Stamina level  -> how long you keep that boosted speed before tiring
 --   * Strength level -> more melee damage
--- Press END to open/close the panel. Stats persist per character (citizenid)
--- and slowly regress while a player is away (handled server-side).
+-- Skills run from Lv1 to Config.MaxLevel (5). Press END to open/close the
+-- panel. Stats persist per character (citizenid) and slowly regress while a
+-- player is away (handled server-side).
 --
 -- Other resources (e.g. the gym) can grant skill XP via:
 --   exports['rme-playerstats']:train('strength', 10)
@@ -54,7 +55,7 @@ local function fmtTime(sec)
     return m .. 'm'
 end
 
--- Current level + percent-to-next from a raw XP value.
+-- Current level + percent-to-next from a raw XP value. Caps at Config.MaxLevel.
 local function levelInfo(xp)
     xp = math.floor(tonumber(xp) or 0)
     local level = 1
@@ -87,10 +88,13 @@ local function skillXp()
 end
 
 -- ---------- gameplay perks ----------
--- Front-loaded curve (sqrt) so early levels give a noticeable boost and it ramps
--- to the full bonus at max level. Returns a 0..1 factor.
+-- Perks scale LINEARLY with level so a 5-level cap reads cleanly: Level 1
+-- (untrained) gives no bonus and the full bonus is reached at Config.MaxLevel.
+-- Returns a 0..1 factor (Lv1=0, Lv2=.25, Lv3=.5, Lv4=.75, Lv5=1 at MaxLevel 5).
 local function perkFactor(level)
-    local f = math.sqrt(math.min(level, Config.MaxLevel) / Config.MaxLevel)
+    local denom = Config.MaxLevel - 1
+    if denom < 1 then return 1.0 end
+    local f = (math.min(level, Config.MaxLevel) - 1) / denom
     if f < 0 then f = 0 elseif f > 1 then f = 1 end
     return f
 end
@@ -143,7 +147,7 @@ CreateThread(function()
             local ped = PlayerPedId()
             if IsPedSprinting(ped) or IsPedSwimming(ped) then
                 local lvl = (levelInfo(skillXp().stamina))
-                local full = Config.Stamina.fullLevel or 6
+                local full = Config.Stamina.fullLevel or 5
                 local t = 0.0
                 if full > 1 then t = (lvl - 1) / (full - 1) end
                 if t < 0.0 then t = 0.0 elseif t > 1.0 then t = 1.0 end
@@ -325,7 +329,7 @@ local function buildPayload()
     local skills = {}
     local function add(label, icon, xpVal, sub)
         local lvl, pct = levelInfo(xpVal)
-        skills[#skills + 1] = { label = label, icon = icon, level = lvl, pct = pct, sub = sub }
+        skills[#skills + 1] = { label = label, icon = icon, level = lvl, pct = pct, sub = sub, maxLevel = Config.MaxLevel }
     end
 
     add('Running', '\240\159\143\131', xp.running, fmtDist(s.sprint_distance) .. ' sprinted')

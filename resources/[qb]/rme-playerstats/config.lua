@@ -3,9 +3,11 @@ Config = {}
 -- How often (seconds) stats are auto-saved to the database while playing.
 Config.SaveInterval = 120
 
--- Skill level curve. Each level L needs (PerLevelBase * L) XP to reach L+1, so
--- higher levels take progressively longer. Capped at MaxLevel.
-Config.MaxLevel = 100
+-- Skill level curve. Levels run from 1 to MaxLevel. Each level L needs
+-- (PerLevelBase * L) XP to reach L+1, so higher levels take progressively
+-- longer. With MaxLevel = 5 and PerLevelBase = 100 the totals are:
+--   Lv1->2: 100 | Lv2->3: 200 | Lv3->4: 300 | Lv4->5: 400  (1000 XP to max)
+Config.MaxLevel = 5
 Config.PerLevelBase = 100
 
 -- How raw activity converts into skill XP (tweak freely).
@@ -22,11 +24,12 @@ Config.Xp = {
 }
 
 -- Gameplay perks granted by skill level. Engine caps the run/swim multipliers
--- at ~1.49, so those are the bonus on top of 1.0 at max level.
+-- at ~1.49, so those are the bonus on top of 1.0 at max level (Lv5). Perks
+-- scale linearly with level: Lv1 = no bonus, Lv5 = the full bonus below.
 Config.Perks = {
-    maxRunBonus    = 0.49, -- +49% sprint speed at max Running level
-    maxSwimBonus   = 0.49, -- +49% swim speed at max Swimming level
-    maxMeleeBonus  = 1.00, -- +100% melee damage at max Strength level
+    maxRunBonus    = 0.49, -- +49% sprint speed at Lv5 Running
+    maxSwimBonus   = 0.49, -- +49% swim speed at Lv5 Swimming
+    maxMeleeBonus  = 1.00, -- +100% melee damage at Lv5 Strength
 }
 
 -- Stamina perk: how long your (boosted) run/swim speed lasts before you tire.
@@ -37,12 +40,11 @@ Config.Perks = {
 --   * At `fullLevel` (and above) the top-up matches the drain, so sprint is
 --     effectively endless.
 -- Quick tuning:
---   * Want Lv3/Lv4 to last EVEN longer        -> lower fullLevel (e.g. 5 or 4)
---   * Want endless sprint gated to a higher lvl -> raise fullLevel (e.g. 10)
+--   * Want endless sprint to arrive sooner -> lower fullLevel (e.g. 4)
 --   * Even max stamina still runs out too soon -> raise maxRestore (e.g. 0.09)
 --   * Sprint feels infinite too early          -> lower maxRestore (e.g. 0.05)
 Config.Stamina = {
-    fullLevel  = 6,    -- Stamina level at which sprint becomes effectively endless
+    fullLevel  = 5,    -- Stamina level at which sprint becomes effectively endless (= MaxLevel)
     maxRestore = 0.07, -- stamina restored per 0.4s tick at fullLevel and above
 }
 
