@@ -15,12 +15,12 @@ Config.Membership = {
     price    = 1000,           -- cost of a membership
     duration = 3600,           -- how long it lasts, in seconds (3600 = 1 hour)
     pedModel = 'a_m_y_business_01', -- front-desk attendant model (change if you like)
-    -- Default ped spawn point. Reposition live with /gymsetped (admin) - that
-    -- captures your exact position. The ped is automatically snapped to the
-    -- floor on spawn so it never floats.
+    -- Default ped spawn point. Reposition live with /gymsetped (admin) - stand
+    -- exactly where you want the attendant and run it; the ped plants its feet
+    -- on the floor automatically.
     pedCoords = vector4(746.06, -891.81, 25.44, 330.78),
-    -- Fine-tune the ped height after the auto ground-snap (metres). Leave at
-    -- 0.0 normally; use a small +/- value only if it ends up slightly off.
+    -- Fine-tune the ped height (metres). 0.0 is correct for a normal floor.
+    -- Use a small +value if it sinks, or -value if it floats, on your MLO.
     pedZOffset = 0.0,
 }
 

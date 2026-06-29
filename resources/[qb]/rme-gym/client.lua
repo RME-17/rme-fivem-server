@@ -151,23 +151,6 @@ local function deletePed()
     membershipPed = nil
 end
 
--- Find the floor height under the given point so the ped stands on the ground
--- instead of floating. Loads collision first because ground queries fail when
--- the area around the coords has not streamed in yet.
-local function groundZAt(x, y, z)
-    local gz = z
-    for _ = 1, 25 do
-        RequestCollisionAtCoord(x + 0.0, y + 0.0, z + 0.0)
-        local found, fz = GetGroundZFor_3dCoord(x + 0.0, y + 0.0, z + 1.0, false)
-        if found and fz and fz ~= 0.0 then
-            gz = fz
-            break
-        end
-        Wait(50)
-    end
-    return gz
-end
-
 local function spawnPed()
     if not pedCoords then return end
     deletePed()
@@ -180,10 +163,13 @@ local function spawnPed()
         tries = tries + 1
     end
     if not HasModelLoaded(hash) then return end
-    membershipPed = CreatePed(4, hash, pedCoords.x + 0.0, pedCoords.y + 0.0, pedCoords.z + 0.0, pedCoords.h + 0.0, false, true)
-    -- Snap to the floor so the attendant is grounded, not floating.
-    local gz = groundZAt(pedCoords.x, pedCoords.y, pedCoords.z) + (m.pedZOffset or 0.0)
-    SetEntityCoordsNoOffset(membershipPed, pedCoords.x + 0.0, pedCoords.y + 0.0, gz + 0.0, false, false, false)
+    -- /gymsetped captures the player's centre, which sits ~1m above the floor,
+    -- so we drop the ped 1m to plant its feet on the ground. This is the same
+    -- offset qb-core's own ped spawners use. Adjust Config.Membership.pedZOffset
+    -- if it still sits slightly high/low on a particular MLO.
+    local z = pedCoords.z - 1.0 + (m.pedZOffset or 0.0)
+    membershipPed = CreatePed(4, hash, pedCoords.x + 0.0, pedCoords.y + 0.0, z + 0.0, pedCoords.h + 0.0, false, true)
+    SetEntityCoordsNoOffset(membershipPed, pedCoords.x + 0.0, pedCoords.y + 0.0, z + 0.0, false, false, false)
     SetEntityHeading(membershipPed, pedCoords.h + 0.0)
     SetEntityInvincible(membershipPed, true)
     FreezeEntityPosition(membershipPed, true)
