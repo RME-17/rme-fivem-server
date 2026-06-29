@@ -3,7 +3,8 @@
 -- earning skill XP (via rme-playerstats) over time. A valid gym membership is
 -- required (bought from the front-desk ped). Admins place stations with
 -- /gymadd, the front-desk ped with /gymsetped, and remove unwanted props
--- (e.g. a radio) by looking at them and running /gymremoveprop.
+-- (e.g. a radio) by looking at them and running /gymremoveprop. Run /gymexport
+-- to print your whole build so it can be saved permanently.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -374,4 +375,25 @@ RegisterCommand('gymsetped', function()
     local c = GetEntityCoords(PlayerPedId())
     local h = GetEntityHeading(PlayerPedId())
     TriggerServerEvent('rme-gym:server:setPed', { x = c.x + 0.0, y = c.y + 0.0, z = c.z + 0.0, h = h + 0.0 })
+end, false)
+
+-- Export the whole gym build (placed stations, removed props, front-desk ped)
+-- to the F8 console as JSON. Copy it and hand it over to have it committed to
+-- the repo as a permanent, version-controlled backup that survives even a full
+-- server reinstall.
+RegisterCommand('gymexport', function()
+    local payload = {
+        pedCoords = pedCoords,
+        stations = stations,
+        removedProps = removedProps,
+    }
+    local ok, txt = pcall(json.encode, payload)
+    if not ok or not txt then
+        notify('Export failed - try again in a moment.', 'error')
+        return
+    end
+    print('\n[rme-gym] ======= GYM BUILD EXPORT (copy everything between the lines) =======')
+    print(txt)
+    print('[rme-gym] ======= END GYM BUILD EXPORT =======\n')
+    notify(('Exported %d station(s) + %d removed prop(s) + ped to the F8 console. Copy it to save permanently.'):format(#stations, #removedProps), 'success')
 end, false)
