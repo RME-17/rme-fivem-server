@@ -43,11 +43,11 @@ local function GetVehicleTypeByModel(model)
     return vehicleType or 'automobile'
 end
 
--- RME: where self-service purchases are delivered. Internal garage key stays
--- 'pillboxgarage' (that's the Legion Square underground garage in qb-garages);
--- only the on-screen label was renamed to 'Legion Square Garage'.
-local RME_DELIVERY_GARAGE = 'pillboxgarage'
-local RME_DELIVERY_LABEL = 'Legion Square Garage'
+-- RME: where self-service purchases are delivered. Bought/financed cars are
+-- inserted straight into the 'pdmgarage' garage (the PDM Parking lot defined in
+-- qb-garages, right at the dealership) and collected there.
+local RME_DELIVERY_GARAGE = 'pdmgarage'
+local RME_DELIVERY_LABEL = 'PDM Parking'
 
 local function rme_deliveredNotify(src, vehicle)
     local data = sharedVehicles[vehicle]

@@ -16,6 +16,19 @@ Config.VehicleClass = {
 }
 
 Config.Garages = {
+    pdmgarage = {
+        label = 'PDM Parking',
+        takeVehicle = vector3(-59.95, -1112.2, 26.44),
+        spawnPoint = {
+            vector4(-59.95, -1112.2, 26.44, 32.2)
+        },
+        showBlip = true,
+        blipName = 'PDM Parking',
+        blipNumber = 357,
+        blipColor = 3,
+        type = 'public', -- public, gang, job, depot
+        category = Config.VehicleClass['car']
+    },
     motelgarage = {
         label = 'Motel Parking',
         takeVehicle = vector3(274.29, -334.15, 44.92),
