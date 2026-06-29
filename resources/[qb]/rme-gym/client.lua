@@ -129,17 +129,23 @@ local function drawWorkoutTimer(remaining)
     DrawText(leftX, 0.510)
 end
 
--- ---------- prop removal (radio, etc.) ----------
+-- ---------- prop removal (radio, monitors, clutter, etc.) ----------
+-- Each removed prop is stored as { model, x, y, z }. On every client we both
+-- try to delete a live object of that model near the point AND call
+-- CreateModelHide, which is the native that actually makes MLO / map-baked
+-- props (the ones you can't just DeleteEntity) disappear and stay gone.
 local function applyRemovals()
     for _, p in ipairs(removedProps) do
-        local model = p.model + 0
-        local obj = GetClosestObjectOfType(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.0, model, false, false, false)
-        if obj and obj ~= 0 then
-            SetEntityAsMissionEntity(obj, true, true)
-            DeleteObject(obj)
-            if DoesEntityExist(obj) then DeleteEntity(obj) end
+        local model = math.floor((p.model or 0) + 0.0)
+        if model ~= 0 then
+            local obj = GetClosestObjectOfType(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.5, model, false, false, false)
+            if obj and obj ~= 0 then
+                SetEntityAsMissionEntity(obj, true, true)
+                DeleteObject(obj)
+                if DoesEntityExist(obj) then DeleteEntity(obj) end
+            end
+            CreateModelHide(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.0, model, true)
         end
-        CreateModelHide(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.0, model, true)
     end
 end
 
@@ -148,7 +154,25 @@ RegisterNetEvent('rme-gym:client:syncRemoved', function(list)
     applyRemovals()
 end)
 
-local function getAimedObject()
+-- Re-apply hides periodically so props the engine streams back in (common with
+-- MLO fixtures when you move around) stay removed.
+CreateThread(function()
+    while true do
+        Wait(4000)
+        if #removedProps > 0 then applyRemovals() end
+    end
+end)
+
+-- Work out what prop the player is looking at. Returns entity (0 if none),
+-- the model hash, and the world coords to hide at. Strategy:
+--   1) Raycast from the camera against world geometry + objects so we always
+--      get a hit POINT, and grab the hit entity if there is one.
+--   2) If the ray hit a real entity that isn't the player/a ped/a vehicle, use
+--      it directly (covers normal & most MLO objects).
+--   3) Otherwise fall back to the nearest streamed object to the hit point -
+--      this catches desk props (monitors, etc.) when the ray lands on the
+--      surface they sit on rather than the prop itself.
+local function getAimedProp()
     local ped = PlayerPedId()
     local camCoord = GetGameplayCamCoord()
     local camRot = GetGameplayCamRot(2)
@@ -156,27 +180,45 @@ local function getAimedObject()
     local x = math.rad(camRot.x)
     local num = math.abs(math.cos(x))
     local dir = vector3(-math.sin(z) * num, math.cos(z) * num, math.sin(x))
-    local dest = camCoord + dir * 18.0
-    local ray = StartShapeTestRay(camCoord.x, camCoord.y, camCoord.z, dest.x, dest.y, dest.z, 16, ped, 4)
-    local _, hit, _, _, entity = GetShapeTestResult(ray)
-    if hit == 1 and entity and entity ~= 0 and IsEntityAnObject(entity) then return entity end
-    return 0
+    local dest = camCoord + dir * 30.0
+    -- flags 1 (world geometry) + 16 (objects) so we always resolve a hit point
+    local ray = StartShapeTestRay(camCoord.x, camCoord.y, camCoord.z, dest.x, dest.y, dest.z, 1 + 16, ped, 7)
+    local _, hit, endCoords, _, entity = GetShapeTestResult(ray)
+    local hitPos = (hit == 1) and endCoords or dest
+
+    if entity and entity ~= 0 and entity ~= ped
+        and not IsEntityAPed(entity) and not IsPedAPlayer(entity)
+        and not IsEntityAVehicle(entity) then
+        return entity, GetEntityModel(entity), GetEntityCoords(entity)
+    end
+
+    -- nearest streamed object to where we aimed
+    local best, bestModel, bestCoords, bestDist = 0, nil, nil, 2.5
+    for _, obj in ipairs(GetGamePool('CObject')) do
+        local oc = GetEntityCoords(obj)
+        local d = #(oc - hitPos)
+        if d < bestDist then
+            best, bestModel, bestCoords, bestDist = obj, GetEntityModel(obj), oc, d
+        end
+    end
+    return best, bestModel, bestCoords
 end
 
 RegisterCommand('gymremoveprop', function()
-    local obj = getAimedObject()
-    if obj == 0 then
-        notify('Look directly at the prop you want to remove, then run /gymremoveprop again.', 'error')
+    local obj, model, coords = getAimedProp()
+    if not coords or not model or model == 0 then
+        notify('Couldn\'t find a prop where you\'re looking. Step closer, aim right at it, and try again. (Some MLO fixtures are baked into the building and can only be removed by editing the MLO.)', 'error')
         return
     end
-    local model = GetEntityModel(obj)
-    local c = GetEntityCoords(obj)
-    -- delete locally right away for instant feedback
-    SetEntityAsMissionEntity(obj, true, true)
-    DeleteObject(obj)
-    if DoesEntityExist(obj) then DeleteEntity(obj) end
-    TriggerServerEvent('rme-gym:server:addRemovedProp', { model = model, x = c.x + 0.0, y = c.y + 0.0, z = c.z + 0.0 })
-    notify('Prop removed.', 'success')
+    -- delete + hide locally right away for instant feedback
+    if obj and obj ~= 0 and DoesEntityExist(obj) then
+        SetEntityAsMissionEntity(obj, true, true)
+        DeleteObject(obj)
+        if DoesEntityExist(obj) then DeleteEntity(obj) end
+    end
+    CreateModelHide(coords.x + 0.0, coords.y + 0.0, coords.z + 0.0, 2.0, model, true)
+    TriggerServerEvent('rme-gym:server:addRemovedProp', { model = model, x = coords.x + 0.0, y = coords.y + 0.0, z = coords.z + 0.0 })
+    notify('Prop removed. (If it streams back, run /gymremoveprop again from the same spot.)', 'success')
 end, false)
 
 -- ---------- membership front-desk ped ----------
