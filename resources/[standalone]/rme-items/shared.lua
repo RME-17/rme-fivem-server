@@ -3,7 +3,11 @@
 -- giving/crafting) and every client (so menus like qb-crafting can read their
 -- label/image without crashing).
 
-local QBCore = exports['qb-core']:GetCoreObject()
+-- RME FIX: do NOT call GetCoreObject() at parse time. When this shared_script
+-- loaded before qb-core had finished registering its exports, line 6 threw
+-- "No such export GetCoreObject in resource qb-core" and crashed rme-items.
+-- QBCore is resolved safely inside the thread below once qb-core has started.
+local QBCore = nil
 
 local CustomItems = {
     diamond_chain = {

@@ -83,7 +83,12 @@ local function DepositVehicle(veh, data)
         if canDeposit then
             local bodyDamage = math.ceil(GetVehicleBodyHealth(veh))
             local engineDamage = math.ceil(GetVehicleEngineHealth(veh))
-            local totalFuel = exports[Config.FuelResource]:GetFuel(veh)
+            -- RME: read fuel defensively so parking never breaks if the fuel
+            -- resource (Config.FuelResource) is missing or renamed.
+            local totalFuel = 100.0
+            if GetResourceState(Config.FuelResource) == 'started' then
+                pcall(function() totalFuel = exports[Config.FuelResource]:GetFuel(veh) end)
+            end
             TriggerServerEvent('qb-mechanicjob:server:SaveVehicleProps', QBCore.Functions.GetVehicleProperties(veh))
             TriggerServerEvent('qb-garages:server:updateVehicleStats', plate, totalFuel, engineDamage, bodyDamage)
             CheckPlayers(veh)
@@ -312,15 +317,22 @@ end)
 local function CheckPlate(vehicle, plateToSet)
     local vehiclePlate = promise.new()
     CreateThread(function()
-        while true do
-            Wait(500)
+        -- RME: bound this loop. Previously it waited forever for the plate text
+        -- to match exactly; if the text never matched (e.g. trailing-space
+        -- padding) the whole take-out hung here and the player was never given
+        -- keys / warped in -- i.e. "can't pull my car out".
+        local tries = 0
+        while tries < 20 do
+            Wait(250)
             if GetVehicleNumberPlateText(vehicle) == plateToSet then
                 vehiclePlate:resolve(true)
                 return
             else
                 SetVehicleNumberPlateText(vehicle, plateToSet)
             end
+            tries = tries + 1
         end
+        vehiclePlate:resolve(true)
     end)
     return vehiclePlate
 end
@@ -353,12 +365,21 @@ RegisterNetEvent('qb-garages:client:takeOutGarage', function(data)
                 local veh = NetworkGetEntityFromNetworkId(netId)
                 Citizen.Await(CheckPlate(veh, vehPlate))
                 QBCore.Functions.SetVehicleProperties(veh, properties)
-                exports[Config.FuelResource]:SetFuel(veh, data.stats.fuel)
+                -- RME FIX: the actual "pull the car out" actions -- mark it out in
+                -- the DB, hand the player keys and warp them in -- now run FIRST
+                -- so they can never be aborted by an optional dependency.
                 TriggerServerEvent('qb-garages:server:updateVehicleState', 0, vehPlate)
                 TriggerEvent('vehiclekeys:client:SetOwner', vehPlate)
                 if Config.Warp then TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1) end
                 if Config.VisuallyDamageCars then doCarDamage(veh, data.stats, properties) end
                 SetVehicleEngineOn(veh, true, true, false)
+                -- RME FIX: set fuel defensively. Config.FuelResource is optional
+                -- cosmetic state; if it is missing or renamed the export call used
+                -- to THROW here and kill the rest of the take-out, leaving a car
+                -- the player could not drive. Guard + pcall so it never does.
+                if data.stats and data.stats.fuel and GetResourceState(Config.FuelResource) == 'started' then
+                    pcall(function() exports[Config.FuelResource]:SetFuel(veh, data.stats.fuel) end)
+                end
             end, data.plate, data.vehicle, location, true)
         else
             QBCore.Functions.Notify(Lang:t('error.not_depot'), 'error', 5000)
