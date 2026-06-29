@@ -144,6 +144,56 @@ local function vehImage(model)
     return 'https://docs.fivem.net/vehicles/' .. tostring(model):lower() .. '.webp'
 end
 
+-- ============================================================
+--  Vehicle performance specs (shown on the vehicle screen)
+--  GTA V does not store real horsepower/torque, so we read each
+--  car's ACTUAL in-game performance data from its model (top
+--  speed, acceleration, braking, traction/grip, seats) and derive
+--  an ESTIMATED power/torque figure from those values so the menu
+--  can show a familiar spec sheet. Results are cached per model.
+-- ============================================================
+local statCache = {}
+
+-- Build a 10-segment bar for a 0-100 rating.
+local function statBar(p)
+    local n = math.floor((p / 10) + 0.5)
+    if n < 0 then n = 0 elseif n > 10 then n = 10 end
+    return string.rep('\226\150\136', n) .. string.rep('\226\150\145', 10 - n)
+end
+
+local function getVehStats(model)
+    if statCache[model] then return statCache[model] end
+    local hash = GetHashKey(model)
+    RequestModel(hash)
+    local t = GetGameTimer()
+    while not HasModelLoaded(hash) and (GetGameTimer() - t) < 2000 do Wait(0) end
+    local s = { ok = false }
+    if HasModelLoaded(hash) then
+        local sp = GetVehicleModelEstimatedMaxSpeed(hash) + 0.0 -- m/s
+        local ac = GetVehicleModelAcceleration(hash) + 0.0
+        local br = GetVehicleModelMaxBraking(hash) + 0.0
+        local tr = GetVehicleModelMaxTraction(hash) + 0.0
+        local seats = GetVehicleModelNumberOfSeats(hash)
+        SetModelAsNoLongerNeeded(hash)
+        local function clamp100(v)
+            if v < 0 then return 0 elseif v > 100 then return 100 end
+            return v
+        end
+        s.mph = math.floor(sp * 2.236936 + 0.5)
+        s.kph = math.floor(sp * 3.6 + 0.5)
+        s.accel = math.floor(clamp100(ac * 245.0) + 0.5)
+        s.brake = math.floor(clamp100(br * 110.0) + 0.5)
+        s.grip = math.floor(clamp100(tr * 42.0) + 0.5)
+        -- Estimated engine figures derived from in-game speed + acceleration.
+        s.hp = math.floor(ac * 1000.0 * (sp / 30.0) + 0.5)
+        s.tq = math.floor(s.hp * 1.25 + 0.5)
+        s.seats = seats
+        s.ok = true
+        statCache[model] = s
+    end
+    return s
+end
+
 local function isSellable(model, v)
     if blockedModels[model] then return false end
     if v and v.shop == 'none' then return false end
@@ -265,30 +315,70 @@ end)
 
 RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
     local img = vehImage(data.model)
+    local stats = getVehStats(data.model)
     local menu = {
         {
             isMenuHeader = true,
             icon = 'fa-solid fa-circle-info',
             header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(data.price),
         },
-        {
-            header = 'Buy Now',
-            txt = 'Pay the full price up front',
-            icon = img,
-            image = img,
-            params = { event = 'rme_pdm:client:confirmBuy', args = data }
-        },
-        {
-            header = 'Finance',
-            txt = 'Pay a deposit now, the rest in instalments',
-            icon = 'fa-solid fa-coins',
-            params = { event = 'rme_pdm:client:finance', args = data }
-        },
-        {
-            header = 'Back',
-            icon = 'fa-solid fa-angle-left',
-            params = { event = 'rme_pdm:client:openCategory', args = { category = data.category } }
-        },
+    }
+    -- Performance spec sheet (read live from the car's in-game data).
+    if stats.ok then
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-gauge-high',
+            header = 'Top Speed',
+            txt = '~' .. stats.mph .. ' mph  (' .. stats.kph .. ' km/h)',
+        }
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-horse',
+            header = 'Power ~' .. comma_value(stats.hp) .. ' hp  -  Torque ~' .. comma_value(stats.tq) .. ' lb-ft',
+            txt = 'Estimated from this car\'s in-game performance data',
+        }
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-gauge',
+            header = 'Acceleration',
+            txt = statBar(stats.accel) .. '  ' .. stats.accel .. '/100',
+        }
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-car-burst',
+            header = 'Braking',
+            txt = statBar(stats.brake) .. '  ' .. stats.brake .. '/100',
+        }
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-arrows-left-right-to-line',
+            header = 'Grip / Handling',
+            txt = statBar(stats.grip) .. '  ' .. stats.grip .. '/100',
+        }
+        menu[#menu + 1] = {
+            isMenuHeader = true,
+            icon = 'fa-solid fa-users',
+            header = 'Seats',
+            txt = tostring(stats.seats),
+        }
+    end
+    menu[#menu + 1] = {
+        header = 'Buy Now',
+        txt = 'Pay the full price up front',
+        icon = img,
+        image = img,
+        params = { event = 'rme_pdm:client:confirmBuy', args = data }
+    }
+    menu[#menu + 1] = {
+        header = 'Finance',
+        txt = 'Pay a deposit now, the rest in instalments',
+        icon = 'fa-solid fa-coins',
+        params = { event = 'rme_pdm:client:finance', args = data }
+    }
+    menu[#menu + 1] = {
+        header = 'Back',
+        icon = 'fa-solid fa-angle-left',
+        params = { event = 'rme_pdm:client:openCategory', args = { category = data.category } }
     }
     exports['qb-menu']:openMenu(menu)
 end)
@@ -529,7 +619,7 @@ end, false)
 --  progress. We still force-silence the vanilla "stock" GTA showroom/
 --  garage radio emitters while near the PDM (re-applied often, because
 --  an interior/MLO can re-enable its own emitter when it streams in)
---  and restore them when the player walks away.
+--  and restore them when the player leaves.
 -- ============================================================
 local function ensurePdmMusic()
     if GetResourceState('xsound') ~= 'started' then return end
