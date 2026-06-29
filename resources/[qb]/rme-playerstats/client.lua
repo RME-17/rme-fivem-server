@@ -218,7 +218,7 @@ CreateThread(function()
                 end
             end
 
-            -- Death counter (rising edge).
+            -- Death counter (rising edge). Still tracked internally; not shown.
             local dead = IsEntityDead(ped)
             if dead and not wasDead then Stats.deaths = (Stats.deaths or 0) + 1 end
             wasDead = dead
@@ -309,15 +309,11 @@ local function buildPayload()
     add('Stamina', '\240\159\171\129', xp.stamina, fmtTime(s.playtime) .. ' active')
     add('Strength', '\240\159\146\170', xp.strength, comma(s.kills or 0) .. ' takedowns')
 
-    local kd = ((s.deaths or 0) > 0) and string.format('%.2f', (s.kills or 0) / s.deaths) or tostring(s.kills or 0)
     local overview = {
         { label = 'Distance on foot', value = fmtDist(foot) },
         { label = 'Distance driven',  value = fmtDist(s.drive_distance) },
         { label = 'Distance swum',    value = fmtDist(s.swim_distance) },
         { label = 'Distance flown',   value = fmtDist(s.fly_distance) },
-        { label = 'Deaths',           value = comma(s.deaths or 0) },
-        { label = 'K/D ratio',        value = kd },
-        { label = 'Time played',      value = fmtTime(s.playtime) },
     }
 
     return { skills = skills, overview = overview }
