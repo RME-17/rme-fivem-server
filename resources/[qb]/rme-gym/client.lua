@@ -1,13 +1,19 @@
 -- RME Gym (client)
 -- Walk up to a placed gym station, press E, and your character works out -
--- earning skill XP (via rme-playerstats) over time. Admins place stations with
--- /gymadd <type> while standing at the equipment.
+-- earning skill XP (via rme-playerstats) over time. A valid gym membership is
+-- required (bought from the front-desk ped). Admins place stations with
+-- /gymadd, the front-desk ped with /gymsetped, and remove unwanted props
+-- (e.g. a radio) by looking at them and running /gymremoveprop.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
 local stations = {}
 local stationsReady = false
 local working = false
+
+local removedProps = {}
+local membershipPed = nil
+local pedCoords = nil
 
 local function kindList()
     local t = {}
@@ -26,31 +32,160 @@ local function notify(msg, kind)
     TriggerEvent('QBCore:Notify', msg, kind or 'primary')
 end
 
-local function requestStations()
+local function requestData()
     TriggerServerEvent('rme-gym:server:request')
 end
 
+-- ---------- prop removal (radio, etc.) ----------
+local function applyRemovals()
+    for _, p in ipairs(removedProps) do
+        local model = p.model + 0
+        local obj = GetClosestObjectOfType(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.0, model, false, false, false)
+        if obj and obj ~= 0 then
+            SetEntityAsMissionEntity(obj, true, true)
+            DeleteObject(obj)
+            if DoesEntityExist(obj) then DeleteEntity(obj) end
+        end
+        CreateModelHide(p.x + 0.0, p.y + 0.0, p.z + 0.0, 2.0, model, true)
+    end
+end
+
+RegisterNetEvent('rme-gym:client:syncRemoved', function(list)
+    removedProps = list or {}
+    applyRemovals()
+end)
+
+local function getAimedObject()
+    local ped = PlayerPedId()
+    local camCoord = GetGameplayCamCoord()
+    local camRot = GetGameplayCamRot(2)
+    local z = math.rad(camRot.z)
+    local x = math.rad(camRot.x)
+    local num = math.abs(math.cos(x))
+    local dir = vector3(-math.sin(z) * num, math.cos(z) * num, math.sin(x))
+    local dest = camCoord + dir * 18.0
+    local ray = StartShapeTestRay(camCoord.x, camCoord.y, camCoord.z, dest.x, dest.y, dest.z, 16, ped, 4)
+    local _, hit, _, _, entity = GetShapeTestResult(ray)
+    if hit == 1 and entity and entity ~= 0 and IsEntityAnObject(entity) then return entity end
+    return 0
+end
+
+RegisterCommand('gymremoveprop', function()
+    local obj = getAimedObject()
+    if obj == 0 then
+        notify('Look directly at the prop you want to remove, then run /gymremoveprop again.', 'error')
+        return
+    end
+    local model = GetEntityModel(obj)
+    local c = GetEntityCoords(obj)
+    -- delete locally right away for instant feedback
+    SetEntityAsMissionEntity(obj, true, true)
+    DeleteObject(obj)
+    if DoesEntityExist(obj) then DeleteEntity(obj) end
+    TriggerServerEvent('rme-gym:server:addRemovedProp', { model = model, x = c.x + 0.0, y = c.y + 0.0, z = c.z + 0.0 })
+    notify('Prop removed.', 'success')
+end, false)
+
+-- ---------- membership front-desk ped ----------
+local function deletePed()
+    if membershipPed and DoesEntityExist(membershipPed) then
+        DeletePed(membershipPed)
+    end
+    membershipPed = nil
+end
+
+local function spawnPed()
+    if not pedCoords then return end
+    deletePed()
+    local m = Config.Membership
+    local hash = GetHashKey(m.pedModel)
+    RequestModel(hash)
+    local tries = 0
+    while not HasModelLoaded(hash) and tries < 200 do
+        Wait(10)
+        tries = tries + 1
+    end
+    if not HasModelLoaded(hash) then return end
+    membershipPed = CreatePed(4, hash, pedCoords.x + 0.0, pedCoords.y + 0.0, pedCoords.z + 0.0, pedCoords.h + 0.0, false, true)
+    SetEntityInvincible(membershipPed, true)
+    FreezeEntityPosition(membershipPed, true)
+    SetBlockingOfNonTemporaryEvents(membershipPed, true)
+    TaskStartScenarioInPlace(membershipPed, 'WORLD_HUMAN_CLIPBOARD', 0, true)
+    SetModelAsNoLongerNeeded(hash)
+    exports['qb-target']:AddTargetEntity(membershipPed, {
+        options = {
+            {
+                type = 'client',
+                event = 'rme-gym:client:openMembership',
+                icon = 'fas fa-id-card',
+                label = 'Buy Gym Membership ($' .. m.price .. ' / 1h)',
+            },
+        },
+        distance = 2.5,
+    })
+end
+
+RegisterNetEvent('rme-gym:client:syncPed', function(coords)
+    pedCoords = coords
+    spawnPed()
+end)
+
+RegisterNetEvent('rme-gym:client:openMembership', function()
+    TriggerServerEvent('rme-gym:server:buyMembership')
+end)
+
+RegisterNetEvent('rme-gym:client:membershipBought', function()
+    notify('Gym membership active. Get to work!', 'success')
+end)
+
+-- ---------- stations sync ----------
 RegisterNetEvent('rme-gym:client:sync', function(list)
     stations = list or {}
     stationsReady = true
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    requestStations()
+    requestData()
 end)
 
 AddEventHandler('onResourceStart', function(res)
-    if res == GetCurrentResourceName() then requestStations() end
+    if res == GetCurrentResourceName() then requestData() end
+end)
+
+AddEventHandler('onResourceStop', function(res)
+    if res == GetCurrentResourceName() then deletePed() end
 end)
 
 CreateThread(function()
     Wait(1500)
-    requestStations()
+    requestData()
 end)
+
+-- ---------- workout ----------
+local function clearWeightProps()
+    local ped = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+    for _, obj in ipairs(GetGamePool('CObject')) do
+        local model = GetEntityModel(obj)
+        for _, name in ipairs(Config.WeightProps) do
+            if model == GetHashKey(name) and #(GetEntityCoords(obj) - coords) < 3.0 then
+                SetEntityAsMissionEntity(obj, true, true)
+                DeleteObject(obj)
+                if DoesEntityExist(obj) then DeleteEntity(obj) end
+                break
+            end
+        end
+    end
+end
 
 local function stopWorkout()
     working = false
-    ClearPedTasks(PlayerPedId())
+    local ped = PlayerPedId()
+    ClearPedTasksImmediately(ped)
+    CreateThread(function()
+        Wait(50)
+        clearWeightProps()
+    end)
 end
 
 local function startWorkout(st)
@@ -91,6 +226,16 @@ local function startWorkout(st)
     end)
 end
 
+local function tryStartWorkout(st)
+    QBCore.Functions.TriggerCallback('rme-gym:server:hasMembership', function(valid, remaining)
+        if valid then
+            startWorkout(st)
+        else
+            notify('You need a gym membership. See the front desk to buy one ($' .. Config.Membership.price .. ').', 'error')
+        end
+    end)
+end
+
 -- proximity / marker / interact loop
 CreateThread(function()
     while true do
@@ -115,7 +260,7 @@ CreateThread(function()
                 local def = Config.Stations[near.kind]
                 helpText('Press ~INPUT_PICKUP~ to use the ' .. ((def and def.label) or near.kind))
                 if IsControlJustReleased(0, 38) then
-                    startWorkout(near)
+                    tryStartWorkout(near)
                 end
             end
         end
@@ -123,7 +268,7 @@ CreateThread(function()
     end
 end)
 
--- ---------- admin placement ----------
+-- ---------- admin commands ----------
 RegisterCommand('gymadd', function(_, args)
     local kind = args[1]
     if not kind or not Config.Stations[kind] then
@@ -142,4 +287,10 @@ end, false)
 
 RegisterCommand('gymlist', function()
     notify(('%d gym stations loaded'):format(#stations), 'primary')
+end, false)
+
+RegisterCommand('gymsetped', function()
+    local c = GetEntityCoords(PlayerPedId())
+    local h = GetEntityHeading(PlayerPedId())
+    TriggerServerEvent('rme-gym:server:setPed', { x = c.x + 0.0, y = c.y + 0.0, z = c.z + 0.0, h = h + 0.0 })
 end, false)
