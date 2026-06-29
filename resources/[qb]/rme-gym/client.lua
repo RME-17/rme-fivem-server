@@ -94,6 +94,39 @@ local function drawMembershipTimer()
     DrawText(0.5, 0.86)
 end
 
+-- On-screen countdown for the active workout set, shown on the LEFT side of the
+-- screen while training so the player can see how long until it auto-stops.
+-- A small dark background bar is drawn behind it so the text stays readable.
+local function drawWorkoutTimer(remaining)
+    local sec = math.ceil(remaining)
+    if sec < 0 then sec = 0 end
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+    local clock = ('%02d:%02d'):format(m, s)
+
+    -- background bar
+    DrawRect(0.105, 0.515, 0.135, 0.05, 18, 18, 22, 190)
+    DrawRect(0.105, 0.492, 0.135, 0.004, 99, 179, 255, 255)
+
+    -- label
+    SetTextFont(4)
+    SetTextScale(0.0, 0.32)
+    SetTextColour(99, 179, 255, 255)
+    SetTextOutline()
+    SetTextEntry('STRING')
+    AddTextComponentSubstringPlayerName('WORKOUT TIME LEFT')
+    DrawText(0.045, 0.498)
+
+    -- countdown clock
+    SetTextFont(4)
+    SetTextScale(0.0, 0.6)
+    SetTextColour(255, 255, 255, 255)
+    SetTextOutline()
+    SetTextEntry('STRING')
+    AddTextComponentSubstringPlayerName('~y~' .. clock)
+    DrawText(0.045, 0.515)
+end
+
 -- ---------- prop removal (radio, etc.) ----------
 local function applyRemovals()
     for _, p in ipairs(removedProps) do
@@ -256,8 +289,9 @@ local function stopWorkout()
     end)
 end
 
--- A workout set runs for Config.WorkoutSeconds and then stops on its own. The
--- proximity loop's help text reappears so the player just presses E to start
+-- A workout set runs for Config.WorkoutSeconds and then stops on its own. While
+-- it runs, a countdown timer is drawn on the left of the screen. The proximity
+-- loop's help text reappears when it ends so the player just presses E to start
 -- another set. No QBCore notifications are shown so nothing pops up on the side
 -- of the screen while training or walking out of the gym.
 local function startWorkout(st)
@@ -287,6 +321,7 @@ local function startWorkout(st)
             end
 
             local elapsed = GetGameTimer() - started
+            drawWorkoutTimer((maxMs - elapsed) / 1000.0)
             if elapsed >= maxMs then break end
             if elapsed > 700 and IsControlJustReleased(0, 38) then break end
             if IsEntityDead(p) then break end
