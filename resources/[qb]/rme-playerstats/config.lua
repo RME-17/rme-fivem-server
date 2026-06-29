@@ -57,7 +57,7 @@ Config.Stamina = {
 -- counter slowly trickles down, so players must keep training to hold a level.
 Config.Decay = {
     enabled         = true,
-    perActiveHour   = 0.04, -- fraction of progress lost per HOUR actively in the city (~4%/hr)
+    perActiveHour   = 0.06, -- fraction of progress lost per HOUR actively in the city (~6%/hr)
     intervalSeconds = 60,   -- apply a slice of the decay this often while active
     keys = {                -- which counters regress (skill-driving stats + training)
         'run_distance', 'sprint_distance', 'swim_distance',
