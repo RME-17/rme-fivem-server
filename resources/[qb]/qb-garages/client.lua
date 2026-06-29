@@ -285,6 +285,13 @@ RegisterNUICallback('transferVehicle', function(data, cb)
     cb('ok')
 end)
 
+-- RME: gift a vehicle to another (online) player by server id. This reassigns
+-- ownership of the car -- handled in qb-garages:server:transferVehicleToPlayer.
+RegisterNUICallback('transferVehicleToPlayer', function(data, cb)
+    TriggerServerEvent('qb-garages:server:transferVehicleToPlayer', data.plate, data.targetId)
+    cb('ok')
+end)
+
 RegisterNUICallback('trackVehicle', function(plate, cb)
     TriggerServerEvent('qb-garages:server:trackVehicle', plate)
     cb('ok')

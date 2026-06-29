@@ -17,27 +17,82 @@ document.addEventListener("keydown", function (event) {
 function closeGarageMenu() {
     const container = document.querySelector(".container");
     container.style.display = "none";
-
-    fetch("https://qb-garages/closeGarage", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({}),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data === "ok") {
-                return;
-            } else {
-                console.error("Failed to close Garage UI");
-            }
-        });
+    postNui("closeGarage", {});
 }
 
 function displayUI() {
     const container = document.querySelector(".container");
     container.style.display = "block";
+}
+
+function postNui(endpoint, payload) {
+    return fetch(`https://qb-garages/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
+        body: JSON.stringify(payload),
+    })
+        .then((response) => response.json())
+        .catch(() => {});
+}
+
+// RME: builds the slide-down transfer panel shared by both card types.
+// includeGarage = also offer the "To Garage" (move-here) action.
+function buildTransferPanel(v, includeGarage) {
+    const panel = document.createElement("div");
+    panel.classList.add("transfer-panel");
+
+    if (includeGarage) {
+        const toGarage = document.createElement("button");
+        toGarage.classList.add("drive-btn", "btn-transfer");
+        toGarage.textContent = "To Garage \u00B7 $200";
+        toGarage.onclick = function () {
+            if (toGarage.disabled) return;
+            toGarage.disabled = true;
+            toGarage.textContent = "Transferring...";
+            postNui("transferVehicle", { plate: v.plate, index: v.index });
+        };
+        panel.appendChild(toGarage);
+    }
+
+    const playerRow = document.createElement("div");
+    playerRow.classList.add("transfer-player-row");
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "1";
+    input.classList.add("transfer-input");
+    input.placeholder = "Player ID";
+    playerRow.appendChild(input);
+
+    const toPlayer = document.createElement("button");
+    toPlayer.classList.add("drive-btn", "btn-transfer");
+    toPlayer.textContent = "To Player";
+    toPlayer.onclick = function () {
+        if (toPlayer.disabled) return;
+        const targetId = parseInt(input.value, 10);
+        if (!targetId || targetId < 1) {
+            input.classList.add("input-error");
+            input.focus();
+            return;
+        }
+        toPlayer.disabled = true;
+        toPlayer.textContent = "Sending...";
+        postNui("transferVehicleToPlayer", { plate: v.plate, targetId: targetId });
+    };
+    playerRow.appendChild(toPlayer);
+
+    panel.appendChild(playerRow);
+    return panel;
+}
+
+function makeTransferToggle(panel) {
+    const toggle = document.createElement("button");
+    toggle.classList.add("drive-btn", "btn-transfer");
+    toggle.textContent = "Transfer";
+    toggle.onclick = function () {
+        panel.classList.toggle("open");
+    };
+    return toggle;
 }
 
 function populateVehicleList(garageLabel, vehicles) {
@@ -54,6 +109,7 @@ function populateVehicleList(garageLabel, vehicles) {
     vehicles.forEach((v) => {
         const vehicleItem = document.createElement("div");
         vehicleItem.classList.add("vehicle-item");
+        let panelEl = null;
 
         // Vehicle Info: Name, Plate & Mileage
         const vehicleInfo = document.createElement("div");
@@ -76,36 +132,18 @@ function populateVehicleList(garageLabel, vehicles) {
 
         vehicleItem.appendChild(vehicleInfo);
 
-        // Ownership / Finance Info + action button
         const financeDriveContainer = document.createElement("div");
         financeDriveContainer.classList.add("finance-drive-container");
 
         if (v.transferable) {
-            // Vehicle is stored at a different garage. Show where it is and offer
-            // to transfer it into this garage for a flat fee.
+            // Vehicle is stored at a different garage.
             const parkedInfo = document.createElement("div");
             parkedInfo.classList.add("finance-info", "status-elsewhere");
             parkedInfo.textContent = "AT " + String(v.parkedLabel || "ANOTHER GARAGE").toUpperCase();
             financeDriveContainer.appendChild(parkedInfo);
 
-            const transferButton = document.createElement("button");
-            transferButton.classList.add("drive-btn", "btn-transfer");
-            transferButton.textContent = "Transfer \u00B7 $200";
-            transferButton.onclick = function () {
-                if (transferButton.disabled) return;
-                transferButton.disabled = true;
-                transferButton.textContent = "Transferring...";
-                fetch("https://qb-garages/transferVehicle", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    },
-                    body: JSON.stringify({ plate: v.plate, index: v.index }),
-                })
-                    .then((response) => response.json())
-                    .catch(() => {});
-            };
-            financeDriveContainer.appendChild(transferButton);
+            panelEl = buildTransferPanel(v, true);
+            financeDriveContainer.appendChild(makeTransferToggle(panelEl));
             vehicleItem.appendChild(financeDriveContainer);
         } else {
             const financeInfo = document.createElement("div");
@@ -120,6 +158,9 @@ function populateVehicleList(garageLabel, vehicles) {
             }
 
             financeDriveContainer.appendChild(financeInfo);
+
+            const actions = document.createElement("div");
+            actions.classList.add("btn-group");
 
             // Drive Button -- RME: in normal (non-depot) garages your stored cars
             // are always drivable. Only the dedicated depot/impound lot charges a
@@ -140,6 +181,12 @@ function populateVehicleList(garageLabel, vehicles) {
                 status = "Impound";
             } else {
                 status = "Drive";
+            }
+
+            // RME: allow gifting any stored, owned car (not depot, not out/impound).
+            if (v.type !== "depot" && v.state === 1) {
+                panelEl = buildTransferPanel(v, false);
+                actions.appendChild(makeTransferToggle(panelEl));
             }
 
             const driveButton = document.createElement("button");
@@ -175,57 +222,22 @@ function populateVehicleList(garageLabel, vehicles) {
                 };
 
                 if (status === "Out") {
-                    fetch("https://qb-garages/trackVehicle", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json; charset=UTF-8",
-                        },
-                        body: JSON.stringify(v.plate),
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data === "ok") {
-                                closeGarageMenu();
-                            } else {
-                                return;
-                            }
-                        });
+                    postNui("trackVehicle", v.plate).then((data) => {
+                        if (data === "ok") closeGarageMenu();
+                    });
                 } else if (isDepotPrice) {
-                    fetch("https://qb-garages/takeOutDepo", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json; charset=UTF-8",
-                        },
-                        body: JSON.stringify(vehicleData),
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data === "ok") {
-                                closeGarageMenu();
-                            } else {
-                                console.error("Failed to pay depot price.");
-                            }
-                        });
+                    postNui("takeOutDepo", vehicleData).then((data) => {
+                        if (data === "ok") closeGarageMenu();
+                    });
                 } else {
-                    fetch("https://qb-garages/takeOutVehicle", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json; charset=UTF-8",
-                        },
-                        body: JSON.stringify(vehicleData),
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data === "ok") {
-                                closeGarageMenu();
-                            } else {
-                                console.error("Failed to close Garage UI.");
-                            }
-                        });
+                    postNui("takeOutVehicle", vehicleData).then((data) => {
+                        if (data === "ok") closeGarageMenu();
+                    });
                 }
             };
 
-            financeDriveContainer.appendChild(driveButton);
+            actions.appendChild(driveButton);
+            financeDriveContainer.appendChild(actions);
             vehicleItem.appendChild(financeDriveContainer);
         }
 
@@ -267,8 +279,13 @@ function populateVehicleList(garageLabel, vehicles) {
             progressBar.appendChild(progress);
             stat.appendChild(progressBar);
             stats.appendChild(stat);
-            vehicleItem.appendChild(stats);
         });
+
+        vehicleItem.appendChild(stats);
+
+        // Transfer panel lives at the bottom of the card so it slides open
+        // beneath the stats without shifting the action row.
+        if (panelEl) vehicleItem.appendChild(panelEl);
 
         fragment.appendChild(vehicleItem);
     });

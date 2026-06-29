@@ -310,6 +310,59 @@ RegisterNetEvent('qb-garages:server:transferVehicle', function(plate, targetGara
     TriggerClientEvent('qb-garages:client:transferComplete', src)
 end)
 
+-- RME: Transfer FULL OWNERSHIP of a vehicle to another (online) player. The
+-- target becomes the new owner -- the car moves to their account and leaves the
+-- sender's garage list. Free of charge. The car must be stored in a garage
+-- (state 1) so it can't be duplicated while it is out, and impounded cars are
+-- blocked. Ownership in qb-garages is keyed off citizenid, so we reassign that.
+RegisterNetEvent('qb-garages:server:transferVehicleToPlayer', function(plate, targetId)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    local citizenid = Player.PlayerData.citizenid
+
+    targetId = tonumber(targetId)
+    if not targetId then
+        TriggerClientEvent('QBCore:Notify', src, 'Enter a valid player ID to transfer to.', 'error', 4000)
+        return
+    end
+
+    local Target = exports['qb-core']:GetPlayer(targetId)
+    if not Target then
+        TriggerClientEvent('QBCore:Notify', src, 'That player is not online.', 'error', 4000)
+        return
+    end
+
+    local targetCid = Target.PlayerData.citizenid
+    if targetCid == citizenid then
+        TriggerClientEvent('QBCore:Notify', src, 'You already own that vehicle.', 'error', 4000)
+        return
+    end
+
+    local row = MySQL.single.await('SELECT citizenid, state FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    if not row or row.citizenid ~= citizenid then
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_owned'), 'error', 3500)
+        return
+    end
+    if row.state == 0 then
+        TriggerClientEvent('QBCore:Notify', src, 'Park the vehicle in a garage before transferring it to a player.', 'error', 5000)
+        return
+    end
+    if row.state == 2 then
+        TriggerClientEvent('QBCore:Notify', src, 'That vehicle is impounded and cannot be transferred.', 'error', 5000)
+        return
+    end
+
+    -- Reassign ownership. Keep the car stored (state 1) with no depot fee so the
+    -- new owner can pull it straight out of their garage.
+    MySQL.update('UPDATE player_vehicles SET citizenid = ?, state = 1, depotprice = 0 WHERE plate = ? AND citizenid = ?', { targetCid, plate, citizenid })
+
+    local senderName = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname
+    TriggerClientEvent('QBCore:Notify', src, ('Vehicle %s transferred to %s (ID %s).'):format(plate, GetPlayerName(targetId), targetId), 'success', 6000)
+    TriggerClientEvent('QBCore:Notify', targetId, ('%s transferred a vehicle (%s) to you. It is now in your garage.'):format(senderName, plate), 'success', 8000)
+    TriggerClientEvent('qb-garages:client:transferComplete', src)
+end)
+
 -- RME: Diagnostics -- list the calling player's vehicles with the exact fields
 -- that decide whether a garage button works (state / garage / depotprice).
 RegisterCommand('mycars', function(source)
@@ -432,4 +485,4 @@ local function getAllGarages()
     return garages
 end
 
-exports('getAllGarages', getAllGarages)
+exports('getAllGarages', getAllGar
