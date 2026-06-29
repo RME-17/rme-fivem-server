@@ -20,13 +20,16 @@ local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
 local camPos = vector3(-30.0, -1090.0, 1000.0)
 local camLookAt = vector3(120.0, -900.0, 200.0)
 
--- Looping background music for the PDM showroom (MLO). It plays via xsound while
--- the player is physically inside the dealership. The private viewing room is
--- left SILENT (the player is teleported far away while browsing, so this music
--- naturally stops up there).
+-- Background music for the PDM showroom (MLO). It is ALWAYS playing on a
+-- continuous loop as POSITIONAL xSound audio anchored at the dealership: it does
+-- NOT start when the player enters and does NOT stop when they leave. Players
+-- simply hear it (with normal distance falloff) when they come within
+-- mloMusicRadius of the showroom, and walk back into it mid-track rather than
+-- restarting it. The private viewing room is ~970m straight up (far outside the
+-- radius), so it stays SILENT up there exactly as before.
 -- NOTE: URL is assembled from parts on purpose (keeps the editing pipeline from
 -- mangling a contiguous URL literal). Final value resolves to the YouTube watch
--- link below, which xsound streams and loops (PlayUrl loop arg = true).
+-- link below, which xsound streams and loops (PlayUrlPos loop arg = true).
 local mloMusicUrl = 'https://www.youtube.com/' .. 'watch?v=' .. 'ZzfidhdXxhI'
 local mloMusicVolume = 0.2
 local mloMusicCenter = vector3(-45.0, -1098.0, 26.4)
@@ -523,48 +526,47 @@ RegisterCommand('pdmemitteron', function(_, args)
 end, false)
 
 -- ============================================================
---  PDM showroom (MLO) ambient music
---  Loops our xsound track while the player is inside the
---  dealership, AND force-silences the vanilla "stock" GTA
---  showroom/garage radio emitters so only our track is heard.
---  The emitter kill is RE-APPLIED every tick while inside, because
---  an interior/MLO can re-enable its own emitter when it streams
---  in (a one-shot disable on entry is not enough). While in the
---  private viewing room the player is teleported far away, so the
---  track stops on its own (room is silent) and the stock emitters
---  are restored.
+--  PDM showroom (MLO) ambient music  -  ALWAYS-ON LOOP
+--  The showroom playlist is started ONCE as positional xSound audio
+--  anchored at the PDM and loops forever (loop arg = true). It is NOT
+--  tied to the player entering: it just keeps playing, and the player
+--  hears it (with distance falloff) when they come within range, then
+--  walks back into it mid-track instead of restarting it.
+--  We still force-silence the vanilla "stock" GTA showroom/garage radio
+--  emitters while near the PDM (re-applied often, because an interior/MLO
+--  can re-enable its own emitter when it streams in) and restore them
+--  when the player walks away.
 -- ============================================================
+local function ensurePdmMusic()
+    if GetResourceState('xsound') ~= 'started' then return end
+    if exports['xsound']:soundExists('rme_pdm_music') then return end
+    -- Positional, looping. Heard only within mloMusicRadius of the showroom.
+    exports['xsound']:PlayUrlPos('rme_pdm_music', mloMusicUrl, mloMusicVolume, mloMusicCenter, true)
+    if exports['xsound']:soundExists('rme_pdm_music') then
+        exports['xsound']:Distance('rme_pdm_music', mloMusicRadius)
+    end
+end
+
 CreateThread(function()
-    local playing = false
     local muted = false
     while true do
         local sleep = 1500
+
+        -- Keep the continuous loop alive (covers first load + xsound restarts).
+        ensurePdmMusic()
+
+        -- Keep the vanilla stock showroom radio muted while near the PDM.
         local pos = GetEntityCoords(PlayerPedId())
         local dist = #(pos - mloMusicCenter)
-        local inside = dist < mloMusicRadius
-
-        if inside then
-            -- Re-apply continuously: keep the stock emitters muted for as long
-            -- as we are inside, in case the MLO/interior turns them back on.
+        if dist < mloMusicRadius then
             sleep = 800
             setStockEmitters(false)
             muted = true
-            if GetResourceState('xsound') == 'started' and not playing then
-                exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, mloMusicVolume, true)
-                playing = true
-            end
-        else
-            if muted then
-                setStockEmitters(true)
-                muted = false
-            end
-            if playing then
-                if GetResourceState('xsound') == 'started' and exports['xsound']:soundExists('rme_pdm_music') then
-                    exports['xsound']:Destroy('rme_pdm_music')
-                end
-                playing = false
-            end
+        elseif muted then
+            setStockEmitters(true)
+            muted = false
         end
+
         Wait(sleep)
     end
 end)
