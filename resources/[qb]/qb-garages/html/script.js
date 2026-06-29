@@ -116,6 +116,22 @@ function populateVehicleList(garageLabel, vehicles) {
         vehicleItem.classList.add("vehicle-item");
         let panelEl = null;
 
+        // RME: vehicle image banner. Loads html/images/<spawncode>.png based on
+        // the vehicle model and removes the frame cleanly if that image does
+        // not exist, so cards without an image still look right.
+        const thumbWrap = document.createElement("div");
+        thumbWrap.classList.add("vehicle-thumb-wrap");
+        const thumb = document.createElement("img");
+        thumb.classList.add("vehicle-thumb");
+        thumb.alt = v.vehicleLabel || "";
+        thumb.onerror = function () {
+            thumbWrap.classList.add("no-image");
+        };
+        var model = String(v.vehicle || "").toLowerCase();
+        thumb.src = "images/" + model + ".png";
+        thumbWrap.appendChild(thumb);
+        vehicleItem.appendChild(thumbWrap);
+
         // Vehicle Info: Name, Plate & Mileage
         const vehicleInfo = document.createElement("div");
         vehicleInfo.classList.add("vehicle-info");

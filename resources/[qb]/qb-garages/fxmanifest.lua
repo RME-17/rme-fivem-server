@@ -31,4 +31,5 @@ files {
     'html/script.js',
     'html/style.css',
     'html/logo.png',
+    'html/images/*.png',
 }

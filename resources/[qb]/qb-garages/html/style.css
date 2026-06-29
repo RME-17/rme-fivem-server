@@ -118,6 +118,32 @@ input {
     background: var(--rme-glass-hover);
 }
 
+/* Vehicle image banner -- shows html/images/<spawncode>.png; hides cleanly
+   when no image is available so the card layout still looks right. */
+.vehicle-thumb-wrap {
+    width: 100%;
+    height: 120px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--rme-border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.vehicle-thumb {
+    max-width: 92%;
+    max-height: 92%;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+.vehicle-thumb-wrap.no-image {
+    display: none;
+}
+
 .vehicle-info {
     display: flex;
     justify-content: space-between;
