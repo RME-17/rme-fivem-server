@@ -11,6 +11,9 @@ Config.TickMs         = 2000 -- grant XP every this many ms while working out
 -- tick, and can train more than one skill at once.
 --
 -- Trainable skills: running, swimming, shooting, driving, flying, stamina, strength
+--
+-- To place a station: stand at the equipment and type /gymadd <key>
+-- e.g. /gymadd benchpress
 Config.Stations = {
     treadmill = {
         label = 'Treadmill',
@@ -31,5 +34,25 @@ Config.Stations = {
         label = 'Yoga Mat',
         scenario = 'WORLD_HUMAN_YOGA',
         train = { stamina = 10 },
+    },
+    benchpress = {
+        label = 'Bench Press',
+        scenario = 'WORLD_HUMAN_MUSCLE_FREE_WEIGHTS',
+        train = { strength = 14 },
+    },
+    situps = {
+        label = 'Sit-ups',
+        scenario = 'WORLD_HUMAN_SIT_UPS',
+        train = { strength = 6, stamina = 6 },
+    },
+    punchingbag = {
+        label = 'Punching Bag',
+        scenario = 'WORLD_HUMAN_MUSCLE_FLEX',
+        train = { strength = 8, shooting = 2 },
+    },
+    stationarybike = {
+        label = 'Exercise Bike',
+        scenario = 'WORLD_HUMAN_JOG_STANDING',
+        train = { stamina = 10, running = 4 },
     },
 }
