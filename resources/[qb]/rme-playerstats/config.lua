@@ -23,13 +23,15 @@ Config.Xp = {
     staminaSwim    = 0.08, -- Stamina skill, per metre swum
 }
 
--- Gameplay perks granted by skill level. Engine caps the run/swim multipliers
--- at ~1.49, so those are the bonus on top of 1.0 at max level (Lv5). Perks
--- scale linearly with level: Lv1 = no bonus, Lv5 = the full bonus below.
+-- Gameplay perks granted by skill level. Perks scale LINEARLY with level so
+-- Lv1 is the normal (vanilla) speed - no bonus at all - and the full bonus
+-- below is only reached at Lv5. Steps for run/swim at +0.15:
+--   Lv1 +0%  |  Lv2 +3.75%  |  Lv3 +7.5%  |  Lv4 +11.25%  |  Lv5 +15%
+-- Engine caps the run/swim multipliers at ~1.49 (so keep these well under 0.49).
 Config.Perks = {
-    maxRunBonus    = 0.49, -- +49% sprint speed at Lv5 Running
-    maxSwimBonus   = 0.49, -- +49% swim speed at Lv5 Swimming
-    maxMeleeBonus  = 1.00, -- +100% melee damage at Lv5 Strength
+    maxRunBonus    = 0.15, -- +15% sprint speed at Lv5 Running (Lv1 = normal speed)
+    maxSwimBonus   = 0.15, -- +15% swim speed at Lv5 Swimming (Lv1 = normal speed)
+    maxMeleeBonus  = 1.00, -- +100% melee damage at Lv5 Strength (does not affect movement)
 }
 
 -- Stamina perk: how long your (boosted) run/swim speed lasts before you tire.
