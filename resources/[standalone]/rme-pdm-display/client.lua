@@ -5,11 +5,13 @@
 -- the 3D handles) with full keyboard controls as a reliable fallback.
 --
 -- It ALSO cleans up the old qb-vehicleshop stock display cars that may still be
--- sitting in the PDM showroom. Those were spawned local-only with the plate
--- 'BUY ME', so simply restarting qb-vehicleshop does NOT delete them - they
--- linger as orphaned entities until the client reloads them. This resource
--- scans for empty vehicles near the PDM that carry the 'BUY ME' plate and
--- deletes them on each client (our own cars use plate 'RME' and are skipped).
+-- sitting in the PDM showroom. Those were spawned local-only and FROZEN, so
+-- simply restarting qb-vehicleshop does NOT delete them - they linger as
+-- orphaned entities until the client reloads them. This resource scans for
+-- EMPTY, FROZEN vehicles near the PDM (or anything carrying the stock 'BUY ME'
+-- plate) and deletes them on each client. Our own cars use plate 'RME' and are
+-- tracked, so they are always skipped, as is any vehicle a player is sitting in
+-- (real player/traffic cars are not frozen, so they are not affected).
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -20,8 +22,9 @@ local editOriginal = nil -- { x, y, z, w } snapshot for cancel
 
 -- PDM showroom center + radius used to find and remove leftover stock cars.
 local PDM_CENTER = vector3(-45.67, -1098.34, 26.42)
-local PDM_CLEAN_RADIUS = 35.0
+local PDM_CLEAN_RADIUS = 40.0
 local STOCK_PLATE = 'BUY ME' -- qb-vehicleshop stock display car plate
+local OUR_PLATE = 'RME'      -- our custom display car plate (never delete)
 
 -- Controls disabled while editing so game actions do not fire.
 local EDIT_CONTROLS = { 18, 177, 44, 38, 21, 172, 173, 174, 175, 19, 24, 25, 140, 141, 142, 241, 242, 257, 263, 75, 23, 22 }
@@ -64,7 +67,7 @@ local function spawnDisplay(model, x, y, z, w)
     SetEntityInvincible(veh, true)
     SetVehicleDirtLevel(veh, 0.0)
     SetVehicleDoorsLocked(veh, 3)
-    SetVehicleNumberPlateText(veh, 'RME')
+    SetVehicleNumberPlateText(veh, OUR_PLATE)
     SetVehicleEngineOn(veh, false, true, true)
     FreezeEntityPosition(veh, true)
     displays[#displays + 1] = { entity = veh, model = (type(model) == 'number') and tostring(model) or model }
@@ -82,18 +85,24 @@ local function trim(s)
     return (tostring(s or ''):gsub('^%s*(.-)%s*$', '%1'))
 end
 
--- Delete leftover qb-vehicleshop stock display cars (plate 'BUY ME') that are
--- empty and sitting near the PDM. Safe: our own cars (plate 'RME') and any
--- occupied / player vehicles are skipped. Returns how many were removed.
+-- Delete leftover qb-vehicleshop stock display cars near the PDM.
+-- A vehicle is removed when it is near the PDM, EMPTY, not one of ours, and
+-- EITHER frozen in place OR carrying the stock 'BUY ME' plate. Real player and
+-- ambient/traffic cars are not frozen, so they are left alone; our own cars
+-- (plate 'RME', and tracked in `displays`) are always skipped. Returns count.
 local function cleanupStockCars()
     local removed = 0
+    local ped = PlayerPedId()
+    local myVeh = GetVehiclePedIsIn(ped, false)
     for _, veh in ipairs(GetGamePool('CVehicle')) do
-        if DoesEntityExist(veh) and not isOurDisplay(veh) then
+        if DoesEntityExist(veh) and veh ~= myVeh and not isOurDisplay(veh) then
             local vpos = GetEntityCoords(veh)
             if #(vpos - PDM_CENTER) < PDM_CLEAN_RADIUS then
                 local plate = trim(GetVehicleNumberPlateText(veh))
                 local empty = IsVehicleSeatFree(veh, -1) and GetVehicleNumberOfPassengers(veh) == 0
-                if plate == STOCK_PLATE and empty then
+                local frozen = IsEntityPositionFrozen(veh)
+                if plate ~= OUR_PLATE and empty and (frozen or plate == STOCK_PLATE) then
+                    NetworkRequestControlOfEntity(veh)
                     SetEntityAsMissionEntity(veh, true, true)
                     DeleteEntity(veh)
                     if not DoesEntityExist(veh) then removed = removed + 1 end
@@ -311,9 +320,9 @@ RegisterCommand('pdmclear', function()
     notify('Cleared all display cars. Run /pdmsave to apply for everyone.', 'success')
 end, false)
 
--- Remove leftover stock qb-vehicleshop display cars (plate 'BUY ME') near the
--- PDM. Available to everyone because it is local-only and self-correcting -
--- handy if a player still sees the old cars after a restart.
+-- Remove leftover stock qb-vehicleshop display cars near the PDM (empty +
+-- frozen, or plate 'BUY ME'). Available to everyone because it is local-only
+-- and self-correcting - handy if a player still sees the old cars.
 RegisterCommand('pdmcleanstock', function()
     local removed = cleanupStockCars()
     runCleanupPasses() -- keep clearing any that stream in over the next ~18s
@@ -346,7 +355,7 @@ RegisterCommand('pdmhelp', function()
     print('  /pdmmodel <model>  - change the nearest display car to a different model')
     print('  /pdmdelete         - delete the nearest display car')
     print('  /pdmclear          - delete ALL display cars')
-    print('  /pdmcleanstock     - remove leftover stock PDM cars (plate BUY ME)')
+    print('  /pdmcleanstock     - remove leftover stock PDM cars (empty + frozen, or BUY ME plate)')
     print('  /pdmsave           - save the current layout for everyone (persists across restarts)')
     print('  Editing: hold LALT to drag the gizmo, arrows move, Q/E down/up, scroll rotates, Shift = fine, Enter = save spot, Backspace = cancel')
     notify('PDM display commands printed to F8 console. Type /pdmhelp again to repeat.', 'primary')
