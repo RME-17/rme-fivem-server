@@ -161,12 +161,15 @@ local function statBar(p)
     return string.rep('\226\150\136', n) .. string.rep('\226\150\145', 10 - n)
 end
 
-local function getVehStats(model)
+-- Read one model's performance data. Assumes the model is (or can be) loaded.
+local function readVehStats(model)
     if statCache[model] then return statCache[model] end
     local hash = GetHashKey(model)
-    RequestModel(hash)
-    local t = GetGameTimer()
-    while not HasModelLoaded(hash) and (GetGameTimer() - t) < 2000 do Wait(0) end
+    if not HasModelLoaded(hash) then
+        RequestModel(hash)
+        local t = GetGameTimer()
+        while not HasModelLoaded(hash) and (GetGameTimer() - t) < 2000 do Wait(0) end
+    end
     local s = { ok = false }
     if HasModelLoaded(hash) then
         local sp = GetVehicleModelEstimatedMaxSpeed(hash) + 0.0 -- m/s
@@ -192,6 +195,37 @@ local function getVehStats(model)
         statCache[model] = s
     end
     return s
+end
+
+-- Back-compat alias used by the detail screen.
+local function getVehStats(model)
+    return readVehStats(model)
+end
+
+-- Batch-prefetch a whole list of models in PARALLEL with a single bounded wait,
+-- so opening a category does not freeze the menu while each car loads one by one.
+-- Already-cached models are skipped. After this returns, readVehStats() for any
+-- loaded model is instant.
+local function prefetchStats(list)
+    local pending = {}
+    for _, v in ipairs(list) do
+        local model = v._model
+        if not statCache[model] then
+            local hash = GetHashKey(model)
+            RequestModel(hash)
+            pending[#pending + 1] = hash
+        end
+    end
+    if #pending == 0 then return end
+    local t = GetGameTimer()
+    while (GetGameTimer() - t) < 1500 do
+        local allLoaded = true
+        for _, hash in ipairs(pending) do
+            if not HasModelLoaded(hash) then allLoaded = false break end
+        end
+        if allLoaded then break end
+        Wait(0)
+    end
 end
 
 local function isSellable(model, v)
@@ -290,12 +324,20 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
         end
     end
     table.sort(list, function(a, b) return (a.name or '') < (b.name or '') end)
+    -- Load every model in this category at once, then read specs (cached).
+    prefetchStats(list)
     for _, v in ipairs(list) do
         local model = v._model
         local img = vehImage(model)
+        local stats = readVehStats(model)
+        -- Compact spec line shown directly on the car card in the browse list.
+        local info = 'Price: $' .. comma_value(v.price or 0)
+        if stats.ok then
+            info = info .. '  |  ' .. stats.kph .. ' km/h top  |  ~' .. comma_value(stats.hp) .. ' hp  |  ' .. stats.seats .. ' seats'
+        end
         menu[#menu + 1] = {
             header = (v.brand or '') .. ' ' .. (v.name or model),
-            txt = 'Price: $' .. comma_value(v.price or 0),
+            txt = info,
             icon = img,
             image = img,
             params = {
