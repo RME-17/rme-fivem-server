@@ -96,7 +96,7 @@ end
 
 -- On-screen countdown for the active workout set, shown on the LEFT side of the
 -- screen while training so the player can see how long until it auto-stops.
--- A small dark background bar is drawn behind it so the text stays readable.
+-- A glass panel with an accent header band keeps it readable and tidy.
 local function drawWorkoutTimer(remaining)
     local sec = math.ceil(remaining)
     if sec < 0 then sec = 0 end
@@ -104,27 +104,29 @@ local function drawWorkoutTimer(remaining)
     local s = sec % 60
     local clock = ('%02d:%02d'):format(m, s)
 
-    -- background bar
-    DrawRect(0.105, 0.515, 0.135, 0.05, 18, 18, 22, 190)
-    DrawRect(0.105, 0.492, 0.135, 0.004, 99, 179, 255, 255)
+    local boxX, boxW = 0.085, 0.12
+    local leftX = boxX - boxW / 2.0 + 0.012 -- consistent left padding inside the panel
 
-    -- label
+    -- panel background + accent header band
+    DrawRect(boxX, 0.521, boxW, 0.078, 18, 18, 22, 200)
+    DrawRect(boxX, 0.4925, boxW, 0.022, 99, 179, 255, 255)
+
+    -- label (dark text sitting on the accent band)
     SetTextFont(4)
-    SetTextScale(0.0, 0.32)
-    SetTextColour(99, 179, 255, 255)
-    SetTextOutline()
+    SetTextScale(0.0, 0.30)
+    SetTextColour(12, 20, 33, 255)
     SetTextEntry('STRING')
     AddTextComponentSubstringPlayerName('WORKOUT TIME LEFT')
-    DrawText(0.045, 0.498)
+    DrawText(leftX, 0.4825)
 
     -- countdown clock
     SetTextFont(4)
-    SetTextScale(0.0, 0.6)
+    SetTextScale(0.0, 0.62)
     SetTextColour(255, 255, 255, 255)
     SetTextOutline()
     SetTextEntry('STRING')
     AddTextComponentSubstringPlayerName('~y~' .. clock)
-    DrawText(0.045, 0.515)
+    DrawText(leftX, 0.510)
 end
 
 -- ---------- prop removal (radio, etc.) ----------
