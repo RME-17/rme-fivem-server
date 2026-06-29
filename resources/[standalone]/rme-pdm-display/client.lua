@@ -4,14 +4,20 @@
 -- delete them. Positioning uses the native FiveM gizmo (hold LEFT ALT to drag
 -- the 3D handles) with full keyboard controls as a reliable fallback.
 --
--- It ALSO cleans up the old qb-vehicleshop stock display cars that may still be
--- sitting in the PDM showroom. Those were spawned local-only and FROZEN, so
--- simply restarting qb-vehicleshop does NOT delete them - they linger as
--- orphaned entities until the client reloads them. This resource scans for
--- EMPTY, FROZEN vehicles near the PDM (or anything carrying the stock 'BUY ME'
--- plate) and deletes them on each client. Our own cars use plate 'RME' and are
--- tracked, so they are always skipped, as is any vehicle a player is sitting in
--- (real player/traffic cars are not frozen, so they are not affected).
+-- It ALSO cleans up unwanted cars sitting in the PDM showroom. There are two
+-- kinds of leftovers:
+--   1) Old qb-vehicleshop stock display cars - spawned local-only, FROZEN,
+--      with the plate 'BUY ME'. Caught by the broad heuristic pass.
+--   2) Cars baked into the Redline MLO map (.ymap) as showroom dressing. These
+--      are normal base-game vehicles with RANDOM plates and are NOT frozen, so
+--      the heuristic pass misses them, and because they live in the map they
+--      re-stream after you delete them. The tight 'showroom sweep' below deletes
+--      EVERY empty car inside the showroom footprint (except ours and the car
+--      the player is using/just parked) and keeps running so re-streamed map
+--      cars are removed again before they are really seen.
+--
+-- NOTE: the permanent fix for type (2) is to delete those car entities from the
+-- MLO's .ymap in CodeWalker. This sweep is the in-game workaround.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -19,18 +25,25 @@ local isAdmin = false
 local displays = {}      -- { [i] = { entity = veh, model = 'adder' } }
 local editing = nil      -- entity currently being edited
 local editOriginal = nil -- { x, y, z, w } snapshot for cancel
+local lastPlayerVehicle = 0 -- last car the player was in (protected from sweeps)
 
--- PDM showroom center + radius used to find and remove leftover stock cars.
+-- PDM showroom center + radii used to find and remove leftover cars.
 local PDM_CENTER = vector3(-45.67, -1098.34, 26.42)
-local PDM_CLEAN_RADIUS = 40.0
-local STOCK_PLATE = 'BUY ME' -- qb-vehicleshop stock display car plate
-local OUR_PLATE = 'RME'      -- our custom display car plate (never delete)
+local PDM_CLEAN_RADIUS = 40.0     -- broad heuristic pass (frozen / 'BUY ME')
+local PDM_SHOWROOM_RADIUS = 18.0  -- tight pass: deletes ALL empty cars in here
+local PDM_AUTO_RADIUS = 80.0      -- auto-sweep only while player is this close
+local STOCK_PLATE = 'BUY ME'      -- qb-vehicleshop stock display car plate
+local OUR_PLATE = 'RME'           -- our custom display car plate (never delete)
 
 -- Controls disabled while editing so game actions do not fire.
 local EDIT_CONTROLS = { 18, 177, 44, 38, 21, 172, 173, 174, 175, 19, 24, 25, 140, 141, 142, 241, 242, 257, 263, 75, 23, 22 }
 
 local function notify(msg, t)
     QBCore.Functions.Notify(msg, t or 'primary')
+end
+
+local function trim(s)
+    return (tostring(s or ''):gsub('^%s*(.-)%s*$', '%1'))
 end
 
 local function cleanupEntity(veh)
@@ -81,31 +94,43 @@ local function isOurDisplay(veh)
     return false
 end
 
-local function trim(s)
-    return (tostring(s or ''):gsub('^%s*(.-)%s*$', '%1'))
+-- A car we must never delete: our display cars (tracked or plate 'RME'), the
+-- car the player is currently in, and the car they most recently drove/parked.
+local function isProtectedVehicle(veh, myVeh)
+    if veh == myVeh then return true end
+    if veh == lastPlayerVehicle and DoesEntityExist(lastPlayerVehicle) then return true end
+    if isOurDisplay(veh) then return true end
+    if trim(GetVehicleNumberPlateText(veh)) == OUR_PLATE then return true end
+    return false
 end
 
--- Delete leftover qb-vehicleshop stock display cars near the PDM.
--- A vehicle is removed when it is near the PDM, EMPTY, not one of ours, and
--- EITHER frozen in place OR carrying the stock 'BUY ME' plate. Real player and
--- ambient/traffic cars are not frozen, so they are left alone; our own cars
--- (plate 'RME', and tracked in `displays`) are always skipped. Returns count.
+local function vehicleIsEmpty(veh)
+    return IsVehicleSeatFree(veh, -1) and GetVehicleNumberOfPassengers(veh) == 0
+end
+
+local function forceDelete(veh)
+    NetworkRequestControlOfEntity(veh)
+    SetEntityAsMissionEntity(veh, true, true)
+    DeleteEntity(veh)
+    return not DoesEntityExist(veh)
+end
+
+-- Broad heuristic pass: near the PDM, EMPTY, not ours, and EITHER frozen in
+-- place OR carrying the stock 'BUY ME' plate. Leaves real player / ambient
+-- traffic cars alone (they are not frozen and have normal plates).
 local function cleanupStockCars()
     local removed = 0
     local ped = PlayerPedId()
     local myVeh = GetVehiclePedIsIn(ped, false)
     for _, veh in ipairs(GetGamePool('CVehicle')) do
-        if DoesEntityExist(veh) and veh ~= myVeh and not isOurDisplay(veh) then
+        if DoesEntityExist(veh) and not isProtectedVehicle(veh, myVeh) then
             local vpos = GetEntityCoords(veh)
             if #(vpos - PDM_CENTER) < PDM_CLEAN_RADIUS then
                 local plate = trim(GetVehicleNumberPlateText(veh))
-                local empty = IsVehicleSeatFree(veh, -1) and GetVehicleNumberOfPassengers(veh) == 0
+                local empty = vehicleIsEmpty(veh)
                 local frozen = IsEntityPositionFrozen(veh)
-                if plate ~= OUR_PLATE and empty and (frozen or plate == STOCK_PLATE) then
-                    NetworkRequestControlOfEntity(veh)
-                    SetEntityAsMissionEntity(veh, true, true)
-                    DeleteEntity(veh)
-                    if not DoesEntityExist(veh) then removed = removed + 1 end
+                if empty and (frozen or plate == STOCK_PLATE) then
+                    if forceDelete(veh) then removed = removed + 1 end
                 end
             end
         end
@@ -113,16 +138,62 @@ local function cleanupStockCars()
     return removed
 end
 
--- Run several cleanup passes, because leftover cars can stream in over a few
--- seconds after the client (re)loads the area.
+-- Tight showroom sweep: deletes EVERY empty car inside the showroom footprint
+-- that is not protected, regardless of plate or frozen state. This is what
+-- removes the MLO/ymap display cars (random plates, not frozen).
+local function cleanupShowroomCars()
+    local removed = 0
+    local ped = PlayerPedId()
+    local myVeh = GetVehiclePedIsIn(ped, false)
+    for _, veh in ipairs(GetGamePool('CVehicle')) do
+        if DoesEntityExist(veh) and not isProtectedVehicle(veh, myVeh) then
+            local vpos = GetEntityCoords(veh)
+            if #(vpos - PDM_CENTER) < PDM_SHOWROOM_RADIUS and vehicleIsEmpty(veh) then
+                if forceDelete(veh) then removed = removed + 1 end
+            end
+        end
+    end
+    return removed
+end
+
+-- Run several quick passes after (re)load, because cars can stream in over a
+-- few seconds after the client loads the area.
 local function runCleanupPasses()
     CreateThread(function()
         for _ = 1, 12 do
             cleanupStockCars()
+            cleanupShowroomCars()
             Wait(1500)
         end
     end)
 end
+
+-- Track the player's current/last vehicle so the sweep never eats the car they
+-- drove into the showroom and parked.
+CreateThread(function()
+    while true do
+        local ped = PlayerPedId()
+        if IsPedInAnyVehicle(ped, false) then
+            lastPlayerVehicle = GetVehiclePedIsIn(ped, false)
+        end
+        Wait(500)
+    end
+end)
+
+-- Continuous showroom sweep. Only active while the player is near the PDM and
+-- only touches empty, non-protected cars. This keeps map-placed (ymap) cars
+-- gone even though they try to re-stream after deletion.
+CreateThread(function()
+    while true do
+        local wait = 4000
+        local pos = GetEntityCoords(PlayerPedId())
+        if #(pos - PDM_CENTER) < PDM_AUTO_RADIUS then
+            cleanupShowroomCars()
+            wait = 1000
+        end
+        Wait(wait)
+    end
+end)
 
 local function respawnAll(list)
     clearDisplays()
@@ -320,13 +391,70 @@ RegisterCommand('pdmclear', function()
     notify('Cleared all display cars. Run /pdmsave to apply for everyone.', 'success')
 end, false)
 
--- Remove leftover stock qb-vehicleshop display cars near the PDM (empty +
--- frozen, or plate 'BUY ME'). Available to everyone because it is local-only
--- and self-correcting - handy if a player still sees the old cars.
+-- Manually delete the nearest car to you (within 10m), no matter its plate or
+-- frozen state. Skips our display cars and the car you are using. Walk up to a
+-- stuck car and run this to force-remove it.
+RegisterCommand('pdmkill', function()
+    if not isAdmin then return notify('You are not allowed to edit the showroom.', 'error') end
+    local ped = PlayerPedId()
+    local myVeh = GetVehiclePedIsIn(ped, false)
+    local pos = GetEntityCoords(ped)
+    local best, bestDist
+    for _, veh in ipairs(GetGamePool('CVehicle')) do
+        if DoesEntityExist(veh) and veh ~= myVeh and not isOurDisplay(veh) then
+            local dd = #(pos - GetEntityCoords(veh))
+            if dd < 10.0 and (not bestDist or dd < bestDist) then
+                bestDist = dd
+                best = veh
+            end
+        end
+    end
+    if not best then return notify('No deletable vehicle within 10m.', 'error') end
+    forceDelete(best)
+    if DoesEntityExist(best) then
+        notify('Could not delete that car - it is part of the map. Edit the MLO .ymap to remove it permanently.', 'error')
+    else
+        notify('Deleted nearest car.', 'success')
+    end
+end, false)
+
+-- Diagnostic: print details about the nearest vehicle to the F8 console so we
+-- can identify what a stuck car actually is (model, plate, frozen, networked).
+RegisterCommand('pdminfo', function()
+    local ped = PlayerPedId()
+    local pos = GetEntityCoords(ped)
+    local best, bestDist
+    for _, veh in ipairs(GetGamePool('CVehicle')) do
+        if DoesEntityExist(veh) then
+            local dd = #(pos - GetEntityCoords(veh))
+            if not bestDist or dd < bestDist then
+                bestDist = dd
+                best = veh
+            end
+        end
+    end
+    if not best then return notify('No vehicle nearby.', 'error') end
+    local c = GetEntityCoords(best)
+    print('^3[rme-pdm-display] nearest vehicle:^7')
+    print(('  model hash : %s'):format(GetEntityModel(best)))
+    print(('  plate      : "%s"'):format(GetVehicleNumberPlateText(best)))
+    print(('  coords     : %.2f, %.2f, %.2f'):format(c.x, c.y, c.z))
+    print(('  distance   : %.2f m'):format(bestDist))
+    print(('  frozen     : %s'):format(tostring(IsEntityPositionFrozen(best))))
+    print(('  networked  : %s'):format(tostring(NetworkGetEntityIsNetworked(best))))
+    print(('  mission    : %s'):format(tostring(IsEntityAMissionEntity(best))))
+    print(('  isOurs     : %s'):format(tostring(isOurDisplay(best))))
+    notify(('Nearest car: hash %s, plate "%s", %.1fm. Full details in F8 console.'):format(GetEntityModel(best), GetVehicleNumberPlateText(best), bestDist), 'primary')
+end, false)
+
+-- Remove leftover cars near the PDM right now (both the heuristic pass and the
+-- aggressive showroom sweep), then keep clearing any that stream back in.
 RegisterCommand('pdmcleanstock', function()
-    local removed = cleanupStockCars()
-    runCleanupPasses() -- keep clearing any that stream in over the next ~18s
-    notify(('Removed %d leftover stock PDM car(s). Clearing any that re-stream in...'):format(removed), removed > 0 and 'success' or 'primary')
+    local a = cleanupStockCars()
+    local b = cleanupShowroomCars()
+    runCleanupPasses()
+    local total = a + b
+    notify(('Removed %d PDM car(s). Clearing any that re-stream in...'):format(total), total > 0 and 'success' or 'primary')
 end, false)
 
 RegisterCommand('pdmsave', function()
@@ -355,7 +483,9 @@ RegisterCommand('pdmhelp', function()
     print('  /pdmmodel <model>  - change the nearest display car to a different model')
     print('  /pdmdelete         - delete the nearest display car')
     print('  /pdmclear          - delete ALL display cars')
-    print('  /pdmcleanstock     - remove leftover stock PDM cars (empty + frozen, or BUY ME plate)')
+    print('  /pdmkill           - force-delete the nearest car within 10m (any plate)')
+    print('  /pdminfo           - print details of the nearest car (model, plate, frozen...)')
+    print('  /pdmcleanstock     - remove leftover/stuck PDM cars now + keep sweeping')
     print('  /pdmsave           - save the current layout for everyone (persists across restarts)')
     print('  Editing: hold LALT to drag the gizmo, arrows move, Q/E down/up, scroll rotates, Shift = fine, Enter = save spot, Backspace = cancel')
     notify('PDM display commands printed to F8 console. Type /pdmhelp again to repeat.', 'primary')
@@ -365,7 +495,7 @@ end, false)
 
 RegisterNetEvent('rme-pdm-display:client:setDisplays', function(list)
     respawnAll(list)
-    runCleanupPasses() -- also sweep out any leftover stock cars when we (re)load
+    runCleanupPasses() -- also sweep out any leftover cars when we (re)load
 end)
 
 RegisterNetEvent('rme-pdm-display:client:setAdmin', function(v)
