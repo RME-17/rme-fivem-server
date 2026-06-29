@@ -415,24 +415,29 @@ function Init()
     end)
     CreateThread(function()
         for k in pairs(Config.Shops) do
-            for i = 1, #Config.Shops[k]['ShowroomVehicles'] do
-                local model = GetHashKey(Config.Shops[k]['ShowroomVehicles'][i].defaultVehicle)
-                RequestModel(model)
-                while not HasModelLoaded(model) do
-                    Wait(0)
+            -- RME: PDM display cars are now handled by the rme-pdm-display resource
+            -- (custom gizmo-placed showroom). Skip spawning any stock display cars
+            -- and stock per-vehicle zones for 'pdm' so the showroom starts empty.
+            if k ~= 'pdm' then
+                for i = 1, #Config.Shops[k]['ShowroomVehicles'] do
+                    local model = GetHashKey(Config.Shops[k]['ShowroomVehicles'][i].defaultVehicle)
+                    RequestModel(model)
+                    while not HasModelLoaded(model) do
+                        Wait(0)
+                    end
+                    local veh = CreateVehicle(model, Config.Shops[k]['ShowroomVehicles'][i].coords.x, Config.Shops[k]['ShowroomVehicles'][i].coords.y, Config.Shops[k]['ShowroomVehicles'][i].coords.z, false, false)
+                    SetModelAsNoLongerNeeded(model)
+                    SetVehicleOnGroundProperly(veh)
+                    SetEntityInvincible(veh, true)
+                    SetVehicleDirtLevel(veh, 0.0)
+                    SetVehicleDoorsLocked(veh, 3)
+                    SetEntityHeading(veh, Config.Shops[k]['ShowroomVehicles'][i].coords.w)
+                    FreezeEntityPosition(veh, true)
+                    SetVehicleNumberPlateText(veh, 'BUY ME')
+                    if Config.UsingTarget then createVehZones(k, veh) end
                 end
-                local veh = CreateVehicle(model, Config.Shops[k]['ShowroomVehicles'][i].coords.x, Config.Shops[k]['ShowroomVehicles'][i].coords.y, Config.Shops[k]['ShowroomVehicles'][i].coords.z, false, false)
-                SetModelAsNoLongerNeeded(model)
-                SetVehicleOnGroundProperly(veh)
-                SetEntityInvincible(veh, true)
-                SetVehicleDirtLevel(veh, 0.0)
-                SetVehicleDoorsLocked(veh, 3)
-                SetEntityHeading(veh, Config.Shops[k]['ShowroomVehicles'][i].coords.w)
-                FreezeEntityPosition(veh, true)
-                SetVehicleNumberPlateText(veh, 'BUY ME')
-                if Config.UsingTarget then createVehZones(k, veh) end
+                if not Config.UsingTarget then createVehZones(k) end
             end
-            if not Config.UsingTarget then createVehZones(k) end
         end
     end)
 end

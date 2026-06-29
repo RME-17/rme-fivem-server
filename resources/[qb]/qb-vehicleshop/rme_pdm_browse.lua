@@ -20,16 +20,16 @@ local browseSpot = vector4(-30.0, -1090.0, 1000.0, 160.0)
 local camPos = vector3(-30.0, -1090.0, 1000.0)
 local camLookAt = vector3(120.0, -900.0, 200.0)
 
--- Background music for the PDM showroom (MLO). It is ALWAYS playing on a
--- continuous loop as POSITIONAL xSound audio anchored at the dealership: it does
--- NOT start when the player enters and does NOT stop when they leave. Players
--- simply hear it (with normal distance falloff) when they come within
--- mloMusicRadius of the showroom, and walk back into it mid-track rather than
--- restarting it. The private viewing room is ~970m straight up (far outside the
--- radius), so it stays SILENT up there exactly as before.
+-- Background music for the PDM showroom (MLO). It is a CONTINUOUS loop that is
+-- NON-positional and started SILENT the moment xsound is ready, so the track
+-- plays on one unbroken timeline from server load and NEVER restarts. It does
+-- NOT start or restart when a player enters - we only fade its VOLUME up while a
+-- player is near the PDM (so it is not heard across the whole map) and fade it
+-- back to 0 when they walk away. Walking in just reveals the song already in
+-- progress; it is never re-triggered by entering.
 -- NOTE: URL is assembled from parts on purpose (keeps the editing pipeline from
 -- mangling a contiguous URL literal). Final value resolves to the YouTube watch
--- link below, which xsound streams and loops (PlayUrlPos loop arg = true).
+-- link below, which xsound streams and loops (PlayUrl loop arg = true).
 local mloMusicUrl = 'https://www.youtube.com/' .. 'watch?v=' .. 'ZzfidhdXxhI'
 local mloMusicVolume = 0.2
 local mloMusicCenter = vector3(-45.0, -1098.0, 26.4)
@@ -45,13 +45,7 @@ local mloMusicRadius = 23.0
 -- static emitter  collision_8onfnzt  at (-44.73, -1097.77, 27.0), which plays the
 -- RADIO_15_MOTOWN station. That position is dead-center of the PDM, so this is the
 -- "stock radio" that was playing on top of our track. It is listed first below and
--- is killed automatically. The name is a hashed "collision_*" string (NOT a
--- "showroom"-style name), which is why the earlier SE_carshowroom / showroom
--- guesses did nothing. Source: GTA static-emitter dump, v_carshowroom entry.
---
--- To test a NEW emitter live in future, stand in the showroom and run
---   /pdmemitter <NAME>  (added below): the moment the music stops, that is the
--- emitter. Then paste it into this list to mute it automatically for everyone.
+-- is killed automatically.
 local stockEmitters = {
     -- >>> CONFIRMED PDM showroom radio emitter (the one you were hearing) <<<
     'collision_8onfnzt',
@@ -526,39 +520,44 @@ RegisterCommand('pdmemitteron', function(_, args)
 end, false)
 
 -- ============================================================
---  PDM showroom (MLO) ambient music  -  ALWAYS-ON LOOP
---  The showroom playlist is started ONCE as positional xSound audio
---  anchored at the PDM and loops forever (loop arg = true). It is NOT
---  tied to the player entering: it just keeps playing, and the player
---  hears it (with distance falloff) when they come within range, then
---  walks back into it mid-track instead of restarting it.
---  We still force-silence the vanilla "stock" GTA showroom/garage radio
---  emitters while near the PDM (re-applied often, because an interior/MLO
---  can re-enable its own emitter when it streams in) and restore them
---  when the player walks away.
+--  PDM showroom (MLO) ambient music  -  CONTINUOUS LOOP
+--  The playlist is started ONCE (silent) the moment xsound is ready
+--  and plays on one unbroken, looping timeline. It is NOT positional
+--  and is NOT tied to the player entering - it never starts/stops on
+--  entry. We only fade its VOLUME between mloMusicVolume (near the
+--  PDM) and 0 (away), so walking in just reveals the song already in
+--  progress. We still force-silence the vanilla "stock" GTA showroom/
+--  garage radio emitters while near the PDM (re-applied often, because
+--  an interior/MLO can re-enable its own emitter when it streams in)
+--  and restore them when the player walks away.
 -- ============================================================
 local function ensurePdmMusic()
     if GetResourceState('xsound') ~= 'started' then return end
     if exports['xsound']:soundExists('rme_pdm_music') then return end
-    -- Positional, looping. Heard only within mloMusicRadius of the showroom.
-    exports['xsound']:PlayUrlPos('rme_pdm_music', mloMusicUrl, mloMusicVolume, mloMusicCenter, true)
-    if exports['xsound']:soundExists('rme_pdm_music') then
-        exports['xsound']:Distance('rme_pdm_music', mloMusicRadius)
-    end
+    -- Non-positional, looping, started SILENT. Plays continuously from now on and
+    -- never restarts; only the volume changes with distance (handled below).
+    exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, 0.0, true)
 end
 
 CreateThread(function()
     local muted = false
     while true do
-        local sleep = 1500
+        local sleep = 1000
 
         -- Keep the continuous loop alive (covers first load + xsound restarts).
         ensurePdmMusic()
 
-        -- Keep the vanilla stock showroom radio muted while near the PDM.
         local pos = GetEntityCoords(PlayerPedId())
         local dist = #(pos - mloMusicCenter)
-        if dist < mloMusicRadius then
+        local near = dist < mloMusicRadius
+
+        -- Volume only - never stop/replay. The loop keeps advancing regardless.
+        if GetResourceState('xsound') == 'started' and exports['xsound']:soundExists('rme_pdm_music') then
+            exports['xsound']:setVolume('rme_pdm_music', near and mloMusicVolume or 0.0)
+        end
+
+        -- Keep the vanilla stock showroom radio muted while near the PDM.
+        if near then
             sleep = 800
             setStockEmitters(false)
             muted = true
