@@ -17,4 +17,13 @@ Config.Xp = {
     flyPerMeter    = 0.015, -- Flying skill
     hit            = 3,    -- Shooting skill, per shot that lands on a ped
     kill           = 12,   -- Strength skill, per takedown
+    staminaSprint  = 0.05, -- Stamina skill, per metre sprinted
+    staminaSwim    = 0.08, -- Stamina skill, per metre swum
+}
+
+-- Gameplay perks granted by skill level. Engine caps the run/swim multipliers
+-- at ~1.49, so these are the bonus on top of 1.0 at max level.
+Config.Perks = {
+    maxRunBonus  = 0.49, -- +49% sprint speed at max Running level
+    maxSwimBonus = 0.49, -- +49% swim speed at max Swimming level
 }
