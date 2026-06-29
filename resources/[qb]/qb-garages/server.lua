@@ -485,4 +485,4 @@ local function getAllGarages()
     return garages
 end
 
-exports('getAllGarages', getAllGar
+exports('getAllGarages', getAllGarages)
