@@ -32,16 +32,34 @@ local mloMusicVolume = 0.2
 local mloMusicCenter = vector3(-45.0, -1098.0, 26.4)
 local mloMusicRadius = 23.0
 
--- Vanilla GTA static audio emitters that can play "stock" showroom / garage /
+-- Vanilla/DLC GTA static audio emitters that can play "stock" showroom / garage /
 -- shop radio music in or around the PDM. We force these OFF while the player is
 -- inside the dealership so ONLY our xsound track is heard, and restore them when
--- the player leaves. Toggling an emitter that does not exist here is a harmless
--- no-op, so listing a few safe candidates just widens the net.
+-- the player leaves. Toggling an emitter that does not exist is a harmless no-op,
+-- so listing extra safe candidates just widens the net.
+--
+-- IMPORTANT: if your PDM music is baked into an ENCRYPTED (escrow) MLO such as
+-- energy_redlinemlo, its emitter name is not in any public GTA dump. Stand in the
+-- showroom and use the  /pdmemitter <NAME>  command (added below) to test names
+-- live: the moment the music stops, that is the emitter. Then paste it into this
+-- list so it is muted automatically for everyone. Ask the MLO author (Energy Shop)
+-- for the exact static emitter name if you cannot find it by testing.
 local stockEmitters = {
+    -- Standard / DLC garages and mod shops
     'SE_MP_GARAGE_L_RADIO', 'SE_MP_GARAGE_M_RADIO', 'SE_MP_GARAGE_S_RADIO',
     'DLC_IE_Office_Garage_Radio_01', 'DLC_IE_Office_Garage_Mod_Shop_Radio_01',
-    'SE_DLC_GR_MOC_Radio_01',
+    'SE_DLC_GR_MOC_Radio_01', 'SE_DLC_Business_Garage_Radio_01',
+    -- Arena War / tuner car meet ambience
+    'SE_DLC_AW_Arena_Garage_Radio_01',
+    'se_tr_tuner_car_meet_Meet_rm_Music_01', 'se_tr_tuner_car_meet_sandbox_music_01',
+    'dlc_tuner_meet_building_engines',
+    -- Best-effort Simeon / car-showroom / dealership candidates
+    'SE_carshowroom', 'LOS_SANTOS_CAR_SHOWROOM', 'SE_CARSHOWROOM_RADIO',
 }
+
+-- Fast lookup so /pdmemitter does not add duplicates.
+local stockEmittersSet = {}
+for _, em in ipairs(stockEmitters) do stockEmittersSet[em] = true end
 
 local function setStockEmitters(enabled)
     for _, em in ipairs(stockEmitters) do
@@ -465,13 +483,49 @@ RegisterCommand('pdmunstuck', function()
 end, false)
 
 -- ============================================================
+--  EMITTER FINDER (admin/debug)
+--  Stand INSIDE the PDM while the stock music is playing, then in
+--  the F8 console (or chat) run:  /pdmemitter <EMITTER_NAME>
+--  If the music stops, that name is the culprit -> it is added to
+--  the kill list for this session. Paste it into stockEmitters above
+--  to make it permanent for everyone. Use /pdmemitteron <NAME> to
+--  turn an emitter back on while testing.
+-- ============================================================
+RegisterCommand('pdmemitter', function(_, args)
+    local name = args[1]
+    if not name then
+        print('^3[rme_pdm]^7 usage: /pdmemitter <EMITTER_NAME>  (disables it so you can hear if the music stops)')
+        return
+    end
+    SetStaticEmitterEnabled(name, false)
+    if not stockEmittersSet[name] then
+        stockEmitters[#stockEmitters + 1] = name
+        stockEmittersSet[name] = true
+    end
+    print(('^2[rme_pdm]^7 disabled emitter "%s" and added it to the kill list. If the music stopped, that was the one - paste it into stockEmitters to make it permanent.'):format(name))
+end, false)
+
+RegisterCommand('pdmemitteron', function(_, args)
+    local name = args[1]
+    if not name then
+        print('^3[rme_pdm]^7 usage: /pdmemitteron <EMITTER_NAME>  (re-enables an emitter while testing)')
+        return
+    end
+    SetStaticEmitterEnabled(name, true)
+    print(('^3[rme_pdm]^7 re-enabled emitter "%s".'):format(name))
+end, false)
+
+-- ============================================================
 --  PDM showroom (MLO) ambient music
 --  Loops our xsound track while the player is inside the
 --  dealership, AND force-silences the vanilla "stock" GTA
 --  showroom/garage radio emitters so only our track is heard.
---  While in the private viewing room the player is teleported
---  far away, so the track stops on its own (room is silent) and
---  the stock emitters are restored.
+--  The emitter kill is RE-APPLIED every tick while inside, because
+--  an interior/MLO can re-enable its own emitter when it streams
+--  in (a one-shot disable on entry is not enough). While in the
+--  private viewing room the player is teleported far away, so the
+--  track stops on its own (room is silent) and the stock emitters
+--  are restored.
 -- ============================================================
 CreateThread(function()
     local playing = false
@@ -482,25 +536,23 @@ CreateThread(function()
         local dist = #(pos - mloMusicCenter)
         local inside = dist < mloMusicRadius
 
-        -- Kill the vanilla stock music whenever we are inside the showroom,
-        -- and restore it the moment we leave.
-        if inside and not muted then
+        if inside then
+            -- Re-apply continuously: keep the stock emitters muted for as long
+            -- as we are inside, in case the MLO/interior turns them back on.
+            sleep = 800
             setStockEmitters(false)
             muted = true
-        elseif not inside and muted then
-            setStockEmitters(true)
-            muted = false
-        end
-
-        if GetResourceState('xsound') == 'started' then
-            if inside then
-                sleep = 800
-                if not playing then
-                    exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, mloMusicVolume, true)
-                    playing = true
-                end
-            elseif playing then
-                if exports['xsound']:soundExists('rme_pdm_music') then
+            if GetResourceState('xsound') == 'started' and not playing then
+                exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, mloMusicVolume, true)
+                playing = true
+            end
+        else
+            if muted then
+                setStockEmitters(true)
+                muted = false
+            end
+            if playing then
+                if GetResourceState('xsound') == 'started' and exports['xsound']:soundExists('rme_pdm_music') then
                     exports['xsound']:Destroy('rme_pdm_music')
                 end
                 playing = false
