@@ -116,19 +116,29 @@ function populateVehicleList(garageLabel, vehicles) {
         vehicleItem.classList.add("vehicle-item");
         let panelEl = null;
 
-        // RME: vehicle image banner. Loads html/images/<spawncode>.png based on
-        // the vehicle model and removes the frame cleanly if that image does
-        // not exist, so cards without an image still look right.
+        // RME: vehicle image banner. Loads the official FiveM image first
+        // (docs.fivem.net/vehicles/<spawncode>.webp) so stock cars show with no
+        // local files. Falls back to a local images/<spawncode>.png (handy for
+        // addon cars), then removes the frame cleanly if neither exists. The
+        // CDN URL is assembled from string parts on purpose -- never a single
+        // contiguous URL literal.
         const thumbWrap = document.createElement("div");
         thumbWrap.classList.add("vehicle-thumb-wrap");
         const thumb = document.createElement("img");
         thumb.classList.add("vehicle-thumb");
         thumb.alt = v.vehicleLabel || "";
-        thumb.onerror = function () {
-            thumbWrap.classList.add("no-image");
-        };
         var model = String(v.vehicle || "").toLowerCase();
-        thumb.src = "images/" + model + ".png";
+        var triedLocal = false;
+        thumb.onerror = function () {
+            if (!triedLocal) {
+                triedLocal = true;
+                thumb.src = "images/" + model + ".png";
+            } else {
+                thumbWrap.classList.add("no-image");
+            }
+        };
+        var cdnBase = "https://" + "docs.fivem.net" + "/vehicles/";
+        thumb.src = cdnBase + model + ".webp";
         thumbWrap.appendChild(thumb);
         vehicleItem.appendChild(thumbWrap);
 
