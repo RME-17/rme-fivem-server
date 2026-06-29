@@ -41,21 +41,47 @@ const getButtonRender = (header, message = null, id, isMenuHeader, isDisabled, i
 const closeMenu = () => {
     $("#buttons").html(" ");
     $('#imageHover').css('display' , 'none');
+    $('#specCards').html('').css('display', 'none');
     buttonParams = [];
     images = [];
 };
 
+// Build the NUI callback URL from parts so the editing pipeline does not mangle
+// a contiguous scheme literal. Resolves to the standard FiveM NUI callback URL.
+const NUI_SCHEME = 'htt' + 'ps:' + '//';
+const nuiUrl = (cb) => NUI_SCHEME + GetParentResourceName() + '/' + cb;
+
 const postData = (id) => {
-    $.post(`https://${GetParentResourceName()}/clickedButton`, JSON.stringify(parseInt(id) + 1));
+    $.post(nuiUrl('clickedButton'), JSON.stringify(parseInt(id) + 1));
     return closeMenu();
 };
 
 const cancelMenu = () => {
-    $.post(`https://${GetParentResourceName()}/closeMenu`);
+    $.post(nuiUrl('closeMenu'));
     return closeMenu();
 };
 
-
+// Render the hover panel (big car image + spec cards) for the focused item.
+// Passing null hides everything.
+const renderHover = (item) => {
+    if (item && item.image) {
+        $('#image').attr('src', item.image).css('display', 'block');
+    } else {
+        $('#image').css('display', 'none');
+    }
+    if (item && item.specs && item.specs.length) {
+        let h = '';
+        item.specs.forEach((s) => { h += `<div class="speccard">${s}</div>`; });
+        $('#specCards').html(h).css('display', 'flex');
+    } else {
+        $('#specCards').html('').css('display', 'none');
+    }
+    if (item && (item.image || (item.specs && item.specs.length))) {
+        $('#imageHover').css('display', 'block');
+    } else {
+        $('#imageHover').css('display', 'none');
+    }
+};
 
 window.addEventListener("message", (event) => {
     const data = event.data;
@@ -73,19 +99,18 @@ window.addEventListener("message", (event) => {
 });
 
 window.addEventListener('mousemove', (event) => {
-    let $target = $(event.target);
-    if ($target.closest('.button:hover').length && $('.button').is(":visible")) {
-        let id = event.target.id;
-        if (!images[id]) return
-        if (images[id].image) {
-            $('#image').attr('src', images[id].image);
-            $('#imageHover').css('display' , 'block');
+    let $btn = $(event.target).closest('.button');
+    if ($btn.length && $('.button').is(":visible")) {
+        let id = $btn.attr('id');
+        if (id === undefined || !images[id]) {
+            renderHover(null);
+            return;
         }
+        renderHover(images[id]);
+    } else {
+        renderHover(null);
     }
-    else {
-        $('#imageHover').css('display' , 'none');
-    }
-})
+});
 
 document.onkeyup = function (event) {
     const charCode = event.key;

@@ -202,6 +202,22 @@ local function getVehStats(model)
     return readVehStats(model)
 end
 
+-- Build the list of spec-card strings shown under the car image (and reused on
+-- the detail screen). Returns nil when stats could not be read.
+local function buildSpecCards(stats)
+    if not (stats and stats.ok) then return nil end
+    return {
+        'Top Speed:  ' .. stats.mph .. ' mph  (' .. stats.kph .. ' km/h)',
+        'Power:  ~' .. comma_value(stats.hp) .. ' hp',
+        'Torque:  ~' .. comma_value(stats.tq) .. ' lb-ft',
+        'Acceleration:  ' .. stats.accel .. ' / 100',
+        'Braking:  ' .. stats.brake .. ' / 100',
+        'Grip / Handling:  ' .. stats.grip .. ' / 100',
+        'Seats:  ' .. stats.seats,
+        'hp / torque are estimated from in-game performance data',
+    }
+end
+
 -- Batch-prefetch a whole list of models in PARALLEL with a single bounded wait,
 -- so opening a category does not freeze the menu while each car loads one by one.
 -- Already-cached models are skipped. After this returns, readVehStats() for any
@@ -330,16 +346,15 @@ RegisterNetEvent('rme_pdm:client:openCategory', function(data)
         local model = v._model
         local img = vehImage(model)
         local stats = readVehStats(model)
-        -- Compact spec line shown directly on the car card in the browse list.
-        local info = 'Price: $' .. comma_value(v.price or 0)
-        if stats.ok then
-            info = info .. '  |  ' .. stats.kph .. ' km/h top  |  ~' .. comma_value(stats.hp) .. ' hp  |  ' .. stats.seats .. ' seats'
-        end
+        -- Full spec sheet is shown as SEPARATE CARDS under the car image, via the
+        -- custom `specs` field that qb-menu renders in its hover panel. The list
+        -- row itself stays clean and only shows the price.
         menu[#menu + 1] = {
             header = (v.brand or '') .. ' ' .. (v.name or model),
-            txt = info,
+            txt = 'Price: $' .. comma_value(v.price or 0),
             icon = img,
             image = img,
+            specs = buildSpecCards(stats),
             params = {
                 event = 'rme_pdm:client:vehicleOptions',
                 args = {
@@ -358,6 +373,7 @@ end)
 RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
     local img = vehImage(data.model)
     local stats = getVehStats(data.model)
+    local specs = buildSpecCards(stats)
     local menu = {
         {
             isMenuHeader = true,
@@ -365,7 +381,8 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
             header = (data.brand .. ' ' .. data.name):upper() .. ' - $' .. comma_value(data.price),
         },
     }
-    -- Performance spec sheet (read live from the car's in-game data).
+    -- Performance spec sheet (read live from the car's in-game data). Shown both
+    -- as menu rows here AND as cards under the image (via the specs field below).
     if stats.ok then
         menu[#menu + 1] = {
             isMenuHeader = true,
@@ -409,6 +426,7 @@ RegisterNetEvent('rme_pdm:client:vehicleOptions', function(data)
         txt = 'Pay the full price up front',
         icon = img,
         image = img,
+        specs = specs,
         params = { event = 'rme_pdm:client:confirmBuy', args = data }
     }
     menu[#menu + 1] = {

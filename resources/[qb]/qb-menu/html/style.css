@@ -232,6 +232,10 @@ div > .header {
     position: absolute;
     top: 10%;
     right: 25em;
+    /* Decorative only: never let the preview image/cards swallow clicks meant
+       for the menu buttons (this was making cars un-clickable / the menu feel
+       stuck). */
+    pointer-events: none;
 }
 
 #image {
@@ -295,4 +299,31 @@ div > .header {
 #image {
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================================
+   RME spec cards - rendered as SEPARATE cards directly under
+   the hovered car image (fed by a custom `specs` array on the
+   menu item). Purely informational, so they ignore clicks.
+   ========================================================= */
+#specCards {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    width: 40vw;
+    max-width: 40vw;
+    pointer-events: none;
+}
+
+.speccard {
+    background: rgba(28, 27, 31, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    color: var(--md-on-surface);
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
