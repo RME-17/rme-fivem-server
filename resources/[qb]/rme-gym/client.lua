@@ -15,6 +15,13 @@ local removedProps = {}
 local membershipPed = nil
 local pedCoords = nil
 
+-- Cached membership state for the on-screen countdown. We refresh `remaining`
+-- from the server periodically while at the gym and tick it down locally so the
+-- timer counts smoothly without spamming the server.
+local membershipChecked = false
+local membershipRemaining = 0.0
+local membershipRefreshAt = 0
+
 local function kindList()
     local t = {}
     for k in pairs(Config.Stations) do t[#t + 1] = k end
@@ -34,6 +41,56 @@ end
 
 local function requestData()
     TriggerServerEvent('rme-gym:server:request')
+end
+
+-- ---------- membership timer helpers ----------
+local function refreshMembership()
+    membershipRefreshAt = GetGameTimer()
+    QBCore.Functions.TriggerCallback('rme-gym:server:hasMembership', function(valid, remaining)
+        membershipChecked = true
+        membershipRemaining = (valid and (remaining + 0.0)) or 0.0
+        membershipRefreshAt = GetGameTimer()
+    end)
+end
+
+local function currentRemaining()
+    if not membershipChecked then return 0.0 end
+    local elapsed = (GetGameTimer() - membershipRefreshAt) / 1000.0
+    local r = membershipRemaining - elapsed
+    if r < 0.0 then r = 0.0 end
+    return r
+end
+
+local function fmtRemaining(sec)
+    sec = math.floor(sec)
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+    if m >= 60 then
+        local h = math.floor(m / 60)
+        m = m % 60
+        return ('%dh %02dm'):format(h, m)
+    end
+    return ('%02d:%02d'):format(m, s)
+end
+
+local function drawMembershipTimer()
+    local rem = currentRemaining()
+    local txt, r, g, b
+    if rem > 0.0 then
+        txt = 'Gym Membership  ~s~' .. fmtRemaining(rem)
+        r, g, b = 120, 230, 140
+    else
+        txt = '~r~No Gym Membership~s~ - see the front desk'
+        r, g, b = 235, 90, 80
+    end
+    SetTextFont(4)
+    SetTextScale(0.0, 0.44)
+    SetTextColour(r, g, b, 255)
+    SetTextOutline()
+    SetTextCentre(true)
+    SetTextEntry('STRING')
+    AddTextComponentSubstringPlayerName(txt)
+    DrawText(0.5, 0.86)
 end
 
 -- ---------- prop removal (radio, etc.) ----------
@@ -94,6 +151,23 @@ local function deletePed()
     membershipPed = nil
 end
 
+-- Find the floor height under the given point so the ped stands on the ground
+-- instead of floating. Loads collision first because ground queries fail when
+-- the area around the coords has not streamed in yet.
+local function groundZAt(x, y, z)
+    local gz = z
+    for _ = 1, 25 do
+        RequestCollisionAtCoord(x + 0.0, y + 0.0, z + 0.0)
+        local found, fz = GetGroundZFor_3dCoord(x + 0.0, y + 0.0, z + 1.0, false)
+        if found and fz and fz ~= 0.0 then
+            gz = fz
+            break
+        end
+        Wait(50)
+    end
+    return gz
+end
+
 local function spawnPed()
     if not pedCoords then return end
     deletePed()
@@ -107,6 +181,10 @@ local function spawnPed()
     end
     if not HasModelLoaded(hash) then return end
     membershipPed = CreatePed(4, hash, pedCoords.x + 0.0, pedCoords.y + 0.0, pedCoords.z + 0.0, pedCoords.h + 0.0, false, true)
+    -- Snap to the floor so the attendant is grounded, not floating.
+    local gz = groundZAt(pedCoords.x, pedCoords.y, pedCoords.z) + (m.pedZOffset or 0.0)
+    SetEntityCoordsNoOffset(membershipPed, pedCoords.x + 0.0, pedCoords.y + 0.0, gz + 0.0, false, false, false)
+    SetEntityHeading(membershipPed, pedCoords.h + 0.0)
     SetEntityInvincible(membershipPed, true)
     FreezeEntityPosition(membershipPed, true)
     SetBlockingOfNonTemporaryEvents(membershipPed, true)
@@ -136,6 +214,7 @@ end)
 
 RegisterNetEvent('rme-gym:client:membershipBought', function()
     notify('Gym membership active. Get to work!', 'success')
+    refreshMembership()
 end)
 
 -- ---------- stations sync ----------
@@ -146,6 +225,7 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     requestData()
+    refreshMembership()
 end)
 
 AddEventHandler('onResourceStart', function(res)
@@ -159,6 +239,7 @@ end)
 CreateThread(function()
     Wait(1500)
     requestData()
+    refreshMembership()
 end)
 
 -- ---------- workout ----------
@@ -228,6 +309,9 @@ end
 
 local function tryStartWorkout(st)
     QBCore.Functions.TriggerCallback('rme-gym:server:hasMembership', function(valid, remaining)
+        membershipChecked = true
+        membershipRemaining = (valid and (remaining + 0.0)) or 0.0
+        membershipRefreshAt = GetGameTimer()
         if valid then
             startWorkout(st)
         else
@@ -236,27 +320,38 @@ local function tryStartWorkout(st)
     end)
 end
 
--- proximity / marker / interact loop
+-- proximity / marker / interact loop (also drives the membership timer overlay)
 CreateThread(function()
     while true do
         local sleep = 1000
-        if stationsReady and not working and next(stations) ~= nil then
+        if stationsReady and next(stations) ~= nil then
             local ped = PlayerPedId()
             local pc = GetEntityCoords(ped)
             local near = nil
             local nearDist = 999.0
+            local atGym = false
             for _, st in ipairs(stations) do
                 local d = #(pc - vector3(st.x, st.y, st.z))
                 if d < Config.MarkerDistance then
                     sleep = 0
-                    DrawMarker(1, st.x, st.y, st.z - 0.95, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.25, 255, 90, 80, 120, false, false, 2, false, nil, nil, false)
-                    if d < Config.UseDistance and d < nearDist then
-                        near = st
-                        nearDist = d
+                    atGym = true
+                    if not working then
+                        DrawMarker(1, st.x, st.y, st.z - 0.95, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.25, 255, 90, 80, 120, false, false, 2, false, nil, nil, false)
+                        if d < Config.UseDistance and d < nearDist then
+                            near = st
+                            nearDist = d
+                        end
                     end
                 end
             end
-            if near then
+            if atGym then
+                -- keep the countdown fresh while in the gym
+                if (GetGameTimer() - membershipRefreshAt) > 10000 then
+                    refreshMembership()
+                end
+                drawMembershipTimer()
+            end
+            if near and not working then
                 local def = Config.Stations[near.kind]
                 helpText('Press ~INPUT_PICKUP~ to use the ' .. ((def and def.label) or near.kind))
                 if IsControlJustReleased(0, 38) then

@@ -8,15 +8,20 @@ Config.TickMs         = 2000 -- grant XP every this many ms while working out
 -- ---------------------------------------------------------------------------
 -- Gym membership: players must buy a pass before they can use any station.
 -- Bought from the front-desk ped (third-eye / qb-target). Persists on the
--- character (survives relog) and expires after `duration` seconds.
+-- character (survives relog) and expires after `duration` seconds. While the
+-- player is inside the gym a countdown timer shows the time remaining.
 -- ---------------------------------------------------------------------------
 Config.Membership = {
     price    = 1000,           -- cost of a membership
     duration = 3600,           -- how long it lasts, in seconds (3600 = 1 hour)
     pedModel = 'a_m_y_business_01', -- front-desk attendant model (change if you like)
     -- Default ped spawn point. Reposition live with /gymsetped (admin) - that
-    -- captures your exact position so the ped stands correctly.
+    -- captures your exact position. The ped is automatically snapped to the
+    -- floor on spawn so it never floats.
     pedCoords = vector4(746.06, -891.81, 25.44, 330.78),
+    -- Fine-tune the ped height after the auto ground-snap (metres). Leave at
+    -- 0.0 normally; use a small +/- value only if it ends up slightly off.
+    pedZOffset = 0.0,
 }
 
 -- Prop models the free-weights / bench scenarios spawn in the player's hands.
