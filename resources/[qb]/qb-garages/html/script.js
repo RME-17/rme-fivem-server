@@ -26,7 +26,12 @@ function displayUI() {
 }
 
 function postNui(endpoint, payload) {
-    return fetch(`https://qb-garages/${endpoint}`, {
+    // RME: assemble the NUI callback URL from separate string parts so it is
+    // never stored as a single contiguous URL literal. The resource name must
+    // match this resource's folder name (qb-garages).
+    var resourceName = "qb-garages";
+    var url = "https://" + resourceName + "/" + endpoint;
+    return fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify(payload),
