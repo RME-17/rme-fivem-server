@@ -1,5 +1,5 @@
 -- RME dedicated speedometer (bottom-right). Cars + aircraft.
-local UseMPH = true -- set false for KM/H (also change the unit shown)
+local UseMPH = false -- false = KM/H (KPH) for the whole server; set true for MPH
 local speedMult = UseMPH and 2.23694 or 3.6
 local speedUnit = UseMPH and 'MPH' or 'KM/H'
 local FuelScript = 'LegacyFuel'
