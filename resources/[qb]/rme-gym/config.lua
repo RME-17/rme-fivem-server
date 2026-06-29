@@ -19,9 +19,9 @@ Config.Membership = {
     -- exactly where you want the attendant and run it; the ped plants its feet
     -- on the floor automatically.
     pedCoords = vector4(746.06, -891.81, 25.44, 330.78),
-    -- Fine-tune the ped height (metres). 0.0 is correct for a normal floor.
-    -- Use a small +value if it sinks, or -value if it floats, on your MLO.
-    pedZOffset = 0.0,
+    -- Fine-tune the ped height (metres). Use a +value if it sinks into the
+    -- floor, or a -value if it floats above it, on your MLO.
+    pedZOffset = 0.5,
 }
 
 -- Prop models the free-weights / bench scenarios spawn in the player's hands.
