@@ -2,6 +2,9 @@
 -- Stores a small JSON blob of raw activity counters in `player_stats`. Values
 -- are whitelisted + coerced to non-negative integers on save so a bad client
 -- payload can never inject arbitrary data.
+--
+-- On load we apply inactivity decay: the longer since the player's last save,
+-- the more their skill counters shrink (see Config.Decay).
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -28,9 +31,22 @@ AddEventHandler('onResourceStart', function(res)
     if res == GetCurrentResourceName() then ensureTable() end
 end)
 
+local function applyDecay(cid, stats, elapsedSeconds)
+    local elapsedDays = (tonumber(elapsedSeconds) or 0) / 86400.0
+    if elapsedDays <= Config.Decay.graceDays then return false end
+    local decayDays = elapsedDays - Config.Decay.graceDays
+    local factor = (1.0 - Config.Decay.perDay) ^ decayDays
+    if factor < Config.Decay.floor then factor = Config.Decay.floor end
+    if factor >= 1.0 then return false end
+    for _, k in ipairs(Config.Decay.keys) do
+        if stats[k] then stats[k] = math.floor((stats[k] or 0) * factor) end
+    end
+    return true
+end
+
 local function loadStats(cid)
     local stats = defaultStats()
-    local row = MySQL.single.await('SELECT stats FROM player_stats WHERE citizenid = ?', { cid })
+    local row = MySQL.single.await('SELECT stats, TIMESTAMPDIFF(SECOND, updated, NOW()) AS elapsed FROM player_stats WHERE citizenid = ?', { cid })
     if row and row.stats then
         local ok, decoded = pcall(json.decode, row.stats)
         if ok and type(decoded) == 'table' then
@@ -38,6 +54,11 @@ local function loadStats(cid)
                 local n = tonumber(decoded[k])
                 if n and n >= 0 then stats[k] = n end
             end
+        end
+        -- Regress skill stats for time spent away, then persist (which also
+        -- refreshes `updated`, resetting the decay clock).
+        if applyDecay(cid, stats, row.elapsed) then
+            MySQL.update('UPDATE player_stats SET stats = ? WHERE citizenid = ?', { json.encode(stats), cid })
         end
     else
         MySQL.insert('INSERT INTO player_stats (citizenid, stats) VALUES (?, ?)', { cid, json.encode(stats) })

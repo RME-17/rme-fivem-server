@@ -4,7 +4,8 @@
 --   * Running level  -> faster sprint speed
 --   * Swimming level -> faster swim speed
 --   * Stamina level  -> how long you keep that boosted speed before tiring
--- Press END to open/close the panel. Stats persist per character (citizenid).
+-- Press END to open/close the panel. Stats persist per character (citizenid)
+-- and slowly regress while a player is away (handled server-side).
 --
 -- The panel is a display-only overlay (it does NOT grab input focus), so it can
 -- never trap the player - END always toggles it.
@@ -76,8 +77,8 @@ local function skillXp()
 end
 
 -- ---------- gameplay perks ----------
--- Front-loaded curve (sqrt) so early levels give a noticeable boost and it ramps
--- to the full bonus at max level. Returns a 0..1 factor.
+-- Front-loaded curve (sqrt) for run/swim speed so early levels give a noticeable
+-- boost and it ramps to the full bonus at max level. Returns a 0..1 factor.
 local function perkFactor(level)
     local f = math.sqrt(math.min(level, Config.MaxLevel) / Config.MaxLevel)
     if f < 0 then f = 0 elseif f > 1 then f = 1 end
@@ -118,17 +119,19 @@ CreateThread(function()
 end)
 
 -- Stamina perk: while sprinting (or swimming) top up stamina based on Stamina
--- level. High level = stays topped up = run fast for much longer; low level =
--- little help = tires normally. This only ever ADDS stamina, never removes it.
+-- level, using a SQUARED curve so it is negligible at low level (you tire
+-- normally) and only becomes meaningful at high level. It only ever ADDS
+-- stamina, never removes it.
 CreateThread(function()
     while true do
         Wait(400)
         if Stats then
             local ped = PlayerPedId()
             if IsPedSprinting(ped) or IsPedSwimming(ped) then
-                local frac = perkFactor((levelInfo(skillXp().stamina)))
-                if perkTestMax then frac = 1.0 end
-                if frac > 0.0 then RestorePlayerStamina(PlayerId(), frac) end
+                local lf = math.min((levelInfo(skillXp().stamina)), Config.MaxLevel) / Config.MaxLevel -- linear 0..1
+                local restore = lf * lf * Config.Perks.staminaRestore
+                if perkTestMax then restore = 1.0 end
+                if restore > 0.0 then RestorePlayerStamina(PlayerId(), restore) end
             end
         end
     end

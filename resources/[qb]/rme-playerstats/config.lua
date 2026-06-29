@@ -24,6 +24,23 @@ Config.Xp = {
 -- Gameplay perks granted by skill level. Engine caps the run/swim multipliers
 -- at ~1.49, so these are the bonus on top of 1.0 at max level.
 Config.Perks = {
-    maxRunBonus  = 0.49, -- +49% sprint speed at max Running level
-    maxSwimBonus = 0.49, -- +49% swim speed at max Swimming level
+    maxRunBonus    = 0.49, -- +49% sprint speed at max Running level
+    maxSwimBonus   = 0.49, -- +49% swim speed at max Swimming level
+    staminaRestore = 0.60, -- max stamina restored per tick at max Stamina level
+                           -- (uses a squared curve, so low levels barely help)
+}
+
+-- Inactivity decay: skill stats slowly regress the longer a player is away.
+-- Applied when they next load in, based on real time since their last save, so
+-- daily players (within graceDays) lose nothing but someone gone for a week
+-- comes back weaker.
+Config.Decay = {
+    perDay    = 0.04, -- ~4% lost per day of inactivity (a week away ~= -22%)
+    graceDays = 1.0,  -- no decay for the first day away
+    floor     = 0.10, -- never drop below 10% of accumulated progress
+    keys = {          -- which counters regress (skill-driving stats)
+        'run_distance', 'sprint_distance', 'swim_distance',
+        'drive_distance', 'fly_distance',
+        'shots_fired', 'shots_hit', 'kills',
+    },
 }
