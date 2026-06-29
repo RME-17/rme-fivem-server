@@ -37,50 +37,53 @@ Config.WeightProps = {
 -- Workout station types. Each placed station references one of these by key.
 -- `scenario` is the GTA ambient animation played while working out (purely
 -- cosmetic - the XP is granted regardless). `train` is the skill XP granted per
--- tick, and can train more than one skill at once.
+-- tick (every Config.TickMs), and can train more than one skill at once.
 --
 -- Trainable skills: running, swimming, shooting, driving, flying, stamina, strength
 --
--- To place a station: stand at the equipment and type /gymadd <key>
+-- LEVELLING PACE: with rme-playerstats capped at Lv5, a skill needs 1000 total
+-- XP to fully max (100/200/300/400 per level). At 2s per tick these rates make
+-- maxing one skill at the gym a ~7-10 minute grind. Want it slower/faster?
+-- Lower/raise these numbers (or raise/lower Config.TickMs).
 Config.Stations = {
     treadmill = {
         label = 'Treadmill',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { running = 8, stamina = 6 },
+        train = { running = 3, stamina = 2 },
     },
     freeweights = {
         label = 'Free Weights',
         scenario = 'WORLD_HUMAN_MUSCLE_FREE_WEIGHTS',
-        train = { strength = 12 },
+        train = { strength = 4 },
     },
     pushups = {
         label = 'Push-ups',
         scenario = 'WORLD_HUMAN_PUSH_UPS',
-        train = { strength = 8, stamina = 4 },
+        train = { strength = 3, stamina = 2 },
     },
     yoga = {
         label = 'Yoga Mat',
         scenario = 'WORLD_HUMAN_YOGA',
-        train = { stamina = 10 },
+        train = { stamina = 4 },
     },
     benchpress = {
         label = 'Bench Press',
         scenario = 'WORLD_HUMAN_MUSCLE_FREE_WEIGHTS',
-        train = { strength = 14 },
+        train = { strength = 5 },
     },
     situps = {
         label = 'Sit-ups',
         scenario = 'WORLD_HUMAN_SIT_UPS',
-        train = { strength = 6, stamina = 6 },
+        train = { strength = 2, stamina = 2 },
     },
     punchingbag = {
         label = 'Punching Bag',
         scenario = 'WORLD_HUMAN_MUSCLE_FLEX',
-        train = { strength = 8, shooting = 2 },
+        train = { strength = 3, shooting = 1 },
     },
     stationarybike = {
         label = 'Exercise Bike',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { stamina = 10, running = 4 },
+        train = { stamina = 4, running = 2 },
     },
 }
