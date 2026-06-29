@@ -2,24 +2,25 @@
 
 :root {
     --rme-text: #ffffff;
-    --rme-text-dim: rgba(255, 255, 255, 0.62);
+    --rme-text-dim: rgba(255, 255, 255, 0.78);
     /* Frosted white glass surfaces (NO backdrop-filter -- it renders as a
-       black box in FiveM's CEF; we fake frost with layered white gradients). */
-    --rme-glass: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.07));
-    --rme-glass-hover: linear-gradient(150deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.11));
-    --rme-glass-flat: rgba(255, 255, 255, 0.14);
-    --rme-glass-flat-hover: rgba(255, 255, 255, 0.22);
-    --rme-border: rgba(255, 255, 255, 0.22);
-    --rme-border-strong: rgba(255, 255, 255, 0.42);
-    --rme-border-soft: rgba(255, 255, 255, 0.14);
-    --rme-inset: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+       black box in FiveM's CEF; we fake a denser frost with layered white
+       gradients over a faint dark anchor so white text stays crisp). */
+    --rme-glass: linear-gradient(150deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.14)), rgba(15, 20, 28, 0.22);
+    --rme-glass-hover: linear-gradient(150deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.20)), rgba(15, 20, 28, 0.26);
+    --rme-glass-flat: rgba(255, 255, 255, 0.18);
+    --rme-glass-flat-hover: rgba(255, 255, 255, 0.28);
+    --rme-border: rgba(255, 255, 255, 0.30);
+    --rme-border-strong: rgba(255, 255, 255, 0.52);
+    --rme-border-soft: rgba(255, 255, 255, 0.18);
+    --rme-inset: inset 0 1px 0 rgba(255, 255, 255, 0.45);
     /* Soft pastel accents -- used sparingly for text/low-stat warnings only. */
-    --rme-green-text: #a6ecc6;
-    --rme-amber-text: #ffd6a1;
-    --rme-blue-text: #c8d8ff;
-    --rme-bar: rgba(255, 255, 255, 0.62);
-    --rme-bar-amber: rgba(255, 190, 90, 0.72);
-    --rme-bar-red: rgba(235, 96, 96, 0.78);
+    --rme-green-text: #b7f2d3;
+    --rme-amber-text: #ffdfb0;
+    --rme-blue-text: #d2dfff;
+    --rme-bar: rgba(255, 255, 255, 0.72);
+    --rme-bar-amber: rgba(255, 190, 90, 0.78);
+    --rme-bar-red: rgba(235, 96, 96, 0.82);
     --rme-radius-sm: 12px;
     --font-primary: "Exo 2", sans-serif;
 }
@@ -98,7 +99,7 @@ input {
     padding-right: 4px;
 }
 
-/* Frosted white card -- no backdrop-filter (that caused the black box). */
+/* Frosted white card -- denser milky frost, no backdrop-filter. */
 .vehicle-item {
     background: var(--rme-glass);
     border: 1px solid var(--rme-border);
@@ -108,7 +109,7 @@ input {
     margin-bottom: 12px;
     padding: 14px;
     border-radius: var(--rme-radius-sm);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), var(--rme-inset);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), var(--rme-inset);
     transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -135,22 +136,24 @@ input {
 
 .vehicle-name {
     text-align: left;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 
 .plate {
     text-align: center;
     color: var(--rme-text-dim);
     letter-spacing: 1px;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
 }
 
 .mileage {
     text-align: right;
     color: var(--rme-text-dim);
     font-size: 12px;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
 }
 
 /* Stats / progress bars */
@@ -175,12 +178,13 @@ input {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .progress-bar {
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background-color: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 50px;
     height: 16px;
     overflow: hidden;
@@ -194,7 +198,7 @@ input {
     left: 50%;
     transform: translate(-50%, -50%);
     color: #fff;
-    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.75);
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.85);
     font-weight: 600;
     z-index: 2;
 }
@@ -242,6 +246,7 @@ input {
     letter-spacing: 0.6px;
     background: var(--rme-glass-flat);
     border: 1px solid var(--rme-border-soft);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .finance-info.status-bought {
@@ -269,6 +274,7 @@ input {
     text-transform: uppercase;
     letter-spacing: 0.6px;
     box-shadow: var(--rme-inset);
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
     transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
 }
 
