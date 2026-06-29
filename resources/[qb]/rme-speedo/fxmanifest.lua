@@ -3,11 +3,12 @@ game 'gta5'
 
 author 'RME'
 description 'RME dedicated speedometer (cars + aircraft) + square minimap reposition'
-version '1.3.0'
+version '1.4.0'
 
--- UI page filename intentionally bumped (index.html -> hud.html -> hud2.html) to
--- force the client NUI/CEF to fetch a fresh page (old filenames get cached).
-ui_page 'html/hud2.html'
+-- UI page filename intentionally bumped (index.html -> hud.html -> hud2.html ->
+-- hud3.html) to force the client NUI/CEF to fetch a fresh page (old filenames
+-- get cached).
+ui_page 'html/hud3.html'
 
 client_scripts {
     'client.lua',
@@ -15,5 +16,5 @@ client_scripts {
 }
 
 files {
-    'html/hud2.html'
+    'html/hud3.html'
 }

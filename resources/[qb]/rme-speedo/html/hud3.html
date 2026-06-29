@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Roboto,Arial,sans-serif; }
+  html,body { width:100%; height:100%; overflow:hidden; background:transparent; }
+
+  :root{
+    --mm-left: 1vw;
+    --mm-bottom: 4.5vh;
+    --mm-width: 31vh;
+    --mm-height: 20vh;
+    --accent: #5ad1ff;
+  }
+  #mmfade {
+    position:absolute; left:var(--mm-left); bottom:var(--mm-bottom);
+    width:var(--mm-width); height:var(--mm-height);
+    pointer-events:none; border-radius:14px; display:none;
+  }
+
+  /* Compass centered above the minimap */
+  #rmecompass {
+    position:absolute; left:var(--mm-left); bottom:21vh; width:var(--mm-width);
+    display:none; text-align:center; color:#ffffff;
+    text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+  }
+  #rmecompass.visible { display:block; }
+  #rmecompass .rc-dir { font-size:22px; font-weight:800; letter-spacing:1px; }
+  #rmecompass .rc-deg { font-size:13px; font-weight:600; color:rgba(255,255,255,0.78); margin-left:6px; }
+  #rmecompass .rc-street { font-size:12px; font-weight:600; color:rgba(255,255,255,0.86); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  body.paused #mmfade,
+  body.paused #rmecompass { display:none !important; }
+
+  /* ===================== Speedometer (bottom-right, no background box) ===================== */
+  #speedo {
+    position:absolute; right:18px; bottom:18px; width:224px;
+    color:#fff; opacity:0; transform:translateY(10px) scale(.96);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none; -webkit-font-smoothing:antialiased;
+    text-shadow:0 2px 6px rgba(0,0,0,0.75), 0 0 2px rgba(0,0,0,0.6);
+  }
+  #speedo.visible { opacity:1; transform:translateY(0) scale(1); }
+
+  .gauge { position:relative; width:224px; height:205px; margin:0 auto; }
+  .gauge svg.dial { width:224px; height:205px; display:block; overflow:visible;
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,0.55)); }
+
+  .track    { fill:none; stroke:rgba(255,255,255,0.13); stroke-width:11; stroke-linecap:round; }
+  .ticks    { fill:none; stroke:rgba(255,255,255,0.20); stroke-width:9; stroke-dasharray:1.4 16.6; }
+  .prog     { fill:none; stroke:url(#spdGrad); stroke-width:11; stroke-linecap:round; transition:stroke-dasharray .14s linear; }
+  .sidetrack{ fill:none; stroke:rgba(255,255,255,0.12); stroke-width:8; stroke-linecap:round; }
+  .sidefill { fill:none; stroke-width:8; stroke-linecap:round; transition:stroke-dasharray .3s ease, stroke .3s; }
+
+  .center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .val {
+    font-size:50px; font-weight:800; line-height:1; letter-spacing:-2px;
+    font-variant-numeric:tabular-nums; font-feature-settings:'tnum' 1;
+  }
+  .unit { font-size:10px; font-weight:800; color:rgba(255,255,255,0.66); letter-spacing:3px; margin-top:6px; }
+
+  .gearbadge {
+    position:absolute; left:50%; top:84%; transform:translate(-50%,-50%);
+    min-width:30px; text-align:center;
+    background:rgba(0,0,0,0.30); border:1px solid rgba(90,209,255,0.50);
+    border-radius:9px; padding:2px 11px; font-size:13px; font-weight:800;
+    color:var(--accent); letter-spacing:.5px;
+    box-shadow:0 0 12px rgba(90,209,255,0.20);
+  }
+  .airinfo { position:absolute; left:50%; top:84%; transform:translate(-50%,-50%); text-align:center; white-space:nowrap; display:none; }
+  .albl { font-size:10px; color:rgba(255,255,255,0.62); font-weight:800; letter-spacing:2px; }
+  .aval { font-weight:800; color:var(--accent); font-size:17px; margin-left:5px; font-variant-numeric:tabular-nums; }
+  .aunit { color:rgba(255,255,255,0.62); margin-left:2px; font-size:11px; font-weight:700; }
+
+  .sideicon { position:absolute; top:50%; transform:translateY(-50%); width:15px; height:15px;
+    color:rgba(255,255,255,0.8); transition:color .3s; }
+  #fuelIcon { left:1px; }
+  #dmgIcon  { right:1px; }
+</style>
+</head>
+<body>
+  <div id="mmfade"></div>
+  <div id="rmecompass">
+    <div><span class="rc-dir" id="rcdir">N</span><span class="rc-deg" id="rcdeg">0°</span></div>
+    <div class="rc-street" id="rcstreet"></div>
+  </div>
+
+  <div id="speedo">
+    <div class="gauge">
+      <svg class="dial" viewBox="0 0 240 220">
+        <defs>
+          <linearGradient id="spdGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5ad1ff"/>
+            <stop offset="55%" stop-color="#6ce0c0"/>
+            <stop offset="100%" stop-color="#7cf2a8"/>
+          </linearGradient>
+          <linearGradient id="fuelGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#4ad6a4"/>
+            <stop offset="100%" stop-color="#7cf2a8"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Left side gauge: FUEL -->
+        <circle class="sidetrack" cx="120" cy="110" r="99" transform="rotate(120 120 110)" stroke-dasharray="207.3 622.04"></circle>
+        <circle class="sidefill" id="fuelArc" cx="120" cy="110" r="99" transform="rotate(120 120 110)" stroke-dasharray="0 622.04" stroke="url(#fuelGrad)"></circle>
+
+        <!-- Right side gauge: DAMAGE / CONDITION -->
+        <circle class="sidetrack" cx="120" cy="110" r="99" transform="rotate(300 120 110)" stroke-dasharray="207.3 622.04"></circle>
+        <circle class="sidefill" id="dmgArc" cx="120" cy="110" r="99" transform="rotate(300 120 110)" stroke-dasharray="0 622.04" stroke="#7cf2a8"></circle>
+
+        <!-- Main speed dial -->
+        <circle class="track" cx="120" cy="110" r="80" transform="rotate(135 120 110)" stroke-dasharray="376.99 502.65"></circle>
+        <circle class="ticks" cx="120" cy="110" r="80" transform="rotate(135 120 110)" stroke-dasharray="1.4 16.6"></circle>
+        <circle class="prog" id="prog" cx="120" cy="110" r="80" transform="rotate(135 120 110)" stroke-dasharray="0 502.65"></circle>
+      </svg>
+
+      <div class="center">
+        <div class="val" id="spd">0</div>
+        <div class="unit" id="unit">KM/H</div>
+      </div>
+      <div class="gearbadge" id="gear">N</div>
+      <div class="airinfo" id="airRow">
+        <span class="albl">ALT</span><span class="aval" id="alt">0</span><span class="aunit">m</span>
+      </div>
+
+      <!-- Fuel icon (left) -->
+      <svg class="sideicon" id="fuelIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="15" y1="22" y2="22"></line><line x1="4" x2="14" y1="9" y2="9"></line><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"></path></svg>
+      <!-- Damage / wrench icon (right) -->
+      <svg class="sideicon" id="dmgIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+    </div>
+  </div>
+
+<script>
+  var ARC = 376.99, FULL = 502.65;        // main dial (270deg, r=80)
+  var SIDE_ARC = 207.3, SIDE_FULL = 622.04; // side gauges (120deg, r=99)
+  function el(id){ return document.getElementById(id); }
+  function clamp(lo, hi, v){ return Math.max(lo, Math.min(hi, v)); }
+  function showSpeedo(s){
+    var sp = el('speedo');
+    if (s) { sp.classList.add('visible'); } else { sp.classList.remove('visible'); }
+  }
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.action === 'pause') {
+      if (d.hidden) { document.body.classList.add('paused'); }
+      else { document.body.classList.remove('paused'); }
+      return;
+    }
+    if (d.action === 'compass') {
+      var c = el('rmecompass');
+      c.classList.add('visible');
+      if (d.dir !== undefined) { el('rcdir').textContent = d.dir; }
+      if (d.heading !== undefined) { el('rcdeg').textContent = d.heading + '\u00b0'; }
+      if (d.street !== undefined) { el('rcstreet').textContent = d.street || ''; }
+      return;
+    }
+    if (d.action === 'speedo') { showSpeedo(d.show); return; }
+    if (d.action === 'update') {
+      showSpeedo(true);
+      el('spd').textContent = d.speed;
+      el('unit').textContent = d.unit;
+
+      // Main speed arc
+      var max = d.isAir ? 260 : 180;
+      var frac = clamp(0, 1, (d.speed || 0) / max);
+      el('prog').setAttribute('stroke-dasharray', (frac * ARC).toFixed(1) + ' ' + FULL);
+      var pc = el('prog');
+      if (frac >= 0.86) { pc.style.stroke = '#ff6b6b'; }
+      else if (frac >= 0.62) { pc.style.stroke = '#f5c451'; }
+      else { pc.style.stroke = 'url(#spdGrad)'; }
+
+      // Left arc = fuel
+      var fuel = clamp(0, 100, d.fuel || 0);
+      el('fuelArc').setAttribute('stroke-dasharray', ((fuel / 100) * SIDE_ARC).toFixed(1) + ' ' + SIDE_FULL);
+      el('fuelArc').style.stroke = (fuel <= 20) ? '#ff6b6b' : 'url(#fuelGrad)';
+      el('fuelIcon').style.color = (fuel <= 20) ? '#ff7a7a' : 'rgba(255,255,255,0.8)';
+
+      // Right arc = damage / condition
+      var hp = clamp(0, 100, (d.health === undefined ? 100 : d.health));
+      el('dmgArc').setAttribute('stroke-dasharray', ((hp / 100) * SIDE_ARC).toFixed(1) + ' ' + SIDE_FULL);
+      var dcol = hp > 60 ? '#7cf2a8' : (hp > 30 ? '#f5c451' : '#ff6b6b');
+      el('dmgArc').style.stroke = dcol;
+      el('dmgIcon').style.color = (hp <= 30) ? '#ff7a7a' : 'rgba(255,255,255,0.8)';
+
+      // Gear (ground) vs altitude (air)
+      if (d.isAir) {
+        el('gear').style.display = 'none';
+        el('airRow').style.display = 'block';
+        el('alt').textContent = d.altitude;
+      } else {
+        el('gear').style.display = 'block';
+        el('airRow').style.display = 'none';
+        el('gear').textContent = (d.speed < 2) ? 'N' : ('' + d.gear);
+      }
+    }
+  });
+</script>
+</body>
+</html>

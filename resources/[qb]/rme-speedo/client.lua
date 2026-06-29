@@ -23,6 +23,16 @@ local function getFuel(veh)
     return math.floor(GetVehicleFuelLevel(veh) + 0.5)
 end
 
+-- Combined vehicle condition as a 0-100% value. Uses the worse of body and
+-- engine health so the damage meter reflects a wreck or a blown engine.
+local function getHealth(veh)
+    local bodyH = GetVehicleBodyHealth(veh)   -- 0 .. 1000
+    local engH = GetVehicleEngineHealth(veh)  -- can go negative when on fire
+    local bodyPct = math.max(0, math.min(100, math.floor(bodyH / 10.0 + 0.5)))
+    local engPct = math.max(0, math.min(100, math.floor(engH / 10.0 + 0.5)))
+    return math.min(bodyPct, engPct)
+end
+
 local shown = false
 
 CreateThread(function()
@@ -38,6 +48,7 @@ CreateThread(function()
                 local rpm = GetVehicleCurrentRpm(veh)
                 local gear = GetVehicleCurrentGear(veh)
                 local fuel = getFuel(veh)
+                local health = getHealth(veh)
                 local alt = math.floor(GetEntityCoords(ped).z + 0.5)
                 local heading, dir = getCompass(veh)
                 if not shown then
@@ -51,6 +62,7 @@ CreateThread(function()
                     rpm = rpm,
                     gear = gear,
                     fuel = fuel,
+                    health = health,
                     altitude = alt,
                     isAir = isAir,
                     heading = heading,
