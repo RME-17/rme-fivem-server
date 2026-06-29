@@ -1,10 +1,10 @@
 -- RME Gym (client)
 -- Walk up to a placed gym station, press E, and your character works out -
--- earning skill XP (via rme-playerstats) over time. A valid gym membership is
--- required (bought from the front-desk ped). Admins place stations with
--- /gymadd, the front-desk ped with /gymsetped, and remove unwanted props
--- (e.g. a radio) by looking at them and running /gymremoveprop. Run /gymexport
--- to print your whole build so it can be saved permanently.
+-- earning skill XP (via rme-playerstats) over time. Each set lasts
+-- Config.WorkoutSeconds (default 60s) then auto-stops; press E again to repeat.
+-- A valid gym membership is required (bought from the front-desk ped). Admins
+-- place stations with /gymadd, the front-desk ped with /gymsetped, remove
+-- unwanted props with /gymremoveprop, and snapshot the build with /gymexport.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -256,6 +256,10 @@ local function stopWorkout()
     end)
 end
 
+-- A workout set runs for Config.WorkoutSeconds and then stops on its own. The
+-- proximity loop's help text reappears so the player just presses E to start
+-- another set. No QBCore notifications are shown so nothing pops up on the side
+-- of the screen while training or walking out of the gym.
 local function startWorkout(st)
     if working then return end
     local def = Config.Stations[st.kind]
@@ -264,12 +268,12 @@ local function startWorkout(st)
     local ped = PlayerPedId()
     if st.h then SetEntityHeading(ped, st.h + 0.0) end
     TaskStartScenarioInPlace(ped, def.scenario, 0, true)
-    notify('Workout started - press ~INPUT_PICKUP~ (E) to stop', 'primary')
 
     CreateThread(function()
         local started = GetGameTimer()
         local sinceTick = 0.0
         local origin = vector3(st.x, st.y, st.z)
+        local maxMs = (Config.WorkoutSeconds or 60) * 1000
         while working do
             Wait(0)
             local p = PlayerPedId()
@@ -280,17 +284,16 @@ local function startWorkout(st)
                 for skill, amt in pairs(def.train) do
                     exports['rme-playerstats']:train(skill, amt)
                 end
-                notify(def.label .. ' workout - keep going!', 'success')
             end
 
             local elapsed = GetGameTimer() - started
+            if elapsed >= maxMs then break end
             if elapsed > 700 and IsControlJustReleased(0, 38) then break end
             if IsEntityDead(p) then break end
             if IsPedShooting(p) then break end
             if #(GetEntityCoords(p) - origin) > 2.5 then break end
         end
         stopWorkout()
-        notify('Workout finished', 'primary')
     end)
 end
 

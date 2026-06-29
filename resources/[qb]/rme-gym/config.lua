@@ -4,6 +4,7 @@ Config = {}
 Config.MarkerDistance = 8.0  -- how close before the floor marker shows
 Config.UseDistance    = 1.4  -- how close before you can press E to use it
 Config.TickMs         = 2000 -- grant XP every this many ms while working out
+Config.WorkoutSeconds = 60   -- each workout auto-stops after this many seconds; press E to start another set
 
 -- ---------------------------------------------------------------------------
 -- Gym membership: players must buy a pass before they can use any station.
