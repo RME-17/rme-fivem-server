@@ -26,9 +26,24 @@ Config.Xp = {
 Config.Perks = {
     maxRunBonus    = 0.49, -- +49% sprint speed at max Running level
     maxSwimBonus   = 0.49, -- +49% swim speed at max Swimming level
-    staminaRestore = 0.60, -- max stamina restored per tick at max Stamina level
-                           -- (squared curve, so low levels barely help)
     maxMeleeBonus  = 1.00, -- +100% melee damage at max Strength level
+}
+
+-- Stamina perk: how long your (boosted) run/swim speed lasts before you tire.
+-- While sprinting or swimming we restore a little stamina every 0.4s, scaled by
+-- your Stamina LEVEL:
+--   * Level 1 (untrained): restores nothing - you tire at the normal rate.
+--   * It ramps up linearly with level, so each level holds the speed longer.
+--   * At `fullLevel` (and above) the top-up matches the drain, so sprint is
+--     effectively endless.
+-- Quick tuning:
+--   * Want Lv3/Lv4 to last EVEN longer        -> lower fullLevel (e.g. 5 or 4)
+--   * Want endless sprint gated to a higher lvl -> raise fullLevel (e.g. 10)
+--   * Even max stamina still runs out too soon -> raise maxRestore (e.g. 0.09)
+--   * Sprint feels infinite too early          -> lower maxRestore (e.g. 0.05)
+Config.Stamina = {
+    fullLevel  = 6,    -- Stamina level at which sprint becomes effectively endless
+    maxRestore = 0.07, -- stamina restored per 0.4s tick at fullLevel and above
 }
 
 -- Inactivity decay: skill stats slowly regress the longer a player is away.

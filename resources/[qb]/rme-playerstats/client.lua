@@ -130,17 +130,24 @@ CreateThread(function()
     end
 end)
 
--- Stamina perk: while sprinting (or swimming) top up stamina based on Stamina
--- level, using a SQUARED curve so it is negligible at low level (you tire
--- normally) and only becomes meaningful at high level. Only ever ADDS stamina.
+-- Stamina perk: while sprinting (or swimming) top up stamina based on your
+-- Stamina LEVEL so the boosted speed lasts longer before you tire. The restore
+-- ramps linearly from 0 at level 1 (you tire at the normal rate - keeps the old
+-- 'sprint forever at low level' bug fixed) up to Config.Stamina.maxRestore at
+-- Config.Stamina.fullLevel and above (sprint effectively endless). Only ever
+-- ADDS stamina, never reduces it.
 CreateThread(function()
     while true do
         Wait(400)
         if Stats then
             local ped = PlayerPedId()
             if IsPedSprinting(ped) or IsPedSwimming(ped) then
-                local lf = math.min((levelInfo(skillXp().stamina)), Config.MaxLevel) / Config.MaxLevel
-                local restore = lf * lf * Config.Perks.staminaRestore
+                local lvl = (levelInfo(skillXp().stamina))
+                local full = Config.Stamina.fullLevel or 6
+                local t = 0.0
+                if full > 1 then t = (lvl - 1) / (full - 1) end
+                if t < 0.0 then t = 0.0 elseif t > 1.0 then t = 1.0 end
+                local restore = t * (Config.Stamina.maxRestore or 0.07)
                 if perkTestMax then restore = 1.0 end
                 if restore > 0.0 then RestorePlayerStamina(PlayerId(), restore) end
             end
