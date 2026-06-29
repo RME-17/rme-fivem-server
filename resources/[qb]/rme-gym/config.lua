@@ -37,7 +37,7 @@ Config.WeightProps = {
 -- Workout station types. Each placed station references one of these by key.
 -- `scenario` is the GTA ambient animation played while working out (purely
 -- cosmetic - the XP is granted regardless). `train` is the skill XP granted per
--- tick (every Config.TickMs), and can train more than one skill at once.
+-- tick (every Config.TickMs). Each station trains exactly ONE stat.
 --
 -- Trainable skills: running, swimming, shooting, driving, flying, stamina, strength
 --
@@ -51,7 +51,7 @@ Config.Stations = {
     treadmill = {
         label = 'Treadmill',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { running = 1, stamina = 1 },
+        train = { running = 1 },
     },
     freeweights = {
         label = 'Free Weights',
@@ -61,7 +61,7 @@ Config.Stations = {
     pushups = {
         label = 'Push-ups',
         scenario = 'WORLD_HUMAN_PUSH_UPS',
-        train = { strength = 1, stamina = 1 },
+        train = { strength = 1 },
     },
     yoga = {
         label = 'Yoga Mat',
@@ -76,16 +76,16 @@ Config.Stations = {
     situps = {
         label = 'Sit-ups',
         scenario = 'WORLD_HUMAN_SIT_UPS',
-        train = { strength = 1, stamina = 1 },
+        train = { stamina = 1 },
     },
     punchingbag = {
         label = 'Punching Bag',
         scenario = 'WORLD_HUMAN_MUSCLE_FLEX',
-        train = { strength = 1, shooting = 1 },
+        train = { strength = 1 },
     },
     stationarybike = {
         label = 'Exercise Bike',
         scenario = 'WORLD_HUMAN_JOG_STANDING',
-        train = { stamina = 1, running = 1 },
+        train = { running = 1 },
     },
 }
