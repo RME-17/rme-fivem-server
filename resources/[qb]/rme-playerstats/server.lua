@@ -15,6 +15,9 @@ local function defaultStats()
         shots_fired = 0, shots_hit = 0,
         kills = 0, deaths = 0,
         playtime = 0,
+        -- Bonus XP granted by external training (e.g. the gym).
+        bonus_running = 0, bonus_swimming = 0, bonus_shooting = 0,
+        bonus_driving = 0, bonus_flying = 0, bonus_stamina = 0, bonus_strength = 0,
     }
 end
 
@@ -31,7 +34,7 @@ AddEventHandler('onResourceStart', function(res)
     if res == GetCurrentResourceName() then ensureTable() end
 end)
 
-local function applyDecay(cid, stats, elapsedSeconds)
+local function applyDecay(stats, elapsedSeconds)
     local elapsedDays = (tonumber(elapsedSeconds) or 0) / 86400.0
     if elapsedDays <= Config.Decay.graceDays then return false end
     local decayDays = elapsedDays - Config.Decay.graceDays
@@ -55,9 +58,7 @@ local function loadStats(cid)
                 if n and n >= 0 then stats[k] = n end
             end
         end
-        -- Regress skill stats for time spent away, then persist (which also
-        -- refreshes `updated`, resetting the decay clock).
-        if applyDecay(cid, stats, row.elapsed) then
+        if applyDecay(stats, row.elapsed) then
             MySQL.update('UPDATE player_stats SET stats = ? WHERE citizenid = ?', { json.encode(stats), cid })
         end
     else

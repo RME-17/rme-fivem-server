@@ -22,12 +22,13 @@ Config.Xp = {
 }
 
 -- Gameplay perks granted by skill level. Engine caps the run/swim multipliers
--- at ~1.49, so these are the bonus on top of 1.0 at max level.
+-- at ~1.49, so those are the bonus on top of 1.0 at max level.
 Config.Perks = {
     maxRunBonus    = 0.49, -- +49% sprint speed at max Running level
     maxSwimBonus   = 0.49, -- +49% swim speed at max Swimming level
     staminaRestore = 0.60, -- max stamina restored per tick at max Stamina level
-                           -- (uses a squared curve, so low levels barely help)
+                           -- (squared curve, so low levels barely help)
+    maxMeleeBonus  = 1.00, -- +100% melee damage at max Strength level
 }
 
 -- Inactivity decay: skill stats slowly regress the longer a player is away.
@@ -38,9 +39,11 @@ Config.Decay = {
     perDay    = 0.04, -- ~4% lost per day of inactivity (a week away ~= -22%)
     graceDays = 1.0,  -- no decay for the first day away
     floor     = 0.10, -- never drop below 10% of accumulated progress
-    keys = {          -- which counters regress (skill-driving stats)
+    keys = {          -- which counters regress (skill-driving stats + training)
         'run_distance', 'sprint_distance', 'swim_distance',
         'drive_distance', 'fly_distance',
         'shots_fired', 'shots_hit', 'kills',
+        'bonus_running', 'bonus_swimming', 'bonus_shooting',
+        'bonus_driving', 'bonus_flying', 'bonus_stamina', 'bonus_strength',
     },
 }

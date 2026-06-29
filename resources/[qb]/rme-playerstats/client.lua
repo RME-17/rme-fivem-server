@@ -4,8 +4,12 @@
 --   * Running level  -> faster sprint speed
 --   * Swimming level -> faster swim speed
 --   * Stamina level  -> how long you keep that boosted speed before tiring
+--   * Strength level -> more melee damage
 -- Press END to open/close the panel. Stats persist per character (citizenid)
 -- and slowly regress while a player is away (handled server-side).
+--
+-- Other resources (e.g. the gym) can grant skill XP via:
+--   exports['rme-playerstats']:train('strength', 10)
 --
 -- The panel is a display-only overlay (it does NOT grab input focus), so it can
 -- never trap the player - END always toggles it.
@@ -15,10 +19,15 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local Stats = nil      -- live stat table for the current character
 local statsOpen = false
 
--- Cached perk multipliers (re-asserted every frame so other resources cannot
+-- Cached perk values (re-asserted every frame so other resources cannot
 -- silently override them).
-local curRunMult, curSwimMult = 1.0, 1.0
+local curRunMult, curSwimMult, curMeleeMult = 1.0, 1.0, 1.0
 local perkTestMax = false -- /statsmaxtest toggles a temporary max-perk preview
+
+local validSkills = {
+    running = true, swimming = true, shooting = true, driving = true,
+    flying = true, stamina = true, strength = true,
+}
 
 -- ---------- helpers ----------
 local function comma(n)
@@ -62,23 +71,24 @@ local function levelInfo(xp)
     return level, pct
 end
 
--- Raw XP for each skill, derived from the stored activity counters.
+-- Raw XP for each skill, derived from the stored activity counters + any bonus
+-- XP earned through training (gym, etc.).
 local function skillXp()
     local s = Stats or {}
     return {
-        running  = (s.sprint_distance or 0) * Config.Xp.sprintPerMeter + (s.run_distance or 0) * Config.Xp.joggPerMeter,
-        swimming = (s.swim_distance or 0) * Config.Xp.swimPerMeter,
-        shooting = (s.shots_hit or 0) * Config.Xp.hit, -- only hits earn XP, so accuracy matters
-        driving  = (s.drive_distance or 0) * Config.Xp.drivePerMeter,
-        flying   = (s.fly_distance or 0) * Config.Xp.flyPerMeter,
-        stamina  = (s.sprint_distance or 0) * Config.Xp.staminaSprint + (s.swim_distance or 0) * Config.Xp.staminaSwim,
-        strength = (s.kills or 0) * Config.Xp.kill,
+        running  = (s.sprint_distance or 0) * Config.Xp.sprintPerMeter + (s.run_distance or 0) * Config.Xp.joggPerMeter + (s.bonus_running or 0),
+        swimming = (s.swim_distance or 0) * Config.Xp.swimPerMeter + (s.bonus_swimming or 0),
+        shooting = (s.shots_hit or 0) * Config.Xp.hit + (s.bonus_shooting or 0),
+        driving  = (s.drive_distance or 0) * Config.Xp.drivePerMeter + (s.bonus_driving or 0),
+        flying   = (s.fly_distance or 0) * Config.Xp.flyPerMeter + (s.bonus_flying or 0),
+        stamina  = (s.sprint_distance or 0) * Config.Xp.staminaSprint + (s.swim_distance or 0) * Config.Xp.staminaSwim + (s.bonus_stamina or 0),
+        strength = (s.kills or 0) * Config.Xp.kill + (s.bonus_strength or 0),
     }
 end
 
 -- ---------- gameplay perks ----------
--- Front-loaded curve (sqrt) for run/swim speed so early levels give a noticeable
--- boost and it ramps to the full bonus at max level. Returns a 0..1 factor.
+-- Front-loaded curve (sqrt) so early levels give a noticeable boost and it ramps
+-- to the full bonus at max level. Returns a 0..1 factor.
 local function perkFactor(level)
     local f = math.sqrt(math.min(level, Config.MaxLevel) / Config.MaxLevel)
     if f < 0 then f = 0 elseif f > 1 then f = 1 end
@@ -87,15 +97,17 @@ end
 
 local function recomputePerks()
     if not Stats then
-        curRunMult, curSwimMult = 1.0, 1.0
+        curRunMult, curSwimMult, curMeleeMult = 1.0, 1.0, 1.0
         return
     end
     local xp = skillXp()
     local rf = perkFactor((levelInfo(xp.running)))
     local sf = perkFactor((levelInfo(xp.swimming)))
-    if perkTestMax then rf, sf = 1.0, 1.0 end
+    local stf = perkFactor((levelInfo(xp.strength)))
+    if perkTestMax then rf, sf, stf = 1.0, 1.0, 1.0 end
     curRunMult = 1.0 + rf * Config.Perks.maxRunBonus
     curSwimMult = 1.0 + sf * Config.Perks.maxSwimBonus
+    curMeleeMult = 1.0 + stf * Config.Perks.maxMeleeBonus
 end
 
 AddEventHandler('playerSpawned', function()
@@ -103,14 +115,14 @@ AddEventHandler('playerSpawned', function()
     recomputePerks()
 end)
 
--- Re-assert the run/swim multipliers every frame so they always win over other
--- movement scripts. Values are cached, so this loop is cheap.
+-- Re-assert the perks every frame so they always win over other scripts.
 CreateThread(function()
     while true do
         if Stats then
             local pid = PlayerId()
             SetRunSprintMultiplierForPlayer(pid, curRunMult)
             SetSwimMultiplierForPlayer(pid, curSwimMult)
+            SetPlayerMeleeWeaponDamageModifier(pid, curMeleeMult)
             Wait(0)
         else
             Wait(500)
@@ -120,15 +132,14 @@ end)
 
 -- Stamina perk: while sprinting (or swimming) top up stamina based on Stamina
 -- level, using a SQUARED curve so it is negligible at low level (you tire
--- normally) and only becomes meaningful at high level. It only ever ADDS
--- stamina, never removes it.
+-- normally) and only becomes meaningful at high level. Only ever ADDS stamina.
 CreateThread(function()
     while true do
         Wait(400)
         if Stats then
             local ped = PlayerPedId()
             if IsPedSprinting(ped) or IsPedSwimming(ped) then
-                local lf = math.min((levelInfo(skillXp().stamina)), Config.MaxLevel) / Config.MaxLevel -- linear 0..1
+                local lf = math.min((levelInfo(skillXp().stamina)), Config.MaxLevel) / Config.MaxLevel
                 local restore = lf * lf * Config.Perks.staminaRestore
                 if perkTestMax then restore = 1.0 end
                 if restore > 0.0 then RestorePlayerStamina(PlayerId(), restore) end
@@ -158,7 +169,7 @@ end)
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     saveStats()
     Stats = nil
-    curRunMult, curSwimMult = 1.0, 1.0
+    curRunMult, curSwimMult, curMeleeMult = 1.0, 1.0, 1.0
 end)
 
 AddEventHandler('onResourceStart', function(res)
@@ -170,7 +181,6 @@ AddEventHandler('onResourceStop', function(res)
     if res == GetCurrentResourceName() then saveStats() end
 end)
 
--- Auto-save on an interval.
 CreateThread(function()
     while true do
         Wait(Config.SaveInterval * 1000)
@@ -178,9 +188,26 @@ CreateThread(function()
     end
 end)
 
+-- External training hook: other resources grant skill XP through this.
+exports('train', function(skill, amount)
+    if not Stats then return false end
+    if not skill or not validSkills[skill] then return false end
+    amount = tonumber(amount) or 0
+    if amount <= 0 then return false end
+    local key = 'bonus_' .. skill
+    Stats[key] = (Stats[key] or 0) + amount
+    recomputePerks()
+    return true
+end)
+
+-- Read-only access to current level of a skill (handy for other resources).
+exports('getLevel', function(skill)
+    if not Stats or not skill or not validSkills[skill] then return 0 end
+    local lvl = levelInfo(skillXp()[skill])
+    return lvl
+end)
+
 -- ---------- activity tracking ----------
--- Distance-based: measure how far the ped moves each tick and bucket that
--- distance by what they were doing (swimming / driving / flying / on foot).
 CreateThread(function()
     local last = GetEntityCoords(PlayerPedId())
     local wasDead = false
@@ -194,13 +221,11 @@ CreateThread(function()
 
             Stats.playtime = (Stats.playtime or 0) + 0.5
 
-            -- Ignore tiny jitter and large teleports/respawns.
             if d > 0.05 and d < 120.0 then
                 if IsPedSwimming(ped) then
                     Stats.swim_distance = (Stats.swim_distance or 0) + d
                 elseif IsPedInAnyVehicle(ped, false) then
                     local veh = GetVehiclePedIsIn(ped, false)
-                    -- Only count distance when WE are the driver.
                     if veh ~= 0 and GetPedInVehicleSeat(veh, -1) == ped then
                         local class = GetVehicleClass(veh)
                         if (class == 15 or class == 16) and IsEntityInAir(veh) then
@@ -218,18 +243,16 @@ CreateThread(function()
                 end
             end
 
-            -- Death counter (rising edge). Still tracked internally; not shown.
             local dead = IsEntityDead(ped)
             if dead and not wasDead then Stats.deaths = (Stats.deaths or 0) + 1 end
             wasDead = dead
 
-            -- Keep perks in sync as levels change.
             recomputePerks()
         end
     end
 end)
 
--- Shots fired: count how much the clip drops while actively shooting.
+-- Shots fired: count clip drops while actively shooting.
 CreateThread(function()
     local lastClip = nil
     while true do
@@ -248,9 +271,7 @@ CreateThread(function()
     end
 end)
 
--- Hits & kills: when the local player damages a ped, count a hit; if that ped
--- dies shortly after, count a kill. Death is verified directly so we do not rely
--- on fragile damage-event argument indices.
+-- Hits & kills via the local player damaging peds.
 local countedDeaths = {}
 AddEventHandler('gameEventTriggered', function(event, data)
     if event ~= 'CEventNetworkEntityDamage' then return end
@@ -279,7 +300,6 @@ AddEventHandler('gameEventTriggered', function(event, data)
     end)
 end)
 
--- Periodically clear the dead-entity guard (entity handles get reused).
 CreateThread(function()
     while true do
         Wait(300000)
@@ -339,27 +359,22 @@ RegisterCommand('rme_playerstats_toggle', function()
 end, false)
 RegisterKeyMapping('rme_playerstats_toggle', 'Open / close Player Stats panel', 'keyboard', 'END')
 
--- Chat fallback in case the key is unbound: /mystats
 RegisterCommand('mystats', function()
     if statsOpen then closeStats() else openStats() end
 end, false)
 
 -- ---------- debug / test ----------
--- Toggle a TEMPORARY max-perk preview (not saved) so you can feel the maxed
--- run/swim speed + endless stamina right away to confirm the perks work.
 RegisterCommand('statsmaxtest', function()
     perkTestMax = not perkTestMax
     recomputePerks()
-    TriggerEvent('QBCore:Notify', perkTestMax and 'Perk TEST: MAX run/swim/stamina ON' or 'Perk TEST: off (back to your real level)', 'primary')
+    TriggerEvent('QBCore:Notify', perkTestMax and 'Perk TEST: MAX run/swim/stamina/strength ON' or 'Perk TEST: off (back to your real level)', 'primary')
 end, false)
 
--- Print the multipliers currently being applied.
 RegisterCommand('statsperk', function()
     recomputePerks()
-    TriggerEvent('QBCore:Notify', string.format('Sprint x%.2f  |  Swim x%.2f', curRunMult, curSwimMult), 'primary')
+    TriggerEvent('QBCore:Notify', string.format('Sprint x%.2f  |  Swim x%.2f  |  Melee x%.2f', curRunMult, curSwimMult, curMeleeMult), 'primary')
 end, false)
 
--- Refresh the panel live while it is open.
 CreateThread(function()
     while true do
         Wait(2000)
