@@ -61,6 +61,10 @@
                     </div>
                     <div class="action-panel" v-if="isOtherInventoryEmpty">
                         <div class="action-panel-title">Actions</div>
+                        <div class="action-amount" :class="{ disabled: !selectedItemData }">
+                            <input type="number" v-model="transferAmount" min="1" :max="selectedItemData ? selectedItemData.amount : null" :placeholder="(transferAmount === null || transferAmount === '') ? 'Amount' : ''" :disabled="!selectedItemData" />
+                            <button class="action-amount-clear" @click="clearTransferAmount" title="Reset to 1"><i class="fas fa-times"></i></button>
+                        </div>
                         <div class="action-btn" :class="{ disabled: !selectedItemData }" @click="useSelected"><i class="fas fa-hand-pointer"></i><span>Use</span></div>
                         <div class="action-btn" :class="{ disabled: !selectedItemData }" @click="giveSelected"><i class="fas fa-hand-holding-heart"></i><span>Give</span></div>
                         <div class="action-btn" :class="{ disabled: !selectedItemData }" @click="dropSelected"><i class="fas fa-arrow-down"></i><span>Drop</span></div>

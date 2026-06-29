@@ -350,6 +350,64 @@ div {
     padding: 2px 0 4px;
 }
 
+/* Amount field in the action panel (Give / Drop use this quantity) */
+.action-amount {
+    display: flex;
+    align-items: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-small);
+    box-shadow: var(--elevation-1);
+    padding: 0 6px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.action-amount:focus-within {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+}
+
+.action-amount.disabled {
+    opacity: 0.4;
+}
+
+.action-amount input {
+    border: none;
+    background: transparent;
+    color: var(--on-surface);
+    font-size: 1.3vh;
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    width: 100%;
+    outline: none;
+    text-align: center;
+    padding: 1.3vh 2px;
+    -moz-appearance: textfield;
+}
+
+.action-amount input::-webkit-outer-spin-button,
+.action-amount input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.action-amount input::placeholder {
+    color: var(--on-surface-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1vh;
+    font-weight: var(--font-weight-bold);
+}
+
+.action-amount-clear {
+    background: transparent;
+    border: none;
+    color: var(--on-surface-dim);
+    cursor: pointer;
+    padding: 0 2px;
+    font-size: 1.1vh;
+}
+
 .action-btn {
     display: flex;
     align-items: center;

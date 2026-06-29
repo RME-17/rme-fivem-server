@@ -206,6 +206,15 @@ const InventoryContainer = Vue.createApp({
         clearTransferAmount() {
             this.transferAmount = null;
         },
+        // Resolve the amount used by the side ACTIONS panel (Give / Drop). The
+        // Amount field is bound to transferAmount as a string, so coerce it to a
+        // positive integer and never exceed what the player actually has.
+        getActionAmount(item) {
+            let amt = parseInt(this.transferAmount, 10);
+            if (isNaN(amt) || amt < 1) amt = 1;
+            if (item && item.amount && amt > item.amount) amt = item.amount;
+            return amt;
+        },
         getItemInSlot(slot, inventoryType) {
             if (inventoryType === "player") {
                 return this.playerInventory[slot] || null;
@@ -232,13 +241,13 @@ const InventoryContainer = Vue.createApp({
         giveSelected() {
             const item = this.selectedItemData;
             if (!item) return;
-            this.giveItem(item, this.transferAmount || 1);
+            this.giveItem(item, this.getActionAmount(item));
             this.selectedSlot = null;
         },
         dropSelected() {
             const item = this.selectedItemData;
             if (!item) return;
-            this.dropItem(item, this.transferAmount || 1);
+            this.dropItem(item, this.getActionAmount(item));
             this.selectedSlot = null;
         },
         splitSelected() {
