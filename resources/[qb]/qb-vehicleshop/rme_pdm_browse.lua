@@ -38,13 +38,20 @@ local mloMusicRadius = 23.0
 -- the player leaves. Toggling an emitter that does not exist is a harmless no-op,
 -- so listing extra safe candidates just widens the net.
 --
--- IMPORTANT: if your PDM music is baked into an ENCRYPTED (escrow) MLO such as
--- energy_redlinemlo, its emitter name is not in any public GTA dump. Stand in the
--- showroom and use the  /pdmemitter <NAME>  command (added below) to test names
--- live: the moment the music stops, that is the emitter. Then paste it into this
--- list so it is muted automatically for everyone. Ask the MLO author (Energy Shop)
--- for the exact static emitter name if you cannot find it by testing.
+-- CONFIRMED: the PDM showroom (v_carshowroom interior) radio is the vanilla GTA
+-- static emitter  collision_8onfnzt  at (-44.73, -1097.77, 27.0), which plays the
+-- RADIO_15_MOTOWN station. That position is dead-center of the PDM, so this is the
+-- "stock radio" that was playing on top of our track. It is listed first below and
+-- is killed automatically. The name is a hashed "collision_*" string (NOT a
+-- "showroom"-style name), which is why the earlier SE_carshowroom / showroom
+-- guesses did nothing. Source: GTA static-emitter dump, v_carshowroom entry.
+--
+-- To test a NEW emitter live in future, stand in the showroom and run
+--   /pdmemitter <NAME>  (added below): the moment the music stops, that is the
+-- emitter. Then paste it into this list to mute it automatically for everyone.
 local stockEmitters = {
+    -- >>> CONFIRMED PDM showroom radio emitter (the one you were hearing) <<<
+    'collision_8onfnzt',
     -- Standard / DLC garages and mod shops
     'SE_MP_GARAGE_L_RADIO', 'SE_MP_GARAGE_M_RADIO', 'SE_MP_GARAGE_S_RADIO',
     'DLC_IE_Office_Garage_Radio_01', 'DLC_IE_Office_Garage_Mod_Shop_Radio_01',
@@ -53,7 +60,7 @@ local stockEmitters = {
     'SE_DLC_AW_Arena_Garage_Radio_01',
     'se_tr_tuner_car_meet_Meet_rm_Music_01', 'se_tr_tuner_car_meet_sandbox_music_01',
     'dlc_tuner_meet_building_engines',
-    -- Best-effort Simeon / car-showroom / dealership candidates
+    -- Best-effort Simeon / car-showroom / dealership candidates (safety net)
     'SE_carshowroom', 'LOS_SANTOS_CAR_SHOWROOM', 'SE_CARSHOWROOM_RADIO',
 }
 
