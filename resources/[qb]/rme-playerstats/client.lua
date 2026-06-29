@@ -201,21 +201,35 @@ CreateThread(function()
 end)
 
 -- 'Use it or lose it' decay - applied ONLY while the player is actively in the
--- city (Stats loaded = connected + spawned). Each slice trims a small fraction
--- off every skill-driving counter so levels gradually trend down unless the
--- player keeps training. Time spent offline / away never decays anything (the
--- server does not decay on load), so this is purely active-play based.
+-- city (Stats loaded = connected + spawned). Every skill bleeds down a little
+-- each tick (none are exempt), so neglected skills visibly fall while skills you
+-- actively grind still climb because your training out-earns the drain. Time
+-- spent offline / away never decays anything (the server does not decay on
+-- load), so this is purely active-play based.
+--
+-- Higher levels are REWARDED with a slower bleed: each skill's drain rate is
+-- scaled by Config.Decay.levelResistance[level], so a Lv5 skill loses progress
+-- much more slowly than a Lv1-2 skill. Each raw counter is decayed at the rate
+-- of the skill that owns it (Config.Decay.skillKeys).
 CreateThread(function()
     while true do
-        local interval = (Config.Decay and Config.Decay.intervalSeconds) or 60
+        local interval = (Config.Decay and Config.Decay.intervalSeconds) or 30
         Wait(interval * 1000)
         if Stats and Config.Decay and Config.Decay.enabled and (Config.Decay.perActiveHour or 0) > 0 then
-            local frac = Config.Decay.perActiveHour * (interval / 3600.0)
-            local factor = 1.0 - frac
-            if factor < 0.0 then factor = 0.0 end
-            for _, k in ipairs(Config.Decay.keys or {}) do
-                local v = tonumber(Stats[k])
-                if v and v > 0 then Stats[k] = v * factor end
+            local xp = skillXp()
+            local res = Config.Decay.levelResistance or {}
+            local skillKeys = Config.Decay.skillKeys or {}
+            for skill, keys in pairs(skillKeys) do
+                local lvl = (levelInfo(xp[skill] or 0))
+                local mult = res[lvl]
+                if mult == nil then mult = 1.0 end
+                local frac = Config.Decay.perActiveHour * (interval / 3600.0) * mult
+                local factor = 1.0 - frac
+                if factor < 0.0 then factor = 0.0 end
+                for _, k in ipairs(keys) do
+                    local v = tonumber(Stats[k])
+                    if v and v > 0 then Stats[k] = v * factor end
+                end
             end
             recomputePerks()
         end

@@ -58,20 +58,38 @@ Config.Stamina = {
 -- This drains EVERY skill, including ones you are actively using - none are
 -- exempt. The bleed is always ticking, so a skill you neglect visibly falls,
 -- while a skill you actively grind still climbs (your training simply has to
--- out-earn the drain). At perActiveHour = 0.10 a fully maxed but neglected
--- skill loses ~10% of its progress per hour of in-city play.
---   * Want stats to fall faster   -> raise perActiveHour (e.g. 0.20 = 20%/hr)
---   * Want them to fall slower     -> lower perActiveHour (e.g. 0.05 = 5%/hr)
---   * Smoother / choppier ticking  -> lower / raise intervalSeconds
+-- out-earn the drain).
+--
+-- Higher levels are REWARDED with a slower bleed. Each skill's drain rate is
+-- multiplied by levelResistance[currentLevel], so hitting Lv5 makes that skill
+-- decay much more slowly than a low-level one. At perActiveHour = 0.10 the
+-- effective rates are roughly:
+--   Lv1 ~10%/hr | Lv2 ~8.5%/hr | Lv3 ~6.5%/hr | Lv4 ~4.5%/hr | Lv5 ~2.5%/hr
+-- Tuning:
+--   * Faster / slower overall  -> raise / lower perActiveHour
+--   * Reward Lv5 even more      -> lower levelResistance[5] (e.g. 0.10)
+--   * Smoother / choppier tick  -> lower / raise intervalSeconds
 Config.Decay = {
     enabled         = true,
-    perActiveHour   = 0.10, -- fraction of progress lost per HOUR actively in the city (~10%/hr)
+    perActiveHour   = 0.10, -- base fraction of progress lost per HOUR active (before level resistance)
     intervalSeconds = 30,   -- apply a slice of the decay this often while active
-    keys = {                -- which counters regress (skill-driving stats + training)
-        'run_distance', 'sprint_distance', 'swim_distance',
-        'drive_distance', 'fly_distance',
-        'shots_fired', 'shots_hit', 'kills',
-        'bonus_running', 'bonus_swimming', 'bonus_shooting',
-        'bonus_driving', 'bonus_flying', 'bonus_stamina', 'bonus_strength',
+    -- Per-level drain multiplier (1.0 = full rate). Higher level = slower bleed.
+    levelResistance = {
+        [1] = 1.00,
+        [2] = 0.85,
+        [3] = 0.65,
+        [4] = 0.45,
+        [5] = 0.25, -- Lv5 reward: drains at only a quarter of the base rate
+    },
+    -- Which raw counters belong to each skill; each is decayed at that skill's
+    -- own level-resisted rate.
+    skillKeys = {
+        running  = { 'run_distance', 'sprint_distance', 'bonus_running' },
+        swimming = { 'swim_distance', 'bonus_swimming' },
+        shooting = { 'shots_fired', 'shots_hit', 'bonus_shooting' },
+        driving  = { 'drive_distance', 'bonus_driving' },
+        flying   = { 'fly_distance', 'bonus_flying' },
+        stamina  = { 'bonus_stamina' },
+        strength = { 'kills', 'bonus_strength' },
     },
 }
