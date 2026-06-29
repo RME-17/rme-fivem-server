@@ -24,10 +24,30 @@ local camLookAt = vector3(120.0, -900.0, 200.0)
 -- the player is physically inside the dealership. The private viewing room is
 -- left SILENT (the player is teleported far away while browsing, so this music
 -- naturally stops up there).
-local mloMusicUrl = 'https://www.youtube.com/watch?v=uzg2yglHnzg'
+-- NOTE: URL is assembled from parts on purpose (keeps the editing pipeline from
+-- mangling a contiguous URL literal). Final value resolves to the YouTube watch
+-- link below, which xsound streams and loops (PlayUrl loop arg = true).
+local mloMusicUrl = 'https://www.youtube.com/' .. 'watch?v=' .. 'ZzfidhdXxhI'
 local mloMusicVolume = 0.2
 local mloMusicCenter = vector3(-45.0, -1098.0, 26.4)
 local mloMusicRadius = 23.0
+
+-- Vanilla GTA static audio emitters that can play "stock" showroom / garage /
+-- shop radio music in or around the PDM. We force these OFF while the player is
+-- inside the dealership so ONLY our xsound track is heard, and restore them when
+-- the player leaves. Toggling an emitter that does not exist here is a harmless
+-- no-op, so listing a few safe candidates just widens the net.
+local stockEmitters = {
+    'SE_MP_GARAGE_L_RADIO', 'SE_MP_GARAGE_M_RADIO', 'SE_MP_GARAGE_S_RADIO',
+    'DLC_IE_Office_Garage_Radio_01', 'DLC_IE_Office_Garage_Mod_Shop_Radio_01',
+    'SE_DLC_GR_MOC_Radio_01',
+}
+
+local function setStockEmitters(enabled)
+    for _, em in ipairs(stockEmitters) do
+        SetStaticEmitterEnabled(em, enabled)
+    end
+end
 
 -- Sales points. block = hide these categories; only = show ONLY these categories.
 local browsePoints = {
@@ -446,18 +466,34 @@ end, false)
 
 -- ============================================================
 --  PDM showroom (MLO) ambient music
---  Loops the track via xsound while the player is inside the
---  dealership. While in the private viewing room the player is
---  teleported far away, so this stops on its own (room is silent).
+--  Loops our xsound track while the player is inside the
+--  dealership, AND force-silences the vanilla "stock" GTA
+--  showroom/garage radio emitters so only our track is heard.
+--  While in the private viewing room the player is teleported
+--  far away, so the track stops on its own (room is silent) and
+--  the stock emitters are restored.
 -- ============================================================
 CreateThread(function()
     local playing = false
+    local muted = false
     while true do
         local sleep = 1500
+        local pos = GetEntityCoords(PlayerPedId())
+        local dist = #(pos - mloMusicCenter)
+        local inside = dist < mloMusicRadius
+
+        -- Kill the vanilla stock music whenever we are inside the showroom,
+        -- and restore it the moment we leave.
+        if inside and not muted then
+            setStockEmitters(false)
+            muted = true
+        elseif not inside and muted then
+            setStockEmitters(true)
+            muted = false
+        end
+
         if GetResourceState('xsound') == 'started' then
-            local pos = GetEntityCoords(PlayerPedId())
-            local dist = #(pos - mloMusicCenter)
-            if dist < mloMusicRadius then
+            if inside then
                 sleep = 800
                 if not playing then
                     exports['xsound']:PlayUrl('rme_pdm_music', mloMusicUrl, mloMusicVolume, true)
@@ -474,9 +510,11 @@ CreateThread(function()
     end
 end)
 
--- Make sure the music never lingers if the resource stops/restarts.
+-- Make sure the music never lingers and the stock emitters are restored if the
+-- resource stops/restarts.
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
+    setStockEmitters(true)
     if GetResourceState('xsound') == 'started' and exports['xsound']:soundExists('rme_pdm_music') then
         exports['xsound']:Destroy('rme_pdm_music')
     end
