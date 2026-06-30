@@ -23,14 +23,11 @@ local function getFuel(veh)
     return math.floor(GetVehicleFuelLevel(veh) + 0.5)
 end
 
--- Combined vehicle condition as a 0-100% value. Uses the worse of body and
--- engine health so the damage meter reflects a wreck or a blown engine.
+-- Engine health as a 0-100% value. The spanner/condition meter reflects the
+-- ENGINE only (not body/cosmetic damage).
 local function getHealth(veh)
-    local bodyH = GetVehicleBodyHealth(veh)   -- 0 .. 1000
-    local engH = GetVehicleEngineHealth(veh)  -- can go negative when on fire
-    local bodyPct = math.max(0, math.min(100, math.floor(bodyH / 10.0 + 0.5)))
-    local engPct = math.max(0, math.min(100, math.floor(engH / 10.0 + 0.5)))
-    return math.min(bodyPct, engPct)
+    local engH = GetVehicleEngineHealth(veh)  -- 0 .. 1000 (can go negative when on fire)
+    return math.max(0, math.min(100, math.floor(engH / 10.0 + 0.5)))
 end
 
 local shown = false

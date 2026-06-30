@@ -2,14 +2,14 @@
 -- Makes the car you are driving take damage faster than stock GTA V.
 -- Only affects the driver's own vehicle (runs client-side per player).
 --
--- TUNE HERE:
---   1.0 = stock GTA damage (no change)
---   1.5 = current setting (cars a bit less tanky, still survivable)
+-- Body and engine are SEPARATE health pools and can be tuned independently:
+--   1.0 = stock GTA damage (no change / toughest)
+--   1.2 = engine current (only a little less tanky than stock)
+--   1.5 = body current (noticeably less tanky)
 --   2.0 = twice as much damage per hit
---   2.5+ = cars break very fast / fragile
---   4.0+ = extremely fragile
-local BODY_MULT   = 1.5   -- body/collision damage multiplier
-local ENGINE_MULT = 1.5   -- engine damage multiplier
+--   2.5+ = very fragile
+local BODY_MULT   = 1.5   -- body/collision (cosmetic crumpling) damage multiplier
+local ENGINE_MULT = 1.2   -- engine damage multiplier (lower = engine stays stronger)
 
 local lastVeh, lastBody, lastEngine = nil, nil, nil
 
