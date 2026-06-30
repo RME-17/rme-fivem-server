@@ -58,7 +58,7 @@ function GetClosestWheel(vehicle)
     for wheelIndex, wheelBone in pairs(Config.WheelBones) do
         local wheelBoneIndex = GetEntityBoneIndexByName(vehicle, wheelBone)
         if wheelBoneIndex ~= -1 then
-            local wheelPos = GetWorldPositionOfEntityBone(vehicle, wheelBoneIndex)
+            local wheelPos = GetWorldPositionOfEntityBone(vehicle, wheelBone)
             if #(playerCoords - wheelPos) <= 1.5 then
                 closestWheelIndex = wheelIndex
                 break
@@ -108,6 +108,22 @@ local function VehicleList(shop)
     exports['qb-menu']:openMenu(vehicleMenu)
 end
 
+-- RME: lightweight 3D text used by the drive-in bay prompt below.
+local function DrawBayText3D(coords, text)
+    local onScreen, screenX, screenY = World3dToScreen2d(coords.x, coords.y, coords.z)
+    if not onScreen then return end
+    SetTextScale(0.35, 0.35)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(255, 255, 255, 215)
+    SetTextEntry('STRING')
+    SetTextCentre(true)
+    AddTextComponentString(text)
+    DrawText(screenX, screenY)
+    local factor = (string.len(text)) / 370
+    DrawRect(screenX, screenY + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 120)
+end
+
 -- Events
 
 RegisterNetEvent('qb-mechanicjob:client:SpawnListVehicle', function(data)
@@ -116,12 +132,10 @@ RegisterNetEvent('qb-mechanicjob:client:SpawnListVehicle', function(data)
     SpawnListVehicle(vehicleSpawnName, spawnPoint)
 end)
 
--- Main Thread
+-- Main Thread (qb-target zones: duty / stash / paint / spawner / bays)
 
 CreateThread(function()
-    print('[RME-BAY-DEBUG] qb-mechanicjob main thread started; iterating Config.Shops')
     for k, v in pairs(Config.Shops) do
-        print(('[RME-BAY-DEBUG] processing shop=%s managed=%s'):format(tostring(k), tostring(v.managed)))
         if v.showBlip then
             local blip = AddBlipForCoord(v.blipCoords)
             SetBlipSprite(blip, v.blipSprite)
@@ -164,7 +178,7 @@ CreateThread(function()
             distance = 2.0
         })
 
-        -- Paint booth (optional: a shop may skip this and rely on the custom bay's paint menu)
+        -- Paint booth (optional)
         if v.paint then
             exports['qb-target']:AddCircleZone(k .. '_paintbooth', v.paint, 0.5, {
                 name = k .. '_paintbooth',
@@ -183,7 +197,7 @@ CreateThread(function()
             })
         end
 
-        -- Service-vehicle spawner (optional: a shop may skip the vehicles block entirely)
+        -- Service-vehicle spawner (optional)
         if v.vehicles then
             exports['qb-target']:AddCircleZone(k .. '_spawner', v.vehicles.withdraw, 0.5, {
                 name = k .. '_spawner',
@@ -223,25 +237,21 @@ CreateThread(function()
             })
         end
 
-        -- RME: drive-in customization bay(s).
-        -- *** TEMP DEBUG BUILD ***
-        --   debugPoly = true  -> zone circles are drawn on the floor so we can SEE them
-        --   job lock removed  -> tests whether the redline job gate was the blocker
-        --   F8 prints         -> confirm the loop reaches this shop and how many bays register
+        -- Drive-in customization bay(s): also registered with qb-target as a backup
+        -- for anyone using the targeting eye. The reliable passive [E] prompt lives
+        -- in the dedicated thread below.
         local bays = v.custombays or (v.custombay and { v.custombay })
         if bays then
-            print(('[RME-BAY-DEBUG] shop=%s has %d custombay(s)'):format(tostring(k), #bays))
             for i = 1, #bays do
-                print(('[RME-BAY-DEBUG] registering %s_custombay_%d at %s'):format(tostring(k), i, tostring(bays[i])))
                 exports['qb-target']:AddCircleZone(k .. '_custombay_' .. i, bays[i], 3.5, {
                     name = k .. '_custombay_' .. i,
-                    debugPoly = true,
+                    debugPoly = false,
                     useZ = true
                 }, {
                     options = { {
                         label = 'Customize Vehicle (Bay)',
                         icon = 'fas fa-paint-roller',
-                        -- job lock intentionally omitted for this debug build
+                        job = v.managed and k or nil,
                         action = function()
                             OpenCustomBay() -- custombay.lua
                         end
@@ -251,5 +261,49 @@ CreateThread(function()
             end
         end
     end
-    print('[RME-BAY-DEBUG] finished iterating Config.Shops')
+end)
+
+-- RME: drive-in bay passive [E] prompt.
+-- This does NOT use the targeting eye -- it shows a floating "[E] Customize
+-- Vehicle" whenever you stand or sit near a bay pad, and opens the bay menu on
+-- E. OpenCustomBay() (custombay.lua) grabs the closest vehicle within 6m and
+-- notifies you if there isn't one. Works in or out of the car.
+CreateThread(function()
+    local bayPoints = {}
+    for k, v in pairs(Config.Shops) do
+        local bays = v.custombays or (v.custombay and { v.custombay })
+        if bays then
+            for i = 1, #bays do
+                bayPoints[#bayPoints + 1] = {
+                    coords = bays[i],
+                    job = v.managed and k or nil,
+                }
+            end
+        end
+    end
+    if #bayPoints == 0 then return end
+
+    local promptRadius = 4.0
+    while true do
+        local sleep = 1000
+        local pos = GetEntityCoords(PlayerPedId())
+        for i = 1, #bayPoints do
+            local bay = bayPoints[i]
+            if #(pos - bay.coords) <= promptRadius then
+                sleep = 0
+                local allowed = true
+                if bay.job then
+                    allowed = (PlayerData and PlayerData.job and PlayerData.job.name == bay.job) or false
+                end
+                if allowed then
+                    DrawBayText3D(vector3(bay.coords.x, bay.coords.y, bay.coords.z + 1.0), '[E]  Customize Vehicle')
+                    if IsControlJustReleased(0, 38) then -- E
+                        OpenCustomBay() -- custombay.lua
+                    end
+                end
+                break
+            end
+        end
+        Wait(sleep)
+    end
 end)
