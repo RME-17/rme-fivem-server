@@ -221,8 +221,10 @@ CreateThread(function()
             })
         end
 
-        -- RME: drive-in customization bay(s) (press E on foot next to a parked car).
-        -- Supports a single `custombay` (vector3) or a list `custombays` ({ vector3, ... }).
+        -- RME: drive-in customization bay(s). Park a car on the pad, then press E
+        -- either from the driver's seat OR standing next to it (the bay finds the
+        -- closest vehicle within 6m). Supports a single `custombay` (vector3) or a
+        -- list `custombays` ({ vector3, ... }).
         local bays = v.custombays or (v.custombay and { v.custombay })
         if bays then
             for i = 1, #bays do
@@ -235,9 +237,6 @@ CreateThread(function()
                         label = 'Customize Vehicle (Bay)',
                         icon = 'fas fa-paint-roller',
                         job = v.managed and k or nil,
-                        canInteract = function()
-                            return GetVehiclePedIsUsing(PlayerPedId()) == 0
-                        end,
                         action = function()
                             OpenCustomBay() -- custombay.lua
                         end

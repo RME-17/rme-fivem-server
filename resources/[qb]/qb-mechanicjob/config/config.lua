@@ -40,11 +40,11 @@ Config.Shops = {
         showBlip = false,
         duty = vector3(1162.94, -781.14, 57.6),
         stash = vector3(1146.94, -801.38, 57.6),
-        -- Drive-in customization pads: park a car on a pad, hop out, press E for the showroom bay (all cosmetics unlocked).
+        -- Drive-in customization pads: park a car on a pad, then press E (in seat or on foot) for the showroom bay (all cosmetics unlocked).
         custombays = {
-            vector3(1122.75, -785.56, 57.6),
-            vector3(1140.22, -785.92, 57.6),
-            vector3(1156.75, -799.18, 57.6),
+            vector3(1122.8, -784.44, 57.18),
+            vector3(1140.37, -784.84, 57.19),
+            vector3(1158.04, -799.26, 57.18),
         },
     },
     mechanic2 = { -- Harmony Location
@@ -81,7 +81,7 @@ Config.Shops = {
     },
     beeker = { -- Paleto Location
         managed = true,
-        shopLabel = 'Beeker\'s Garage',
+        shopLabel = 'Beeker\\'s Garage',
         showBlip = true,
         blipSprite = 72,
         blipColor = 46,
