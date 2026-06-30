@@ -240,6 +240,57 @@ function HasItem(item, amount)
     end
 end
 
--- Initialize defaults
-InitializeFramework()
-InitializeInventory()
+-- ============================================================================
+-- PERMANENT LOAD-ORDER FIX (mine/smelter were "vanishing" on boot)
+-- ----------------------------------------------------------------------------
+-- The blip, shop ped and all mine/smelter zones are created ONLY from the
+-- 'lation_mining:onPlayerLoaded' event, which is registered inside
+-- InitializeFramework(). Previously InitializeFramework() ran a single time at
+-- script load: if this resource initialized BEFORE qb-core was 'started' on
+-- that boot, Framework stayed nil, NO player-loaded handler was registered, and
+-- nothing ever spawned -- until someone manually re-ensured the resource after
+-- qb-core was up. That is the "it keeps disappearing" symptom.
+--
+-- We now WAIT until a supported framework is actually started before we
+-- initialize, then -- if the player is already loaded (resource restarted live,
+-- or the framework only came up late) -- we fire onPlayerLoaded ourselves so
+-- the world objects ALWAYS build on every boot/restart with no manual ensure.
+-- ============================================================================
+CreateThread(function()
+    local frameworks = { 'es_extended', 'qbx_core', 'qb-core', 'ox_core' }
+    local waited = 0
+    while true do
+        local ready = false
+        for i = 1, #frameworks do
+            if GetResourceState(frameworks[i]) == 'started' then
+                ready = true
+                break
+            end
+        end
+        if ready then break end
+        waited = waited + 1
+        if waited > 600 then -- ~60s safety timeout (600 * 100ms)
+            print('^3[lation_mining]^0 No supported framework detected after 60s - initializing anyway.')
+            break
+        end
+        Wait(100)
+    end
+
+    -- Detect framework + inventory now that dependencies are guaranteed up
+    InitializeFramework()
+    InitializeInventory()
+
+    -- If the player is ALREADY loaded by the time we initialized, build the
+    -- mine/smelter immediately instead of waiting for a login event that may
+    -- have already fired before our handlers existed.
+    if Framework then
+        local isLoggedIn = LocalPlayer and LocalPlayer.state and LocalPlayer.state.isLoggedIn
+        local pd = GetPlayerData()
+        local hasData = type(pd) == 'table' and (pd.citizenid or pd.identifier or next(pd) ~= nil)
+        if isLoggedIn or hasData then
+            PlayerData = pd or {}
+            PlayerLoaded = true
+            TriggerEvent('lation_mining:onPlayerLoaded')
+        end
+    end
+end)
