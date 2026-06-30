@@ -1,8 +1,8 @@
 Config = {}
 
 -- Require the Burger Shot job to use the cooking stations?
--- Keep false while testing so anyone can cook. Set true once the job is set up.
-Config.RequireJob = false
+-- Locked to Burger Shot staff only (everything in BS is members-only).
+Config.RequireJob = true
 Config.JobName    = 'burgershot'
 
 -- Account ingredients are paid from ('cash' or 'bank')
