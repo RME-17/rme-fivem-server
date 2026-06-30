@@ -137,21 +137,9 @@ QBCore.Shared.Jobs = {
 			['4'] = { name = 'Manager', isboss = true, payment = 300 },
 		},
 	},
-	bennys = {
-		label = 'Benny\'s Original Motor Works',
-		type = 'mechanic',
-		defaultDuty = true,
-		offDutyPay = false,
-		grades = {
-			['0'] = { name = 'Recruit', payment = 100 },
-			['1'] = { name = 'Novice', payment = 150 },
-			['2'] = { name = 'Experienced', payment = 200 },
-			['3'] = { name = 'Advanced', payment = 250 },
-			['4'] = { name = 'Manager', isboss = true, payment = 300 },
-		},
-	},
 	redline = {
 		label = 'Redline Motorsport',
+		type = 'mechanic',
 		defaultDuty = true,
 		offDutyPay = false,
 		grades = {

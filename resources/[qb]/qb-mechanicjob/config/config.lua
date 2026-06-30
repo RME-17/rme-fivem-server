@@ -31,24 +31,20 @@ Config.WearableParts = { -- unused if Config.UseWearableParts is false (feel fre
 }
 
 Config.Shops = {
-    bennys = { -- Benny's Original Motor Works @ La Mesa - this is the autoexotic_mlo supermod garage building.
-        -- Requires the 'bennys' job (give yourself with: setjob <id> bennys 4). Full mechanic shop (repair + paint + parts).
+    redline = { -- Redline Motorsport @ energy_redlinemlo
+        -- Requires the 'redline' job (owner: setjob <id> redline 4). Cosmetics + repair shop.
+        -- Three drive-in custom bays, NO separate paint booth, NO vehicle spawner.
+        -- Redline has its own external blip resource, so showBlip is false here to avoid a duplicate marker.
         managed = true,
-        shopLabel = 'Benny\'s Original Motor Works',
-        showBlip = true,
-        blipSprite = 72,
-        blipColor = 46,
-        blipCoords = vector3(-211.73, -1325.28, 30.89),
-        duty = vector3(-202.92, -1313.74, 31.70),
-        stash = vector3(-199.58, -1314.65, 31.08),
-        paint = vector3(-202.42, -1322.16, 31.29),
-        -- Drive-in customization pad: park a car here, hop out, and press E for the showroom bay (all cosmetics unlocked).
-        -- PLACEHOLDER coord inside the MLO - stand on the spot in-game and /coords, then update this and redeploy.
-        custombay = vector3(-196.5, -1318.0, 31.2),
-        vehicles = {
-            withdraw = vector3(-205.30, -1305.40, 31.30),
-            spawn = vector4(-185.00, -1294.00, 30.50, 250.0),
-            list = { 'flatbed', 'towtruck', 'minivan', 'blista' }
+        shopLabel = 'Redline Motorsport',
+        showBlip = false,
+        duty = vector3(1162.94, -781.14, 57.6),
+        stash = vector3(1146.94, -801.38, 57.6),
+        -- Drive-in customization pads: park a car on a pad, hop out, press E for the showroom bay (all cosmetics unlocked).
+        custombays = {
+            vector3(1122.75, -785.56, 57.6),
+            vector3(1140.22, -785.92, 57.6),
+            vector3(1156.75, -799.18, 57.6),
         },
     },
     mechanic2 = { -- Harmony Location
@@ -102,7 +98,7 @@ Config.Shops = {
 }
 
 -- ===========================================================================
--- RME map dressing for the Benny's MLO (handled by client/decor.lua, no CodeWalker)
+-- RME map dressing for shop MLOs (handled by client/decor.lua, no CodeWalker)
 -- ===========================================================================
 
 -- Hide existing map/clutter props within a radius of a point.

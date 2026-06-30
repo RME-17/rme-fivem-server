@@ -1,4 +1,4 @@
--- RME Benny's Custom Bay
+-- RME Redline Custom Bay
 -- Drive a vehicle onto the bay pad, hop out, press E: an orbit "showroom" camera
 -- starts and a single menu unlocks every cosmetic (no consumable items needed).
 -- Changes are saved to the vehicle (owned vehicles persist) when you finish.
@@ -245,7 +245,7 @@ end
 -- Root bay menu -------------------------------------------------------------
 BayMenu = function(vehicle)
     local menu = {
-        { header = "Benny's Custom Bay", txt = 'All customization unlocked', isMenuHeader = true, icon = 'fas fa-paint-roller' },
+        { header = "Redline Custom Bay", txt = 'All customization unlocked', isMenuHeader = true, icon = 'fas fa-paint-roller' },
         { header = 'Paint', txt = 'Primary, secondary, pearl & wheel colors', icon = 'fas fa-fill-drip', params = { isAction = true, event = function() PaintCategories() end, args = {} } },
         { header = 'Wheels', icon = 'fas fa-truck-monster', params = { isAction = true, event = function() WheelsBay(vehicle) end, args = {} } },
         { header = 'Tire Smoke', icon = 'fas fa-smog', params = { isAction = true, event = function() SmokeBay(vehicle) end, args = {} } },

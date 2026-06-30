@@ -162,79 +162,89 @@ CreateThread(function()
             distance = 2.0
         })
 
-        exports['qb-target']:AddCircleZone(k .. '_paintbooth', v.paint, 0.5, {
-            name = k .. '_paintbooth',
-            debugPoly = false,
-            useZ = true
-        }, {
-            options = { {
-                label = Lang:t('target.paint'),
-                icon = 'fas fa-fill-drip',
-                job = v.managed and k or nil,
-                action = function()
-                    PaintCategories() -- cosmetics.lua
-                end
-            } },
-            distance = 2.0
-        })
-
-        exports['qb-target']:AddCircleZone(k .. '_spawner', v.vehicles.withdraw, 0.5, {
-            name = k .. '_spawner',
-            debugPoly = false,
-            useZ = true
-        }, {
-            options = {
-                {
-                    label = Lang:t('target.withdraw'),
-                    icon = 'fas fa-car',
-                    job = v.managed and k or nil,
-                    canInteract = function()
-                        local inVehicle = GetVehiclePedIsUsing(PlayerPedId())
-                        if inVehicle ~= 0 then return false end
-                        return true
-                    end,
-                    action = function()
-                        VehicleList(k)
-                    end
-                },
-                {
-                    label = Lang:t('target.deposit'),
-                    icon = 'fas fa-car',
-                    job = k,
-                    canInteract = function()
-                        local inVehicle = GetVehiclePedIsUsing(PlayerPedId())
-                        if inVehicle == 0 then return false end
-                        return true
-                    end,
-                    action = function()
-                        SetEntityAsMissionEntity(GetVehiclePedIsUsing(PlayerPedId()), true, true)
-                        DeleteVehicle(GetVehiclePedIsUsing(PlayerPedId()))
-                    end
-                }
-            },
-            distance = 5.0
-        })
-
-        -- RME: drive-in customization bay (press E on foot next to a parked car)
-        if v.custombay then
-            exports['qb-target']:AddCircleZone(k .. '_custombay', v.custombay, 3.5, {
-                name = k .. '_custombay',
+        -- Paint booth (optional: a shop may skip this and rely on the custom bay's paint menu)
+        if v.paint then
+            exports['qb-target']:AddCircleZone(k .. '_paintbooth', v.paint, 0.5, {
+                name = k .. '_paintbooth',
                 debugPoly = false,
                 useZ = true
             }, {
                 options = { {
-                    label = 'Customize Vehicle (Bay)',
-                    icon = 'fas fa-paint-roller',
+                    label = Lang:t('target.paint'),
+                    icon = 'fas fa-fill-drip',
                     job = v.managed and k or nil,
-                    canInteract = function()
-                        return GetVehiclePedIsUsing(PlayerPedId()) == 0
-                    end,
                     action = function()
-                        OpenCustomBay() -- custombay.lua
+                        PaintCategories() -- cosmetics.lua
                     end
                 } },
-                distance = 3.5
+                distance = 2.0
             })
+        end
+
+        -- Service-vehicle spawner (optional: a shop may skip the vehicles block entirely)
+        if v.vehicles then
+            exports['qb-target']:AddCircleZone(k .. '_spawner', v.vehicles.withdraw, 0.5, {
+                name = k .. '_spawner',
+                debugPoly = false,
+                useZ = true
+            }, {
+                options = {
+                    {
+                        label = Lang:t('target.withdraw'),
+                        icon = 'fas fa-car',
+                        job = v.managed and k or nil,
+                        canInteract = function()
+                            local inVehicle = GetVehiclePedIsUsing(PlayerPedId())
+                            if inVehicle ~= 0 then return false end
+                            return true
+                        end,
+                        action = function()
+                            VehicleList(k)
+                        end
+                    },
+                    {
+                        label = Lang:t('target.deposit'),
+                        icon = 'fas fa-car',
+                        job = k,
+                        canInteract = function()
+                            local inVehicle = GetVehiclePedIsUsing(PlayerPedId())
+                            if inVehicle == 0 then return false end
+                            return true
+                        end,
+                        action = function()
+                            SetEntityAsMissionEntity(GetVehiclePedIsUsing(PlayerPedId()), true, true)
+                            DeleteVehicle(GetVehiclePedIsUsing(PlayerPedId()))
+                        end
+                    }
+                },
+                distance = 5.0
+            })
+        end
+
+        -- RME: drive-in customization bay(s) (press E on foot next to a parked car).
+        -- Supports a single `custombay` (vector3) or a list `custombays` ({ vector3, ... }).
+        local bays = v.custombays or (v.custombay and { v.custombay })
+        if bays then
+            for i = 1, #bays do
+                exports['qb-target']:AddCircleZone(k .. '_custombay_' .. i, bays[i], 3.5, {
+                    name = k .. '_custombay_' .. i,
+                    debugPoly = false,
+                    useZ = true
+                }, {
+                    options = { {
+                        label = 'Customize Vehicle (Bay)',
+                        icon = 'fas fa-paint-roller',
+                        job = v.managed and k or nil,
+                        canInteract = function()
+                            return GetVehiclePedIsUsing(PlayerPedId()) == 0
+                        end,
+                        action = function()
+                            OpenCustomBay() -- custombay.lua
+                        end
+                    } },
+                    distance = 3.5
+                })
+            end
         end
     end
 end)
