@@ -19,6 +19,10 @@
 -- small cup restore clearly LESS than burgers and the large/goat cups:
 --   Food   burgers > wraps > large fries > other sides > small fries
 --   Drinks large cola / goat cola (large cup) > small cola (small cup); coffee modest
+--
+-- STORE-BEATING FLOOR: even the SMALLEST Burger Shot item restores more than any
+-- convenience-store snack. Store food caps at 8; every BS item floors at >= 12,
+-- so buying at Burger Shot is always the better choice.
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
@@ -37,9 +41,9 @@ local rmeEat = {
     ['burgershot_shotnuggets'] = math.random(22, 30),
     ['burgershot_shotrings'] = math.random(22, 30),
     ['burgershot_curly'] = math.random(22, 30),
-    ['burgershot_patatos'] = math.random(12, 18),    -- small fries (smallest side)
-    -- Desserts
-    ['burgershot_macaroon'] = math.random(8, 12),
+    ['burgershot_patatos'] = math.random(12, 18),    -- small fries (smallest side, still > store food)
+    -- Desserts (smallest BS items, but floor stays above store food)
+    ['burgershot_macaroon'] = math.random(12, 16),
     ['burgershot_icecreamcone'] = math.random(15, 25),
     ['burgershot_vanillaicecream'] = math.random(15, 25),
     ['burgershot_strawberryicecream'] = math.random(15, 25),
@@ -53,25 +57,25 @@ local rmeEat = {
 
 -- Drinks (replenishes thirst, 0-100). Stock bottle animation + water-bottle prop.
 local rmeDrink = {
-    ['burgershot_coffee'] = math.random(12, 20),     -- coffee cup (modest)
+    ['burgershot_coffee'] = math.random(12, 20),     -- coffee cup (modest, still > store food)
     ['burgershot_colas'] = math.random(15, 22),      -- small cup (smallest drink)
     ['burgershot_colab'] = math.random(40, 50),      -- large cup
     ['burgershot_colagoat'] = math.random(42, 52)    -- large goat cup
 }
 
 -- Store-food nerf (overrides qb-smallresources/config.lua defaults).
--- Convenience-store snacks barely fill you up -> Burger Shot is the real meal.
+-- Capped at 8 so even the smallest Burger Shot item (floor 12) beats them.
 local rmeStoreEat = {
-    ['sandwich'] = math.random(5, 10),
-    ['tosti'] = math.random(5, 10),
-    ['twerks_candy'] = math.random(5, 10),
-    ['snikkel_candy'] = math.random(5, 10)
+    ['sandwich'] = math.random(4, 8),
+    ['tosti'] = math.random(4, 8),
+    ['twerks_candy'] = math.random(4, 8),
+    ['snikkel_candy'] = math.random(4, 8)
 }
 
 local rmeStoreDrink = {
-    ['water_bottle'] = math.random(5, 10),
-    ['kurkakola'] = math.random(5, 10),
-    ['coffee'] = math.random(5, 10)
+    ['water_bottle'] = math.random(4, 8),
+    ['kurkakola'] = math.random(4, 8),
+    ['coffee'] = math.random(4, 8)
 }
 
 for k, v in pairs(rmeEat) do
