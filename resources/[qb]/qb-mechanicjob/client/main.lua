@@ -132,7 +132,7 @@ RegisterNetEvent('qb-mechanicjob:client:SpawnListVehicle', function(data)
     SpawnListVehicle(vehicleSpawnName, spawnPoint)
 end)
 
--- Main Thread (qb-target zones: duty / stash / paint / spawner / bays)
+-- Main Thread (qb-target zones: duty / stash / paint / spawner)
 
 CreateThread(function()
     for k, v in pairs(Config.Shops) do
@@ -190,7 +190,7 @@ CreateThread(function()
                     icon = 'fas fa-fill-drip',
                     job = v.managed and k or nil,
                     action = function()
-                        PaintCategories() -- cosmetics.lua
+                        PaintCategories() -- cosmetic.lua
                     end
                 } },
                 distance = 2.0
@@ -236,38 +236,13 @@ CreateThread(function()
                 distance = 5.0
             })
         end
-
-        -- Drive-in customization bay(s): also registered with qb-target as a backup
-        -- for anyone using the targeting eye. The reliable passive [E] prompt lives
-        -- in the dedicated thread below.
-        local bays = v.custombays or (v.custombay and { v.custombay })
-        if bays then
-            for i = 1, #bays do
-                exports['qb-target']:AddCircleZone(k .. '_custombay_' .. i, bays[i], 3.5, {
-                    name = k .. '_custombay_' .. i,
-                    debugPoly = false,
-                    useZ = true
-                }, {
-                    options = { {
-                        label = 'Customize Vehicle (Bay)',
-                        icon = 'fas fa-paint-roller',
-                        job = v.managed and k or nil,
-                        action = function()
-                            OpenCustomBay() -- custombay.lua
-                        end
-                    } },
-                    distance = 3.5
-                })
-            end
-        end
     end
 end)
 
 -- RME: drive-in bay passive [E] prompt.
--- This does NOT use the targeting eye -- it shows a floating "[E] Customize
--- Vehicle" whenever you stand or sit near a bay pad, and opens the bay menu on
--- E. OpenCustomBay() (custombay.lua) grabs the closest vehicle within 6m and
--- notifies you if there isn't one. Works in or out of the car.
+-- Shows a floating "[E] Customize Vehicle" whenever you stand or sit near a bay
+-- pad, and opens the bay menu on E. OpenCustomBay() (custombay.lua) grabs the
+-- closest vehicle within 6m. Works in or out of the car -- no targeting eye.
 CreateThread(function()
     local bayPoints = {}
     for k, v in pairs(Config.Shops) do
