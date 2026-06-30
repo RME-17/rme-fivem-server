@@ -8,6 +8,12 @@
 -- standard bottle drink animation with the base-game water-bottle prop.
 -- (No genuinely RED Burger Shot cup exists as a base-game or free drop-in
 -- prop, so we keep the reliable stock bottle rather than a wrong-looking cup.)
+--
+-- STORE-FOOD NERF: the default convenience-store food/drinks are intentionally
+-- weak (see rmeStoreEat/rmeStoreDrink) so players rely on Burger Shot for real
+-- hunger/thirst recovery. Those keys override the higher defaults from
+-- qb-smallresources/config.lua because this file loads afterwards and the merge
+-- loops below replace matching entries.
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
@@ -48,10 +54,33 @@ local rmeDrink = {
     ['burgershot_colagoat'] = math.random(40, 50)
 }
 
+-- Store-food nerf (overrides qb-smallresources/config.lua defaults).
+-- Convenience-store snacks barely fill you up -> Burger Shot is the real meal.
+local rmeStoreEat = {
+    ['sandwich'] = math.random(5, 10),
+    ['tosti'] = math.random(5, 10),
+    ['twerks_candy'] = math.random(5, 10),
+    ['snikkel_candy'] = math.random(5, 10)
+}
+
+local rmeStoreDrink = {
+    ['water_bottle'] = math.random(5, 10),
+    ['kurkakola'] = math.random(5, 10),
+    ['coffee'] = math.random(5, 10)
+}
+
 for k, v in pairs(rmeEat) do
     Config.Consumables.eat[k] = v
 end
 
 for k, v in pairs(rmeDrink) do
+    Config.Consumables.drink[k] = v
+end
+
+for k, v in pairs(rmeStoreEat) do
+    Config.Consumables.eat[k] = v
+end
+
+for k, v in pairs(rmeStoreDrink) do
     Config.Consumables.drink[k] = v
 end
