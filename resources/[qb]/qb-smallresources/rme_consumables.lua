@@ -14,6 +14,11 @@
 -- hunger/thirst recovery. Those keys override the higher defaults from
 -- qb-smallresources/config.lua because this file loads afterwards and the merge
 -- loops below replace matching entries.
+--
+-- REALISTIC PORTION TIERS: bigger items fill you more. Small fries and the
+-- small cup restore clearly LESS than burgers and the large/goat cups:
+--   Food   burgers > wraps > large fries > other sides > small fries
+--   Drinks large cola / goat cola (large cup) > small cola (small cup); coffee modest
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
@@ -22,17 +27,17 @@ Config.Consumables.drink = Config.Consumables.drink or {}
 
 -- Food (replenishes hunger, 0-100). Uses the default burger eat animation/prop.
 local rmeEat = {
-    -- Burgers & wraps
-    ['burgershot_bigking'] = math.random(40, 50),
+    -- Burgers & wraps (full meals -> biggest fill)
+    ['burgershot_bigking'] = math.random(45, 55),
     ['burgershot_bleeder'] = math.random(40, 50),
     ['burgershot_goatwrap'] = math.random(35, 45),
     ['burgershot_lavash'] = math.random(35, 45),
     -- Sides
-    ['burgershot_shotnuggets'] = math.random(25, 35),
-    ['burgershot_shotrings'] = math.random(25, 35),
-    ['burgershot_curly'] = math.random(25, 35),
-    ['burgershot_patatos'] = math.random(20, 30),
-    ['burgershot_patatob'] = math.random(30, 40),
+    ['burgershot_patatob'] = math.random(28, 36),   -- large fries (bigger side)
+    ['burgershot_shotnuggets'] = math.random(22, 30),
+    ['burgershot_shotrings'] = math.random(22, 30),
+    ['burgershot_curly'] = math.random(22, 30),
+    ['burgershot_patatos'] = math.random(12, 18),    -- small fries (smallest side)
     -- Desserts
     ['burgershot_macaroon'] = math.random(8, 12),
     ['burgershot_icecreamcone'] = math.random(15, 25),
@@ -48,10 +53,10 @@ local rmeEat = {
 
 -- Drinks (replenishes thirst, 0-100). Stock bottle animation + water-bottle prop.
 local rmeDrink = {
-    ['burgershot_coffee'] = math.random(15, 25),
-    ['burgershot_colas'] = math.random(20, 30),
-    ['burgershot_colab'] = math.random(40, 50),
-    ['burgershot_colagoat'] = math.random(40, 50)
+    ['burgershot_coffee'] = math.random(12, 20),     -- coffee cup (modest)
+    ['burgershot_colas'] = math.random(15, 22),      -- small cup (smallest drink)
+    ['burgershot_colab'] = math.random(40, 50),      -- large cup
+    ['burgershot_colagoat'] = math.random(42, 52)    -- large goat cup
 }
 
 -- Store-food nerf (overrides qb-smallresources/config.lua defaults).
