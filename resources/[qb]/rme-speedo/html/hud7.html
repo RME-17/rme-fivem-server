@@ -53,21 +53,21 @@
   #speedo.visible { opacity:1; transform:none; }
   /* Soft depth halo behind the cluster (radial fade -> transparent, NOT a box) */
   #speedo::before {
-    content:''; position:absolute; left:50%; top:48%;
+    content:''; position:absolute; left:50%; top:46%;
     transform:translate(-50%,-50%);
-    width:122%; height:160%; z-index:-1; pointer-events:none;
+    width:120%; height:150%; z-index:-1; pointer-events:none;
     background:radial-gradient(closest-side, rgba(6,10,18,0.60), rgba(6,10,18,0.28) 55%, rgba(6,10,18,0) 78%);
   }
 
-  .panel { width:344px; padding:4px 2px 4px; background:transparent; }
+  .panel { width:248px; padding:4px 2px 4px; background:transparent; }
 
-  .cluster { display:flex; align-items:center; justify-content:center; gap:4px; }
+  .cluster { display:flex; align-items:center; justify-content:center; }
 
   .gauge { position:relative; width:210px; height:210px; flex:0 0 auto; }
   .dial { width:210px; height:210px; display:block; overflow:visible;
     filter:drop-shadow(0 3px 7px rgba(0,0,0,0.6)); }
 
-  .rpmtrack { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:3.5; stroke-linecap:round; }
+  .rpmtrack { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:3.5; stroke-linecap:round; }
   .rpmfill  { fill:none; stroke:url(#rpmGrad); stroke-width:3.5; stroke-linecap:round;
     transition:stroke-dasharray .12s linear, stroke .2s; }
   .track { fill:none; stroke:rgba(255,255,255,0.09); stroke-width:11; stroke-linecap:round; }
@@ -76,6 +76,12 @@
     transition:stroke-dasharray .14s linear, stroke .25s; }
   .tick       { stroke:rgba(255,255,255,0.18); stroke-width:1.5; }
   .tick-major { stroke:rgba(255,255,255,0.5); stroke-width:2.2; }
+
+  /* Curved side health/damage bars built into the dial */
+  .sidetrack { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:7; stroke-linecap:round; }
+  .sidefill  { fill:none; stroke:url(#ringGrad); stroke-width:7; stroke-linecap:round;
+    filter:drop-shadow(0 0 5px rgba(84,224,160,0.5));
+    transition:stroke-dasharray .35s ease, stroke .3s, filter .3s; }
 
   .center { position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; }
@@ -103,22 +109,18 @@
   .aval { font-weight:800; color:#9fe6ff; font-size:16px; font-variant-numeric:tabular-nums; }
   .aunit { color:rgba(255,255,255,0.55); font-size:10px; font-weight:700; }
 
-  /* Side condition rings: engine (spanner) = left, vehicle damage (body) = right */
-  .mini { position:relative; width:64px; height:64px; flex:0 0 auto; }
-  .ring { width:64px; height:64px; display:block; overflow:visible; }
-  .ringtrack { fill:none; stroke:rgba(255,255,255,0.09); stroke-width:8; }
-  .ringfill  { fill:none; stroke:url(#ringGrad); stroke-width:8; stroke-linecap:round;
-    filter:drop-shadow(0 0 5px rgba(84,224,160,0.5));
-    transition:stroke-dasharray .35s ease, stroke .3s, filter .3s; }
-  .mini-disc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:38px; height:38px; border-radius:50%;
-    background:radial-gradient(circle, rgba(255,255,255,0.07), rgba(255,255,255,0) 70%); }
-  .mini-ic { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:18px; height:18px; color:rgba(255,255,255,0.95);
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8)); transition:color .3s; }
+  /* Icons that label each side bar (sit on the middle of the side arc) */
+  .sideIcon { position:absolute; top:50%; transform:translateY(-50%);
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle, rgba(8,12,20,0.78), rgba(8,12,20,0) 72%); }
+  .sideIcon.left  { left:-15px; }
+  .sideIcon.right { right:-15px; }
+  .sideIcon svg { width:18px; height:18px; color:rgba(255,255,255,0.95);
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.85)); transition:color .3s; }
 
   /* Fuel (gas) segmented slider, bottom */
-  .gas { display:flex; align-items:center; gap:8px; width:210px; margin:6px auto 0; }
+  .gas { display:flex; align-items:center; gap:8px; width:184px; margin:-4px auto 0; }
   .gas .mi { width:12px; height:12px; flex:0 0 auto; color:rgba(255,255,255,0.92);
     filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8)); transition:color .3s; }
   .bar { position:relative; flex:1; height:7px; border-radius:7px;
@@ -142,16 +144,6 @@
   <div id="speedo">
     <div class="panel">
       <div class="cluster">
-        <!-- Engine (spanner) ring -->
-        <div class="mini">
-          <svg class="ring" viewBox="0 0 100 100">
-            <circle class="ringtrack" cx="50" cy="50" r="42"></circle>
-            <circle class="ringfill" id="engRing" cx="50" cy="50" r="42" transform="rotate(-90 50 50)" stroke-dasharray="0 263.89"></circle>
-          </svg>
-          <div class="mini-disc"></div>
-          <svg class="mini-ic" id="engIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-        </div>
-
         <div class="gauge">
           <svg class="dial" viewBox="0 0 200 200">
             <defs>
@@ -164,7 +156,7 @@
                 <stop offset="0%" stop-color="rgba(120,225,255,0.5)"/>
                 <stop offset="100%" stop-color="rgba(124,242,168,0.7)"/>
               </linearGradient>
-              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="ringGrad" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%" stop-color="#5ad1ff"/>
                 <stop offset="100%" stop-color="#54e0a0"/>
               </linearGradient>
@@ -174,9 +166,19 @@
               </filter>
             </defs>
 
+            <!-- Curved HEALTH bar hugging the LEFT side (engine) -->
+            <circle class="sidetrack" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="270.9 609.47"></circle>
+            <circle class="sidefill" id="engArc" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="0 609.47"></circle>
+
+            <!-- Curved DAMAGE bar hugging the RIGHT side (body), mirrored -->
+            <g transform="translate(200,0) scale(-1,1)">
+              <circle class="sidetrack" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="270.9 609.47"></circle>
+              <circle class="sidefill" id="bodyArc" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="0 609.47"></circle>
+            </g>
+
             <!-- Outer RPM ring -->
-            <circle class="rpmtrack" cx="100" cy="100" r="92" transform="rotate(135 100 100)" stroke-dasharray="433.54 578.05"></circle>
-            <circle class="rpmfill" id="rpm" cx="100" cy="100" r="92" transform="rotate(135 100 100)" stroke-dasharray="0 578.05"></circle>
+            <circle class="rpmtrack" cx="100" cy="100" r="90" transform="rotate(135 100 100)" stroke-dasharray="424.12 565.49"></circle>
+            <circle class="rpmfill" id="rpm" cx="100" cy="100" r="90" transform="rotate(135 100 100)" stroke-dasharray="0 565.49"></circle>
 
             <!-- Main speed dial -->
             <circle class="glowtrack" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="376.99 502.65"></circle>
@@ -184,6 +186,13 @@
             <g id="ticks"></g>
             <circle class="prog" id="prog" cx="100" cy="100" r="80" transform="rotate(135 100 100)" stroke-dasharray="0 502.65" filter="url(#glow)"></circle>
           </svg>
+
+          <div class="sideIcon left">
+            <svg id="engIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          </div>
+          <div class="sideIcon right">
+            <svg id="bodyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+          </div>
 
           <div class="center">
             <div class="val" id="spd">0</div>
@@ -193,16 +202,6 @@
               <span class="albl">ALT</span><span class="aval" id="alt">0</span><span class="aunit">m</span>
             </div>
           </div>
-        </div>
-
-        <!-- Vehicle damage (body) ring -->
-        <div class="mini">
-          <svg class="ring" viewBox="0 0 100 100">
-            <circle class="ringtrack" cx="50" cy="50" r="42"></circle>
-            <circle class="ringfill" id="bodyRing" cx="50" cy="50" r="42" transform="rotate(-90 50 50)" stroke-dasharray="0 263.89"></circle>
-          </svg>
-          <div class="mini-disc"></div>
-          <svg class="mini-ic" id="bodyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
         </div>
       </div>
 
@@ -216,15 +215,15 @@
 <script>
 (function(){
   var SPEED_C = 502.65, SPEED_ARC = 376.99;   // main dial (270deg, r=80)
-  var RPM_C = 578.05, RPM_ARC = 433.54;        // rpm ring (270deg, r=92)
-  var MINI_C = 263.89;                          // side rings (full circle, r=42)
+  var RPM_C = 565.49, RPM_ARC = 424.12;        // rpm ring (270deg, r=90)
+  var SIDE_C = 609.47, SIDE_ARC = 270.9;       // side bars (160deg, r=97)
   function el(id){ return document.getElementById(id); }
   function clamp(lo, hi, v){ return Math.max(lo, Math.min(hi, v)); }
 
-  function setRing(id, iconId, pct){
+  function setArc(id, iconId, pct){
     var frac = clamp(0, 1, pct / 100);
     var r = el(id);
-    r.setAttribute('stroke-dasharray', (frac * MINI_C).toFixed(1) + ' ' + MINI_C);
+    r.setAttribute('stroke-dasharray', (frac * SIDE_ARC).toFixed(1) + ' ' + SIDE_C);
     if (pct > 60) {
       r.style.stroke = 'url(#ringGrad)';
       r.style.filter = 'drop-shadow(0 0 5px rgba(84,224,160,0.5))';
@@ -308,9 +307,9 @@
         el('fuelIcon').style.color = 'rgba(255,255,255,0.92)';
       }
 
-      // Engine condition (spanner) -> left ring; Vehicle damage (body) -> right ring
-      setRing('engRing', 'engIcon', clamp(0, 100, (d.health === undefined ? 100 : d.health)));
-      setRing('bodyRing', 'bodyIcon', clamp(0, 100, (d.body === undefined ? 100 : d.body)));
+      // Engine condition (spanner) -> LEFT side bar; Vehicle damage (body) -> RIGHT side bar
+      setArc('engArc', 'engIcon', clamp(0, 100, (d.health === undefined ? 100 : d.health)));
+      setArc('bodyArc', 'bodyIcon', clamp(0, 100, (d.body === undefined ? 100 : d.body)));
 
       // Gear (ground) vs altitude (air)
       if (d.isAir) {
