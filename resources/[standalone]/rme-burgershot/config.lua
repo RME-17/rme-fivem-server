@@ -34,6 +34,12 @@ Config.Stations = {
         icon   = 'fas fa-utensils',
         size   = vector3(1.2, 1.2, 1.0),
     },
+    drinks = {
+        coords = vector4(-582.73, -887.58, 26.0, 96.68),
+        label  = 'Drinks Machine',
+        icon   = 'fas fa-cup-straw',
+        size   = vector3(1.2, 1.2, 1.0),
+    },
 }
 
 -- ============================================================
@@ -56,6 +62,11 @@ Config.Anims = {
         prop = nil,
     },
     prep = {
+        dict = 'amb@prop_human_bbq@male@idle_a',
+        clip = 'idle_b',
+        prop = nil,
+    },
+    drinks = {
         dict = 'amb@prop_human_bbq@male@idle_a',
         clip = 'idle_b',
         prop = nil,
@@ -153,12 +164,43 @@ Config.Recipes = {
         },
         output = { item = 'burgershot_lavash', amount = 1 },
     },
+
+    -- DRINKS MACHINE: fill cups with soda / coffee (each needs an empty cup)
+    make_smallcola = {
+        label = 'Small Cola',
+        station = 'drinks',
+        time = 3000,
+        ingredients = { { item = 'burgershot_smallemptyglass', amount = 1 } },
+        output = { item = 'burgershot_colas', amount = 1 },
+    },
+    make_largecola = {
+        label = 'Large Cola',
+        station = 'drinks',
+        time = 3500,
+        ingredients = { { item = 'burgershot_bigemptyglass', amount = 1 } },
+        output = { item = 'burgershot_colab', amount = 1 },
+    },
+    make_goatcola = {
+        label = 'Goat Cola',
+        station = 'drinks',
+        time = 4000,
+        ingredients = { { item = 'burgershot_bigemptyglass', amount = 1 } },
+        output = { item = 'burgershot_colagoat', amount = 1 },
+    },
+    make_coffee = {
+        label = 'Coffee',
+        station = 'drinks',
+        time = 3000,
+        ingredients = { { item = 'burgershot_coffeeemptyglass', amount = 1 } },
+        output = { item = 'burgershot_coffee', amount = 1 },
+    },
 }
 
 -- ============================================================
 -- INGREDIENT SUPPLY PEDS (paid, locked to the burgershot job)
 -- Staff buy raw ingredients here. price = cost per single item.
 -- blip is only drawn for burgershot members (handled in client.lua).
+-- Both peds also sell the empty cups used by the drinks machine.
 -- ============================================================
 Config.BuyAmounts = { 1, 5, 10 }   -- quantity options offered per item
 
@@ -174,6 +216,9 @@ Config.SupplyPeds = {
             { item = 'burgershot_frozenrings', price = 5 },
             { item = 'burgershot_bigfrozenpotato', price = 5 },
             { item = 'burgershot_smallfrozenpotato', price = 5 },
+            { item = 'burgershot_smallemptyglass', price = 2 },
+            { item = 'burgershot_bigemptyglass', price = 2 },
+            { item = 'burgershot_coffeeemptyglass', price = 2 },
         },
     },
     fresh = {
@@ -186,6 +231,9 @@ Config.SupplyPeds = {
             { item = 'burgershot_cheddar', price = 5 },
             { item = 'burgershot_tomato', price = 5 },
             { item = 'burgershot_sauce', price = 5 },
+            { item = 'burgershot_smallemptyglass', price = 2 },
+            { item = 'burgershot_bigemptyglass', price = 2 },
+            { item = 'burgershot_coffeeemptyglass', price = 2 },
         },
     },
 }
