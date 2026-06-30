@@ -1,13 +1,15 @@
 -- RME Redline Custom Bay (ox_lib edition)
--- Drive a vehicle onto a bay pad, press E: a controllable showroom camera starts
--- and an ox_lib menu unlocks every cosmetic. Camera supports preset angles AND a
--- free-orbit mode (rotate / zoom / raise) so you can view the car from any angle.
+-- Drive a vehicle onto a bay pad, press E: a showroom camera starts and an
+-- ox_lib menu unlocks every cosmetic.
+--   * Press CTRL at any time to toggle the orbit camera view.
+--   * In camera view, HOLD SHIFT to move it (mouse = rotate, scroll = zoom).
+--   * Release SHIFT to lock the view; press CTRL to jump back to the menu.
 -- Changes save to the vehicle when you finish.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
 local bayActive = false
-local orbitMode = false
+local cameraMode = false
 local bayCam = nil
 local bayVehicle = nil
 local currentHint = nil
@@ -16,9 +18,9 @@ local currentHint = nil
 local cam = { relAngle = 145.0, radius = 5.5, height = 1.0 }
 
 -- forward declarations
-local setHint, SaveBayVehicle, StopCustomBay, StartBayCamera
+local setHint, SaveBayVehicle, StopCustomBay, StartBayCamera, setCameraMode
 local applyMod, showList, ModList
-local BayMenu, CameraMenu, EnterOrbit
+local BayMenu
 local WheelsBay, WheelList, ExteriorBay, InteriorBay
 local NeonBay, XenonBay, SmokeBay, TintBay, PlateBay
 
@@ -42,8 +44,9 @@ end
 StopCustomBay = function()
     if not bayActive then return end
     bayActive = false
-    orbitMode = false
+    cameraMode = false
     setHint(nil)
+    pcall(function() lib.hideContext(false) end)
     SaveBayVehicle()
     RenderScriptCams(false, true, 750, true, true)
     if bayCam then DestroyCam(bayCam, false) bayCam = nil end
@@ -218,38 +221,10 @@ PlateBay = function()
     showList('redline_plate', 'Plate Style', options)
 end
 
--- Camera --------------------------------------------------------------------
-local function applyPreset(relAngle, radius, height)
-    cam.relAngle = relAngle % 360.0
-    cam.radius = radius
-    cam.height = height
-end
-
-EnterOrbit = function()
-    orbitMode = true
-    -- hint + input are handled by the camera render thread
-end
-
-CameraMenu = function()
-    local options = {
-        { title = 'Free Orbit (manual control)', description = 'A/D rotate, W/S zoom, Shift/Ctrl height. Press E to reopen the menu.', icon = 'arrows-up-down-left-right', onSelect = function() EnterOrbit() end },
-        { title = 'Front', icon = 'car', onSelect = function() applyPreset(0.0, 5.0, 0.9); CameraMenu() end },
-        { title = 'Front 3/4', icon = 'car', onSelect = function() applyPreset(45.0, 5.2, 1.0); CameraMenu() end },
-        { title = 'Side', icon = 'car-side', onSelect = function() applyPreset(90.0, 5.0, 0.9); CameraMenu() end },
-        { title = 'Rear 3/4', icon = 'car', onSelect = function() applyPreset(135.0, 5.2, 1.0); CameraMenu() end },
-        { title = 'Rear', icon = 'car-rear', onSelect = function() applyPreset(180.0, 5.0, 0.9); CameraMenu() end },
-        { title = 'Top Down', icon = 'helicopter', onSelect = function() applyPreset(180.0, 3.0, 4.5); CameraMenu() end },
-        { title = 'Reset View', icon = 'rotate', onSelect = function() applyPreset(145.0, 5.5, 1.0); CameraMenu() end },
-        { title = 'Back to Bay', icon = 'arrow-left', onSelect = function() BayMenu() end },
-    }
-    showList('redline_camera', 'Camera & View', options)
-end
-
 -- Root bay menu -------------------------------------------------------------
 BayMenu = function()
     if not bayVehicle or not DoesEntityExist(bayVehicle) then StopCustomBay() return end
     local options = {
-        { title = 'Camera & View', description = 'Spin, zoom & pick the perfect angle', icon = 'camera', arrow = true, onSelect = function() CameraMenu() end },
         { title = 'Paint', description = 'Primary, secondary, pearl & wheel colors', icon = 'fill-drip', arrow = true, onSelect = function() if PaintCategories then PaintCategories() else QBCore.Functions.Notify('Paint module unavailable', 'error') end end },
         { title = 'Wheels', icon = 'truck-monster', arrow = true, onSelect = function() WheelsBay() end },
         { title = 'Tire Smoke', icon = 'smog', arrow = true, onSelect = function() SmokeBay() end },
@@ -263,6 +238,19 @@ BayMenu = function()
     }
     lib.registerContext({ id = 'redline_bay', title = 'Redline Custom Bay', options = options })
     lib.showContext('redline_bay')
+end
+
+-- Camera mode toggle (bound to CTRL via key mapping below) -------------------
+setCameraMode = function(on)
+    if not bayActive then return end
+    cameraMode = on
+    if on then
+        pcall(function() lib.hideContext(false) end)
+        setHint('Hold [Shift] to move camera  -  mouse: rotate  -  scroll: zoom  |  [Ctrl] menu  -  [Backspace] exit')
+    else
+        setHint('[Ctrl] Camera view  -  use the menu to customize')
+        BayMenu()
+    end
 end
 
 -- Camera render + control thread --------------------------------------------
@@ -280,27 +268,28 @@ StartBayCamera = function()
             local pos = GetOffsetFromEntityInWorldCoords(bayVehicle, cam.radius * math.sin(rad), cam.radius * math.cos(rad), cam.height)
             SetCamCoord(bayCam, pos.x, pos.y, pos.z)
             PointCamAtEntity(bayCam, bayVehicle, 0.0, 0.0, 0.2, true)
-            if orbitMode then
-                setHint('[A/D] Rotate   [W/S] Zoom   [Shift/Ctrl] Height   [E] Menu   [Backspace] Exit')
-                if IsControlPressed(0, 34) then cam.relAngle = (cam.relAngle - 1.8) % 360.0 end
-                if IsControlPressed(0, 35) then cam.relAngle = (cam.relAngle + 1.8) % 360.0 end
-                if IsControlPressed(0, 32) then cam.radius = math.max(2.5, cam.radius - 0.06) end
-                if IsControlPressed(0, 33) then cam.radius = math.min(13.0, cam.radius + 0.06) end
-                if IsControlPressed(0, 241) then cam.radius = math.max(2.5, cam.radius - 0.12) end
-                if IsControlPressed(0, 242) then cam.radius = math.min(13.0, cam.radius + 0.12) end
-                if IsControlPressed(0, 21) then cam.height = math.min(6.0, cam.height + 0.035) end
-                if IsControlPressed(0, 36) then cam.height = math.max(-1.5, cam.height - 0.035) end
-                if IsControlJustReleased(0, 38) or IsControlJustReleased(0, 191) then orbitMode = false; BayMenu() end
-                if IsControlJustReleased(0, 194) then StopCustomBay() break end
-            else
-                setHint('[E] Open Menu   [Backspace] Exit Bay')
-                if IsControlJustReleased(0, 38) then BayMenu() end
-                if IsControlJustReleased(0, 194) then StopCustomBay() break end
+            if cameraMode then
+                if IsControlPressed(0, 21) then -- LEFT SHIFT held: move the camera
+                    local lr = GetControlNormal(0, 1) -- mouse X
+                    local ud = GetControlNormal(0, 2) -- mouse Y
+                    cam.relAngle = (cam.relAngle + lr * 10.0) % 360.0
+                    cam.height = math.max(-1.5, math.min(6.0, cam.height - ud * 3.0))
+                    if IsControlPressed(0, 241) then cam.radius = math.max(2.5, cam.radius - 0.15) end
+                    if IsControlPressed(0, 242) then cam.radius = math.min(13.0, cam.radius + 0.15) end
+                end
+                if IsControlJustReleased(0, 194) then StopCustomBay() break end -- Backspace exits
             end
             Wait(0)
         end
     end)
 end
+
+-- CTRL key mapping: toggle the orbit camera view (works in or out of the menu)
+RegisterCommand('redline_bay_camera', function()
+    if not bayActive then return end
+    setCameraMode(not cameraMode)
+end, false)
+RegisterKeyMapping('redline_bay_camera', 'Redline Bay: toggle orbit camera', 'keyboard', 'LCONTROL')
 
 -- Entry point (called from the passive [E] prompt in client/main.lua) --------
 function OpenCustomBay()
@@ -316,13 +305,14 @@ function OpenCustomBay()
     end
     SetVehicleModKit(vehicle, 0)
     bayVehicle = vehicle
-    orbitMode = false
+    cameraMode = false
     local ped = PlayerPedId()
     FreezeEntityPosition(ped, true)
     FreezeEntityPosition(vehicle, true)
     SetVehicleEngineOn(vehicle, false, true, true)
     StartBayCamera()
     BayMenu()
+    setHint('[Ctrl] Camera view  -  use the menu to customize')
 end
 
 -- Safety: restore camera/ped if the resource stops while someone is in the bay
@@ -330,7 +320,7 @@ AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     if not bayActive then return end
     bayActive = false
-    orbitMode = false
+    cameraMode = false
     pcall(function() lib.hideTextUI() end)
     RenderScriptCams(false, false, 0, true, true)
     if bayCam then DestroyCam(bayCam, false) bayCam = nil end
