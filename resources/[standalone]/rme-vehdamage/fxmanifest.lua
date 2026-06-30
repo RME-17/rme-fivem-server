@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'RME'
-description 'Amplifies vehicle collision/engine damage so cars are less tough (tunable multiplier)'
-version '1.0.0'
+description 'Protects vehicle engine health from collision damage globally - cars take body/cosmetic damage only and always keep full speed'
+version '2.0.0'
 
 client_script 'client.lua'

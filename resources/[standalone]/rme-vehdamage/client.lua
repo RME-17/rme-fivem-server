@@ -1,48 +1,60 @@
 -- rme-vehdamage
--- Vehicles take DEFAULT GTA V damage (no amplification).
+-- GLOBAL RULE: crashing NEVER reduces engine health.
 --
--- Driving rules:
---   * BODY / cosmetic damage NEVER affects driving - the car always drives
---     normally no matter how smashed the bodywork looks (even fully red).
---   * ENGINE condition controls top speed, matching the HUD bar colours:
---       engine  > 60%  (green)  -> normal speed
---       engine 30-60%  (yellow) -> drives slower
---       engine <= 30%  (red)    -> drives much slower
--- Only affects the driver's own vehicle (runs client-side per player).
+--   * Vehicles still take full DEFAULT GTA body / cosmetic / deformation damage
+--     (dents, smashed panels, broken windows, flat tyres, etc.) - the bodywork
+--     looks exactly like stock GTA after a crash.
+--   * The ENGINE is protected from collision damage, so cars keep running and
+--     driving at FULL speed no matter how smashed the bodywork gets.
+--   * Because the engine no longer degrades from crashes, the old engine-based
+--     speed slowdown is retired - cars always drive normally.
 --
--- ================= TUNING =================
-local YELLOW_CAP = 0.70   -- top-speed factor while engine is in the yellow zone
-local RED_CAP    = 0.45   -- top-speed factor while engine is in the red zone
-local NO_LIMIT   = 200.0  -- m/s (~720 km/h): effectively no cap when healthy
--- ==========================================
+-- Runs client-side: each player protects the vehicle they are in, so the rule
+-- applies to every car being driven on the server (a "global" effect).
+--
+-- HOW IT WORKS: when you get into a vehicle we record its current engine health
+-- as the value to protect (so an already-damaged car is preserved, not magically
+-- repaired). Every tick we restore engine health back up to that value if a
+-- collision knocked it down. Repairs that RAISE engine health are allowed and
+-- become the new protected value.
 
-local lastVeh = nil
+-- How quickly (ms) we restore engine health while driving. Small enough that a
+-- hard crash never gets to smoke / catch fire before we top it back up.
+local RESTORE_INTERVAL = 50
+
+local function protectEngine(veh, baseline)
+    if not DoesEntityExist(veh) then return baseline end
+    local current = GetVehicleEngineHealth(veh)
+    -- Allow repairs / legitimate increases to raise the protected baseline.
+    if current > baseline then
+        baseline = current
+    -- A crash dropped engine health below the protected value -> restore it.
+    elseif current < baseline then
+        SetVehicleEngineHealth(veh, baseline)
+    end
+    return baseline
+end
 
 CreateThread(function()
+    local lastVeh = nil
+    local baseline = nil
     while true do
+        local wait = 500
         local ped = PlayerPedId()
         local veh = GetVehiclePedIsIn(ped, false)
-        -- only govern the vehicle WE are driving
-        if veh ~= 0 and GetPedInVehicleSeat(veh, -1) == ped then
-            local engPct = GetVehicleEngineHealth(veh) / 10.0   -- 0..100
-            if engPct > 60.0 then
-                -- green: lift any cap, drive normally
-                SetVehicleMaxSpeed(veh, NO_LIMIT)
-            else
-                local baseMax = GetVehicleEstimatedMaxSpeed(veh) -- m/s for this model
-                if baseMax <= 0.0 then baseMax = 50.0 end
-                local factor = (engPct > 30.0) and YELLOW_CAP or RED_CAP
-                SetVehicleMaxSpeed(veh, baseMax * factor)
+        if veh ~= 0 then
+            if veh ~= lastVeh then
+                -- Entered a (different) vehicle: capture its current engine
+                -- health as the level we will protect from crash damage.
+                baseline = GetVehicleEngineHealth(veh)
+                lastVeh = veh
             end
-            lastVeh = veh
-            Wait(200)
+            baseline = protectEngine(veh, baseline)
+            wait = RESTORE_INTERVAL
         else
-            -- released the vehicle: remove our speed cap so it drives normally for others
-            if lastVeh and DoesEntityExist(lastVeh) then
-                SetVehicleMaxSpeed(lastVeh, NO_LIMIT)
-            end
             lastVeh = nil
-            Wait(500)
+            baseline = nil
         end
+        Wait(wait)
     end
 end)
