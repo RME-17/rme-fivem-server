@@ -234,7 +234,6 @@
     text-shadow: 0 0 10px rgba(70, 150, 255, 0.6);
 }
 
-/* diagnostics */
 .rme-diag {
     display: flex;
     flex-direction: column;
@@ -285,7 +284,6 @@
     color: #eaf3ff;
 }
 
-/* bill */
 .rme-bill {
     max-width: 420px;
 }
@@ -313,4 +311,40 @@
     padding: 13px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(90deg,
+    background: linear-gradient(90deg, #2f7bff, #4aa6ff);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    box-shadow: 0 0 18px rgba(60, 140, 255, 0.4);
+}
+
+.rme-btn:hover {
+    box-shadow: 0 0 26px rgba(70, 160, 255, 0.7);
+    transform: translateY(-1px);
+}
+
+.rme-bill-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: rgba(160, 190, 235, 0.75);
+    line-height: 1.5;
+}
+
+.rme-content::-webkit-scrollbar,
+.rme-nav::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rme-content::-webkit-scrollbar-thumb,
+.rme-nav::-webkit-scrollbar-thumb {
+    background: rgba(80, 140, 230, 0.4);
+    border-radius: 8px;
+}
+
+.rme-content::-webkit-scrollbar-track,
+.rme-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
