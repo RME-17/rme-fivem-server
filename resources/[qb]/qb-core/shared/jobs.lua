@@ -150,4 +150,16 @@ QBCore.Shared.Jobs = {
 			['4'] = { name = 'Manager', isboss = true, payment = 300 },
 		},
 	},
+	redline = {
+		label = 'Redline Motorsport',
+		defaultDuty = true,
+		offDutyPay = false,
+		grades = {
+			['0'] = { name = 'Recruit', payment = 100 },
+			['1'] = { name = 'Mechanic', payment = 150 },
+			['2'] = { name = 'Senior Mechanic', payment = 200 },
+			['3'] = { name = 'Manager', payment = 250 },
+			['4'] = { name = 'Owner', isboss = true, payment = 300 },
+		},
+	},
 }
