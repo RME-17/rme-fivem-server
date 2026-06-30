@@ -54,11 +54,11 @@
 
   /* Boxless: no panel background/blur (backdrop-filter renders as a black box in FiveM CEF) */
   .panel {
-    width:212px; padding:4px 2px 2px; background:transparent;
+    width:248px; padding:4px 2px 2px; background:transparent;
   }
 
-  .gauge { position:relative; width:176px; height:176px; margin:0 auto; }
-  .dial { width:176px; height:176px; display:block; overflow:visible;
+  .gauge { position:relative; width:210px; height:210px; margin:0 auto; }
+  .dial { width:210px; height:210px; display:block; overflow:visible;
     filter:drop-shadow(0 2px 5px rgba(0,0,0,0.55)); }
 
   .rpmtrack { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:3; stroke-linecap:round; }
@@ -73,7 +73,7 @@
   .center { position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; }
   .val {
-    font-size:52px; font-weight:800; line-height:1; letter-spacing:-1.5px; color:#fff;
+    font-size:62px; font-weight:800; line-height:1; letter-spacing:-1.5px; color:#fff;
     font-variant-numeric:tabular-nums; font-feature-settings:'tnum' 1;
     text-shadow:0 0 18px rgba(90,209,255,0.35), 0 2px 7px rgba(0,0,0,0.8);
   }
@@ -92,17 +92,17 @@
   .aval { font-weight:800; color:#7fdcff; font-size:16px; font-variant-numeric:tabular-nums; }
   .aunit { color:rgba(255,255,255,0.55); font-size:10px; font-weight:700; }
 
-  .meters { margin-top:13px; display:flex; flex-direction:column; gap:10px; }
-  .meter { display:flex; align-items:center; gap:9px; }
-  .meter .mi { width:12px; height:12px; flex:0 0 auto; color:rgba(255,255,255,0.92);
+  .meters { margin:4px auto 0; width:150px; display:flex; flex-direction:column; gap:7px; }
+  .meter { display:flex; align-items:center; gap:6px; }
+  .meter .mi { width:9px; height:9px; flex:0 0 auto; color:rgba(255,255,255,0.92);
     filter:drop-shadow(0 1px 2px rgba(0,0,0,0.7)); transition:color .3s; }
-  .bar { position:relative; flex:1; height:6px; border-radius:6px;
+  .bar { position:relative; flex:1; height:4px; border-radius:6px;
     background:rgba(0,0,0,0.45); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.10); overflow:hidden; }
   .bar > span { position:absolute; left:0; top:0; bottom:0; width:50%; border-radius:6px;
     background:var(--good); box-shadow:0 0 8px rgba(84,224,160,0.4);
     transition:width .35s ease, background .3s, box-shadow .3s; }
-  .pct { font-size:10px; font-weight:700; color:rgba(255,255,255,0.82);
-    width:32px; text-align:right; font-variant-numeric:tabular-nums;
+  .pct { font-size:8px; font-weight:700; color:rgba(255,255,255,0.82);
+    width:24px; text-align:right; font-variant-numeric:tabular-nums;
     text-shadow:0 1px 3px rgba(0,0,0,0.85); }
 </style>
 </head>
