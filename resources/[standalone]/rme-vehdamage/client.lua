@@ -1,5 +1,7 @@
 -- rme-vehdamage
--- Makes the car you are driving take damage faster than stock GTA V.
+-- 1) Makes the car you are driving take damage faster than stock GTA V.
+-- 2) When the ENGINE is fully destroyed (0%), one axle's wheels fall off and
+--    the car becomes undriveable until a mechanic repairs it.
 -- Only affects the driver's own vehicle (runs client-side per player).
 --
 -- Body and engine are SEPARATE health pools and can be tuned independently:
@@ -11,7 +13,29 @@
 local BODY_MULT   = 1.5   -- body/collision (cosmetic crumpling) damage multiplier
 local ENGINE_MULT = 1.2   -- engine damage multiplier (lower = engine stays stronger)
 
+-- Engine health (0..1000) at/below which the car is considered fully wrecked.
+local DEAD_AT = 0.0
+
 local lastVeh, lastBody, lastEngine = nil, nil, nil
+local wrecked = {}   -- vehicles already wrecked this life (reset on repair)
+
+-- Drop one axle's wheels (random front or rear) and lock the car down so it
+-- cannot be driven again until repaired.
+local function wreckVehicle(veh)
+    SetVehicleUndriveable(veh, true)
+    SetVehicleEngineOn(veh, false, true, true)
+    SetVehicleWheelsCanBreak(veh, true)
+    -- wheel indices: 0 = front-left, 1 = front-right, 4 = rear-left, 5 = rear-right
+    if math.random(2) == 1 then
+        -- rear axle
+        BreakOffVehicleWheel(veh, 4, false, true, true, false)
+        BreakOffVehicleWheel(veh, 5, false, true, true, false)
+    else
+        -- front axle
+        BreakOffVehicleWheel(veh, 0, false, true, true, false)
+        BreakOffVehicleWheel(veh, 1, false, true, true, false)
+    end
+end
 
 CreateThread(function()
     while true do
@@ -35,6 +59,15 @@ CreateThread(function()
                     SetVehicleEngineHealth(veh, curEngine)
                 end
             end
+
+            -- fully wrecked -> drop wheels + lock down (once per life)
+            if curEngine <= DEAD_AT and not wrecked[veh] then
+                wrecked[veh] = true
+                wreckVehicle(veh)
+            elseif curEngine > 100.0 and wrecked[veh] then
+                wrecked[veh] = nil   -- repaired, allow it to be wrecked again later
+            end
+
             lastVeh, lastBody, lastEngine = veh, curBody, curEngine
             Wait(0)
         else
