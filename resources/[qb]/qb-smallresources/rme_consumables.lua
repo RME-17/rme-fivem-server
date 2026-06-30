@@ -1,15 +1,21 @@
 -- RME: Burger Shot consumables.
 -- Loaded right AFTER config.lua (shared) so these entries exist on BOTH client
 -- and server before qb-smallresources/server/consumables.lua runs its
--- CreateUseableItem registration loops over Config.Consumables.eat / .drink.
+-- CreateUseableItem registration loops over Config.Consumables.
 -- This keeps the base config.lua untouched (low blast radius).
+--
+-- Drinks: the stock 'drink' handler hardcodes a water-bottle prop, so the
+-- fountain colas are registered as 'custom' consumables instead, which lets us
+-- attach the REAL base-game Burger Shot soda cup (prop_food_bs_soda_01). That
+-- prop ships with the base game, so no streaming / prop pack is required.
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
 Config.Consumables.eat = Config.Consumables.eat or {}
 Config.Consumables.drink = Config.Consumables.drink or {}
+Config.Consumables.custom = Config.Consumables.custom or {}
 
--- Food (replenishes hunger, 0-100 scale)
+-- Food (replenishes hunger, 0-100). Uses the default burger eat animation/prop.
 local rmeEat = {
     -- Burgers & wraps
     ['burgershot_bigking'] = math.random(40, 50),
@@ -35,12 +41,45 @@ local rmeEat = {
     ['burgershot_thesmurfsicecream'] = math.random(15, 25)
 }
 
--- Drinks (replenishes thirst, 0-100 scale)
+-- Plain drinks (replenishes thirst, 0-100). Uses the default bottle animation.
 local rmeDrink = {
-    ['burgershot_colas'] = math.random(20, 30),
-    ['burgershot_colab'] = math.random(40, 50),
-    ['burgershot_colagoat'] = math.random(40, 50),
     ['burgershot_coffee'] = math.random(15, 25)
+}
+
+-- Fountain colas: custom consumables holding the real Burger Shot soda cup.
+local BS_CUP = 'prop_food_bs_soda_01' -- base-game Burger Shot paper soda cup
+
+local function bsDrink(label, amount)
+    return {
+        progress = {
+            label = label,
+            time = 5000
+        },
+        animation = {
+            animDict = 'mp_player_intdrink',
+            anim = 'loop_bottle',
+            flags = 49
+        },
+        prop = {
+            model = BS_CUP,
+            bone = 60309,
+            coords = vec3(0.0, 0.0, -0.05),
+            rotation = vec3(0.0, 0.0, -40.0)
+        },
+        replenish = {
+            type = 'Thirst',
+            replenish = amount,
+            isAlcohol = false,
+            event = false,
+            server = false
+        }
+    }
+end
+
+local rmeCustom = {
+    ['burgershot_colas'] = bsDrink('Sipping a Small Cola...', math.random(20, 30)),
+    ['burgershot_colab'] = bsDrink('Sipping a Large Cola...', math.random(40, 50)),
+    ['burgershot_colagoat'] = bsDrink('Sipping a Goat Cola...', math.random(40, 50))
 }
 
 for k, v in pairs(rmeEat) do
@@ -49,4 +88,8 @@ end
 
 for k, v in pairs(rmeDrink) do
     Config.Consumables.drink[k] = v
+end
+
+for k, v in pairs(rmeCustom) do
+    Config.Consumables.custom[k] = v
 end
