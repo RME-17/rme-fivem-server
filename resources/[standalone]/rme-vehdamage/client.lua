@@ -1,20 +1,24 @@
 -- rme-vehdamage
 -- 1) Makes the car you are driving take damage faster than stock GTA V.
--- 2) When the ENGINE is fully destroyed (0%), one axle's wheels fall off and
---    the car becomes undriveable until a mechanic repairs it.
+-- 2) Body crashes also wear the ENGINE, so repeatedly bashing the car will
+--    eventually fully wreck it (engine 0%) even from cosmetic hits.
+-- 3) When the engine hits 0%, one axle's wheels fall off and the car becomes
+--    undriveable until a mechanic repairs it.
 -- Only affects the driver's own vehicle (runs client-side per player).
 --
--- Body and engine are SEPARATE health pools and can be tuned independently:
---   1.0 = stock GTA damage (no change / toughest)
---   1.2 = engine current (only a little less tanky than stock)
---   1.5 = body current (noticeably less tanky)
---   2.0 = twice as much damage per hit
---   2.5+ = very fragile
-local BODY_MULT   = 1.5   -- body/collision (cosmetic crumpling) damage multiplier
-local ENGINE_MULT = 1.2   -- engine damage multiplier (lower = engine stays stronger)
-
--- Engine health (0..1000) at/below which the car is considered fully wrecked.
+-- ================= TUNING =================
+-- Body and engine are SEPARATE health pools (0..1000). Higher multiplier = faster damage.
+--   1.0  = stock GTA (toughest, no change)
+--   2.0  = current (twice the damage per hit)
+--   3.0+ = very fragile
+local BODY_MULT      = 2.0   -- body/collision damage multiplier
+local ENGINE_MULT    = 2.0   -- engine damage multiplier
+-- How much of the body damage also bleeds into the engine (0 = none, 1 = all).
+-- This is what makes ordinary crashes progress the car toward a full wreck.
+local BODY_TO_ENGINE = 0.4
+-- Engine health at/below which the car is considered fully wrecked.
 local DEAD_AT = 0.0
+-- ==========================================
 
 local lastVeh, lastBody, lastEngine = nil, nil, nil
 local wrecked = {}   -- vehicles already wrecked this life (reset on repair)
@@ -27,12 +31,10 @@ local function wreckVehicle(veh)
     SetVehicleWheelsCanBreak(veh, true)
     -- wheel indices: 0 = front-left, 1 = front-right, 4 = rear-left, 5 = rear-right
     if math.random(2) == 1 then
-        -- rear axle
-        BreakOffVehicleWheel(veh, 4, false, true, true, false)
+        BreakOffVehicleWheel(veh, 4, false, true, true, false) -- rear axle
         BreakOffVehicleWheel(veh, 5, false, true, true, false)
     else
-        -- front axle
-        BreakOffVehicleWheel(veh, 0, false, true, true, false)
+        BreakOffVehicleWheel(veh, 0, false, true, true, false) -- front axle
         BreakOffVehicleWheel(veh, 1, false, true, true, false)
     end
 end
@@ -46,18 +48,21 @@ CreateThread(function()
             local curBody = GetVehicleBodyHealth(veh)
             local curEngine = GetVehicleEngineHealth(veh)
             if veh == lastVeh and lastBody and lastEngine then
-                -- body took a hit this frame -> apply extra damage
-                if curBody < lastBody then
-                    local extra = (lastBody - curBody) * (BODY_MULT - 1.0)
-                    curBody = math.max(0.0, curBody - extra)
-                    SetVehicleBodyHealth(veh, curBody)
-                end
-                -- engine took a hit this frame -> apply extra damage
+                -- ENGINE: amplify the engine's own damage (use raw values first)
                 if curEngine < lastEngine then
                     local extra = (lastEngine - curEngine) * (ENGINE_MULT - 1.0)
                     curEngine = math.max(0.0, curEngine - extra)
-                    SetVehicleEngineHealth(veh, curEngine)
                 end
+                -- BODY: amplify body damage, then bleed part of it into the engine
+                if curBody < lastBody then
+                    local delta = lastBody - curBody
+                    local extra = delta * (BODY_MULT - 1.0)
+                    curBody = math.max(0.0, curBody - extra)
+                    local bleed = (delta + extra) * BODY_TO_ENGINE
+                    curEngine = math.max(0.0, curEngine - bleed)
+                end
+                SetVehicleBodyHealth(veh, curBody)
+                SetVehicleEngineHealth(veh, curEngine)
             end
 
             -- fully wrecked -> drop wheels + lock down (once per life)
