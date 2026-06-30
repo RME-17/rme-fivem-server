@@ -119,7 +119,9 @@ end)
 -- Main Thread
 
 CreateThread(function()
+    print('[RME-BAY-DEBUG] qb-mechanicjob main thread started; iterating Config.Shops')
     for k, v in pairs(Config.Shops) do
+        print(('[RME-BAY-DEBUG] processing shop=%s managed=%s'):format(tostring(k), tostring(v.managed)))
         if v.showBlip then
             local blip = AddBlipForCoord(v.blipCoords)
             SetBlipSprite(blip, v.blipSprite)
@@ -221,22 +223,25 @@ CreateThread(function()
             })
         end
 
-        -- RME: drive-in customization bay(s). Park a car on the pad, then press E
-        -- either from the driver's seat OR standing next to it (the bay finds the
-        -- closest vehicle within 6m). Supports a single `custombay` (vector3) or a
-        -- list `custombays` ({ vector3, ... }).
+        -- RME: drive-in customization bay(s).
+        -- *** TEMP DEBUG BUILD ***
+        --   debugPoly = true  -> zone circles are drawn on the floor so we can SEE them
+        --   job lock removed  -> tests whether the redline job gate was the blocker
+        --   F8 prints         -> confirm the loop reaches this shop and how many bays register
         local bays = v.custombays or (v.custombay and { v.custombay })
         if bays then
+            print(('[RME-BAY-DEBUG] shop=%s has %d custombay(s)'):format(tostring(k), #bays))
             for i = 1, #bays do
+                print(('[RME-BAY-DEBUG] registering %s_custombay_%d at %s'):format(tostring(k), i, tostring(bays[i])))
                 exports['qb-target']:AddCircleZone(k .. '_custombay_' .. i, bays[i], 3.5, {
                     name = k .. '_custombay_' .. i,
-                    debugPoly = false,
+                    debugPoly = true,
                     useZ = true
                 }, {
                     options = { {
                         label = 'Customize Vehicle (Bay)',
                         icon = 'fas fa-paint-roller',
-                        job = v.managed and k or nil,
+                        -- job lock intentionally omitted for this debug build
                         action = function()
                             OpenCustomBay() -- custombay.lua
                         end
@@ -246,4 +251,5 @@ CreateThread(function()
             end
         end
     end
+    print('[RME-BAY-DEBUG] finished iterating Config.Shops')
 end)
