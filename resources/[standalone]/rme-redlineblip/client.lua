@@ -2,7 +2,7 @@
 -- Adjust SPRITE / COLOUR / SCALE / LABEL below to taste.
 
 local SHOP_COORDS = vector3(1148.10, -771.46, 57.57)
-local SPRITE = 72       -- LS Customs / mechanic wrench. Swap this number for a different icon.
+local SPRITE = 446      -- swapped with Benny's icon. Change this number for a different icon.
 local COLOUR = 46       -- matches your other mechanic blips
 local SCALE  = 0.9
 local LABEL  = 'Redline Mechanic'
