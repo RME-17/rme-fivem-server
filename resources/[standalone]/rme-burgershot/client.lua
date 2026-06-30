@@ -2,9 +2,15 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = QBCore.Functions.GetPlayerData()
 local isCooking = false
 local createdZones = {}
+local spawnedPeds = {}
 
 local function canUse()
     if not Config.RequireJob then return true end
+    return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName
+end
+
+-- Supply peds are always locked to the burgershot job
+local function canUsePeds()
     return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName
 end
 
@@ -103,6 +109,65 @@ local function openStationMenu(station)
     exports['qb-menu']:openMenu(menu)
 end
 
+-- ===================== SUPPLY PEDS =====================
+local function openSupplyMenu(key)
+    local data = Config.SupplyPeds[key]
+    if not data then return end
+    local menu = { { header = data.label, isMenuHeader = true } }
+    for _, entry in ipairs(data.items) do
+        local itemData = QBCore.Shared.Items[entry.item]
+        local lbl = itemData and itemData.label or entry.item
+        for _, amt in ipairs(Config.BuyAmounts) do
+            menu[#menu + 1] = {
+                header = lbl .. ' x' .. amt,
+                txt = '$' .. (entry.price * amt),
+                params = {
+                    event = 'rme-burgershot:client:buyIngredient',
+                    args = { ped = key, item = entry.item, amount = amt },
+                },
+            }
+        end
+    end
+    exports['qb-menu']:openMenu(menu)
+end
+
+RegisterNetEvent('rme-burgershot:client:buyIngredient', function(data)
+    TriggerServerEvent('rme-burgershot:server:buyIngredient', data.ped, data.item, data.amount)
+end)
+
+local function spawnSupplyPeds()
+    for key, data in pairs(Config.SupplyPeds) do
+        local hash = GetHashKey(data.model)
+        RequestModel(hash)
+        local t = 0
+        while not HasModelLoaded(hash) and t < 1000 do
+            Wait(10)
+            t = t + 1
+        end
+        local c = data.coords
+        local ped = CreatePed(4, hash, c.x, c.y, c.z - 1.0, c.w, false, true)
+        FreezeEntityPosition(ped, true)
+        SetEntityInvincible(ped, true)
+        SetBlockingOfNonTemporaryEvents(ped, true)
+        SetPedDiesWhenInjured(ped, false)
+        SetPedCanRagdoll(ped, false)
+        spawnedPeds[#spawnedPeds + 1] = ped
+        exports['qb-target']:AddTargetEntity(ped, {
+            options = {
+                {
+                    icon = 'fas fa-box',
+                    label = 'Buy ' .. data.label,
+                    canInteract = function() return canUsePeds() end,
+                    action = function() openSupplyMenu(key) end,
+                },
+            },
+            distance = 2.5,
+        })
+        SetModelAsNoLongerNeeded(hash)
+    end
+end
+
+-- ===================== STATION ZONES =====================
 local function createZones()
     for station, data in pairs(Config.Stations) do
         local c = data.coords
@@ -135,9 +200,20 @@ local function removeZones()
     createdZones = {}
 end
 
+local function removePeds()
+    for _, ped in ipairs(spawnedPeds) do
+        if DoesEntityExist(ped) then
+            exports['qb-target']:RemoveTargetEntity(ped)
+            DeletePed(ped)
+        end
+    end
+    spawnedPeds = {}
+end
+
 CreateThread(function()
     Wait(1000)
     createZones()
+    spawnSupplyPeds()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
@@ -151,6 +227,7 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         removeZones()
+        removePeds()
         if isCooking then
             ClearPedTasks(PlayerPedId())
         end

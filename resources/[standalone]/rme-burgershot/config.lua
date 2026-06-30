@@ -5,6 +5,9 @@ Config = {}
 Config.RequireJob = false
 Config.JobName    = 'burgershot'
 
+-- Account ingredients are paid from ('cash' or 'bank')
+Config.PayAccount = 'cash'
+
 -- ============================================================
 -- COOKING STATIONS (coords captured in-game)
 -- Adjust coords/size here if a station marker is off.
@@ -146,5 +149,37 @@ Config.Recipes = {
             { item = 'burgershot_sauce', amount = 1 },
         },
         output = { item = 'burgershot_lavash', amount = 1 },
+    },
+}
+
+-- ============================================================
+-- INGREDIENT SUPPLY PEDS (paid, locked to the burgershot job)
+-- Staff buy raw ingredients here. price = cost per single item.
+-- ============================================================
+Config.BuyAmounts = { 1, 5, 10 }   -- quantity options offered per item
+
+Config.SupplyPeds = {
+    frozen = {
+        label  = 'Frozen Supplies',
+        model  = 'mp_m_shopkeep_01',
+        coords = vector4(966.15, -1651.91, 29.42, 106.56),
+        items  = {
+            { item = 'burgershot_frozenmeat', price = 5 },
+            { item = 'burgershot_frozennuggets', price = 5 },
+            { item = 'burgershot_frozenrings', price = 5 },
+            { item = 'burgershot_bigfrozenpotato', price = 5 },
+            { item = 'burgershot_smallfrozenpotato', price = 5 },
+        },
+    },
+    fresh = {
+        label  = 'Fresh Supplies',
+        model  = 'mp_m_shopkeep_01',
+        coords = vector4(556.37, -1621.77, 28.38, 129.5),
+        items  = {
+            { item = 'burgershot_bread', price = 5 },
+            { item = 'burgershot_cheddar', price = 5 },
+            { item = 'burgershot_tomato', price = 5 },
+            { item = 'burgershot_sauce', price = 5 },
+        },
     },
 }
