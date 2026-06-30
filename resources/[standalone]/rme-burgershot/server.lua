@@ -91,3 +91,25 @@ RegisterNetEvent('rme-burgershot:server:buyIngredient', function(pedKey, itemNam
     end
     TriggerClientEvent('QBCore:Notify', src, 'Bought ' .. amount .. 'x ' .. (itemData and itemData.label or itemName) .. ' for $' .. total, 'success')
 end)
+
+-- ===================== STORAGES (job-locked qb-inventory stashes) =====================
+RegisterNetEvent('rme-burgershot:server:openStorage', function(key)
+    local src = source
+    local storage = Config.Storages[key]
+    if not storage then return end
+
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+
+    -- Storages are locked to the burgershot job (members only)
+    if Player.PlayerData.job.name ~= Config.JobName then
+        TriggerClientEvent('QBCore:Notify', src, 'You do not work at Burger Shot.', 'error')
+        return
+    end
+
+    exports['qb-inventory']:OpenInventory(src, storage.stashId, {
+        label     = storage.label,
+        maxweight = storage.maxweight,
+        slots     = storage.slots,
+    })
+end)

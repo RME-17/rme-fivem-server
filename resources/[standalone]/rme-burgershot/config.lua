@@ -189,3 +189,42 @@ Config.SupplyPeds = {
         },
     },
 }
+
+-- ============================================================
+-- STORAGES (job-locked qb-inventory stashes, members only)
+-- Persistent + shared among all Burger Shot staff.
+-- cold = frozen/chilled stock, normal = dry goods.
+-- ============================================================
+Config.Storages = {
+    cold = {
+        label     = 'Burger Shot Cold Storage',
+        stashId   = 'burgershot_coldstorage',
+        coords    = vector4(-580.57, -883.78, 26.0, 269.4),
+        icon      = 'fas fa-snowflake',
+        size      = vector3(1.4, 1.4, 1.0),
+        maxweight = 1000000,
+        slots     = 50,
+    },
+    normal = {
+        label     = 'Burger Shot Storage',
+        stashId   = 'burgershot_normalstorage',
+        coords    = vector4(-580.87, -895.36, 26.0, 202.08),
+        icon      = 'fas fa-box-open',
+        size      = vector3(1.4, 1.4, 1.0),
+        maxweight = 1000000,
+        slots     = 50,
+    },
+}
+
+-- ============================================================
+-- BOSS MENU (qb-management)
+-- Opens qb-bossmenu:client:OpenMenu. Only graded bosses
+-- (Owner, isboss = true) can open it: hire/fire, promote/
+-- demote, society storage & society funds.
+-- ============================================================
+Config.BossMenu = {
+    coords = vector4(-582.67, -880.99, 26.0, 86.45),
+    label  = 'Boss Menu',
+    icon   = 'fas fa-user-tie',
+    size   = vector3(1.0, 1.0, 1.0),
+}

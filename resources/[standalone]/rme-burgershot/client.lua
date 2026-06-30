@@ -15,6 +15,11 @@ local function isBurgerShot()
     return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName
 end
 
+-- Only graded bosses (Owner) may open the boss menu
+local function isBoss()
+    return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName and PlayerData.job.isboss == true
+end
+
 local function loadAnimDict(dict)
     RequestAnimDict(dict)
     local timeout = 0
@@ -228,6 +233,58 @@ local function createZones()
     end
 end
 
+-- ===================== STORAGE ZONES (members only) =====================
+local function createStorageZones()
+    for key, data in pairs(Config.Storages) do
+        local c = data.coords
+        local zoneName = 'bs_storage_' .. key
+        exports['qb-target']:AddBoxZone(zoneName, vector3(c.x, c.y, c.z), data.size.x, data.size.y, {
+            name = zoneName,
+            heading = c.w,
+            debugPoly = false,
+            minZ = c.z - 1.0,
+            maxZ = c.z + 1.0,
+        }, {
+            options = {
+                {
+                    icon = data.icon,
+                    label = 'Open ' .. data.label,
+                    canInteract = function() return canUse() end,
+                    action = function() TriggerServerEvent('rme-burgershot:server:openStorage', key) end,
+                },
+            },
+            distance = 1.8,
+        })
+        createdZones[#createdZones + 1] = zoneName
+    end
+end
+
+-- ===================== BOSS MENU ZONE (bosses only) =====================
+local function createBossZone()
+    local data = Config.BossMenu
+    if not data then return end
+    local c = data.coords
+    local zoneName = 'bs_bossmenu'
+    exports['qb-target']:AddBoxZone(zoneName, vector3(c.x, c.y, c.z), data.size.x, data.size.y, {
+        name = zoneName,
+        heading = c.w,
+        debugPoly = false,
+        minZ = c.z - 1.0,
+        maxZ = c.z + 1.0,
+    }, {
+        options = {
+            {
+                icon = data.icon,
+                label = data.label,
+                canInteract = function() return isBoss() end,
+                action = function() TriggerEvent('qb-bossmenu:client:OpenMenu') end,
+            },
+        },
+        distance = 1.8,
+    })
+    createdZones[#createdZones + 1] = zoneName
+end
+
 local function removeZones()
     for _, name in ipairs(createdZones) do
         exports['qb-target']:RemoveZone(name)
@@ -248,6 +305,8 @@ end
 CreateThread(function()
     Wait(1000)
     createZones()
+    createStorageZones()
+    createBossZone()
     spawnSupplyPeds()
     refreshSupplyBlips()
 end)
