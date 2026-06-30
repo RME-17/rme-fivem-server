@@ -88,6 +88,79 @@ RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
     if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, ('Customer paid $%s'):format(amount), 'success') end
 end)
 
+-- Customer cosmetics order board --------------------------------------------
+-- Customers build an order at the drive-in bay (client/custombay.lua) and submit
+-- it. Orders are held in memory (cleared on restart), keyed by plate, and shown
+-- in the Orders tab of the member tablet. Members apply each item one at a time
+-- on the real car while it is present.
+
+local orders = {} -- plate -> { plate, vehName, customer, customerName, items = {...}, time }
+
+local function notifyMechanics(msg)
+    local players = QBCore.Functions.GetQBPlayers()
+    for _, Player in pairs(players) do
+        if Player and Player.PlayerData and Player.PlayerData.job
+            and Player.PlayerData.job.type == 'mechanic' and Player.PlayerData.job.onduty then
+            TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, msg, 'primary')
+        end
+    end
+end
+
+RegisterNetEvent('qb-mechanicjob:server:submitOrder', function(plate, vehName, items)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    if type(items) ~= 'table' or #items == 0 then return end
+    if type(plate) ~= 'string' then return end
+    local cname = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
+    orders[plate] = {
+        plate = plate,
+        vehName = vehName or 'Vehicle',
+        customer = src,
+        customerName = cname,
+        items = items,
+        time = os.time(),
+    }
+    TriggerClientEvent('QBCore:Notify', src, 'Your customization order was sent to Redline Motorsport', 'success')
+    notifyMechanics(('New Redline order: %s (%s)'):format(vehName or 'Vehicle', plate))
+end)
+
+QBCore.Functions.CreateCallback('qb-mechanicjob:server:getOrders', function(source, cb)
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not Player or Player.PlayerData.job.type ~= 'mechanic' then cb({}) return end
+    local list = {}
+    for _, o in pairs(orders) do
+        list[#list + 1] = o
+    end
+    cb(list)
+end)
+
+RegisterNetEvent('qb-mechanicjob:server:completeOrderItem', function(plate, index)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player or Player.PlayerData.job.type ~= 'mechanic' then return end
+    local o = orders[plate]
+    if not o then return end
+    index = tonumber(index)
+    if index and o.items[index] then
+        table.remove(o.items, index)
+    end
+    if #o.items == 0 then
+        orders[plate] = nil
+        if o.customer then TriggerClientEvent('QBCore:Notify', o.customer, 'Your Redline order is complete', 'success') end
+    end
+end)
+
+RegisterNetEvent('qb-mechanicjob:server:cancelOrder', function(plate)
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player or Player.PlayerData.job.type ~= 'mechanic' then return end
+    local o = orders[plate]
+    if not o then return end
+    orders[plate] = nil
+    if o.customer then TriggerClientEvent('QBCore:Notify', o.customer, 'Your Redline order was cancelled', 'error') end
+end)
+
 AddEventHandler('playerDropped', function()
     pendingBills[source] = nil
 end)

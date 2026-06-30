@@ -1,8 +1,9 @@
 -- RME Redline Mechanic Tablet (custom frosted-glass NUI)
 -- The 'tablet' inventory item (mechanic job only) connects to the nearest
 -- vehicle and opens a custom UI: live diagnostics, every cosmetic upgrade
--- (each applied with a work animation), repair/clean actions, and customer
--- billing that deposits into the shop's society account.
+-- (each applied with a work animation), repair/clean actions, customer billing
+-- that deposits into the shop's society account, and an Orders tab where members
+-- fulfil customer cosmetics orders one item at a time on the connected car.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -295,6 +296,73 @@ RegisterNUICallback('rmeBill', function(payload, cb)
     local serverId = GetPlayerServerId(player)
     TriggerServerEvent('qb-mechanicjob:server:billCustomer', serverId, math.floor(amount))
     QBCore.Functions.Notify('Invoice sent to the customer', 'primary')
+    cb('ok')
+end)
+
+-- customer cosmetics orders (member fulfilment) -----------------------------
+
+RegisterNUICallback('rmeGetOrders', function(_, cb)
+    QBCore.Functions.TriggerCallback('qb-mechanicjob:server:getOrders', function(list)
+        cb({ plate = tabletPlate, orders = list or {} })
+    end)
+end)
+
+RegisterNUICallback('rmeOrderApply', function(payload, cb)
+    if not tabletOpen or working then cb('busy') return end
+    local veh = tabletVehicle
+    if not veh or not DoesEntityExist(veh) then
+        QBCore.Functions.Notify('Lost connection to the vehicle', 'error')
+        cb('novehicle') return
+    end
+    if payload.plate and tabletPlate and payload.plate ~= tabletPlate then
+        QBCore.Functions.Notify('Connect the tablet to the matching vehicle first', 'error')
+        cb('wrongveh') return
+    end
+    local item = payload.item or {}
+    working = true
+    SetVehicleModKit(veh, 0)
+    PlayWorkAnim(2000)
+    local kind = item.kind
+    if kind == 'paint' then
+        local p, s = GetVehicleColours(veh)
+        if item.section == 'secondary' then
+            SetVehicleColours(veh, p, item.colorId)
+        else
+            SetVehicleColours(veh, item.colorId, s)
+        end
+    elseif kind == 'wheel' then
+        SetVehicleWheelType(veh, item.wheelType)
+        SetVehicleMod(veh, 23, item.index, false)
+    elseif kind == 'neon' then
+        if item.off then
+            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
+        else
+            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
+            SetVehicleNeonLightsColour(veh, item.r, item.g, item.b)
+        end
+    elseif kind == 'smoke' then
+        if item.off then
+            ToggleVehicleMod(veh, 20, false)
+        else
+            ToggleVehicleMod(veh, 20, true)
+            SetVehicleTyreSmokeColor(veh, item.r, item.g, item.b)
+        end
+    elseif kind == 'tint' then
+        SetVehicleWindowTint(veh, item.id)
+    elseif kind == 'plate' then
+        SetVehicleNumberPlateTextIndex(veh, item.id)
+    end
+    SaveTabletVehicle()
+    TriggerServerEvent('qb-mechanicjob:server:completeOrderItem', tabletPlate, payload.index)
+    working = false
+    QBCore.Functions.Notify('Applied: ' .. (item.label or kind or 'item'), 'success')
+    cb('ok')
+end)
+
+RegisterNUICallback('rmeOrderCancel', function(payload, cb)
+    if payload and payload.plate then
+        TriggerServerEvent('qb-mechanicjob:server:cancelOrder', payload.plate)
+    end
     cb('ok')
 end)
 
