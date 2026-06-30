@@ -4,11 +4,12 @@
 --
 -- TUNE HERE:
 --   1.0 = stock GTA damage (no change)
+--   1.5 = current setting (cars a bit less tanky, still survivable)
 --   2.0 = twice as much damage per hit
---   2.5 = current setting (cars break noticeably faster)
---   4.0+ = very fragile
-local BODY_MULT   = 2.5   -- body/collision damage multiplier
-local ENGINE_MULT = 2.5   -- engine damage multiplier
+--   2.5+ = cars break very fast / fragile
+--   4.0+ = extremely fragile
+local BODY_MULT   = 1.5   -- body/collision damage multiplier
+local ENGINE_MULT = 1.5   -- engine damage multiplier
 
 local lastVeh, lastBody, lastEngine = nil, nil, nil
 
