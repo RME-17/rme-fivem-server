@@ -6,8 +6,9 @@
 --
 -- Drinks: the stock 'drink' handler hardcodes a water-bottle prop, so the
 -- fountain colas are registered as 'custom' consumables instead, which lets us
--- attach the REAL base-game RED Burger Shot paper cup (prop_food_bs_juice02).
--- That prop ships with the base game, so no streaming / prop pack is required.
+-- attach the REAL base-game RED Burger Shot paper cup (prop_food_bs_juice02)
+-- and use a two-handed cup-sip animation. Both ship with the base game, so no
+-- streaming / prop pack is required.
 -- Prop notes (all base-game):
 --   prop_food_bs_juice02 = RED/white Burger Shot cup  <-- using this
 --   prop_food_bs_juice01 = BLACK Burger Shot cup
@@ -60,8 +61,9 @@ local function bsDrink(label, amount)
             time = 5000
         },
         animation = {
-            animDict = 'mp_player_intdrink',
-            anim = 'loop_bottle',
+            -- Two-handed cup hold & sip (WORLD_HUMAN_AA_COFFEE style)
+            animDict = 'amb@world_human_aa_coffee@idle_a',
+            anim = 'idle_a',
             flags = 49
         },
         prop = {
