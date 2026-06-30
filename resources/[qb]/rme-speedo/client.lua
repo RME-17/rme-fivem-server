@@ -23,11 +23,16 @@ local function getFuel(veh)
     return math.floor(GetVehicleFuelLevel(veh) + 0.5)
 end
 
--- Engine health as a 0-100% value. The spanner/condition meter reflects the
--- ENGINE only (not body/cosmetic damage).
+-- Engine health as 0-100% (left circular gauge / spanner).
 local function getHealth(veh)
     local engH = GetVehicleEngineHealth(veh)  -- 0 .. 1000 (can go negative when on fire)
     return math.max(0, math.min(100, math.floor(engH / 10.0 + 0.5)))
+end
+
+-- Body health as 0-100% (right circular gauge / vehicle damage).
+local function getBody(veh)
+    local bodyH = GetVehicleBodyHealth(veh)   -- 0 .. 1000
+    return math.max(0, math.min(100, math.floor(bodyH / 10.0 + 0.5)))
 end
 
 local shown = false
@@ -46,6 +51,7 @@ CreateThread(function()
                 local gear = GetVehicleCurrentGear(veh)
                 local fuel = getFuel(veh)
                 local health = getHealth(veh)
+                local body = getBody(veh)
                 local alt = math.floor(GetEntityCoords(ped).z + 0.5)
                 local heading, dir = getCompass(veh)
                 if not shown then
@@ -60,6 +66,7 @@ CreateThread(function()
                     gear = gear,
                     fuel = fuel,
                     health = health,
+                    body = body,
                     altitude = alt,
                     isAir = isAir,
                     heading = heading,
