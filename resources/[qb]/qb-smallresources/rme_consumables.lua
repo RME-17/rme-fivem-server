@@ -6,12 +6,14 @@
 --
 -- Drinks: the stock 'drink' handler hardcodes a water-bottle prop, so the
 -- fountain colas are registered as 'custom' consumables instead, which lets us
--- attach the REAL base-game RED Burger Shot paper cup (prop_food_bs_juice02)
--- and use a two-handed cup-sip animation. Both ship with the base game, so no
--- streaming / prop pack is required.
--- Prop notes (all base-game):
---   prop_food_bs_juice02 = RED/white Burger Shot cup  <-- using this
---   prop_food_bs_juice01 = BLACK Burger Shot cup
+-- attach a chosen cup prop + animation.
+--
+-- CUP MODEL: base-game Burger Shot cups (prop_food_bs_juice01/02) both render
+-- DARK/black in-game (Forge 'red' tag = logo accents only). A genuinely RED
+-- Burger Shot cup needs a CUSTOM streamed prop. BS_CUP below is a temporary
+-- base-game placeholder; swap it to the streamed red cup model once the prop
+-- pack resource is installed and ensured.
+--   prop_food_bs_juice02 = dark Burger Shot cup (placeholder)
 --   prop_food_bs_soda_01 = soda CRATE (big red box), not a cup
 
 Config = Config or {}
@@ -51,8 +53,10 @@ local rmeDrink = {
     ['burgershot_coffee'] = math.random(15, 25)
 }
 
--- Fountain colas: custom consumables holding the real RED Burger Shot paper cup.
-local BS_CUP = 'prop_food_bs_juice02' -- base-game RED Burger Shot cup (hash 438929182)
+-- Fountain colas: custom consumables. Cup-to-mouth sip animation.
+-- TODO: replace BS_CUP with the streamed RED Burger Shot cup model once the
+-- prop pack is installed (see notes at top of file).
+local BS_CUP = 'prop_food_bs_juice02' -- placeholder dark base-game cup
 
 local function bsDrink(label, amount)
     return {
@@ -61,9 +65,9 @@ local function bsDrink(label, amount)
             time = 5000
         },
         animation = {
-            -- Two-handed cup hold & sip (WORLD_HUMAN_AA_COFFEE style)
-            animDict = 'amb@world_human_aa_coffee@idle_a',
-            anim = 'idle_a',
+            -- Original cup-to-mouth sip
+            animDict = 'mp_player_intdrink',
+            anim = 'loop_bottle',
             flags = 49
         },
         prop = {
