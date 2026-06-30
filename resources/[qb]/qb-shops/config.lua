@@ -31,7 +31,6 @@ Config.Products = {
         { name = 'beer',          price = 7,   amount = 50 },
         { name = 'whiskey',       price = 10,  amount = 50 },
         { name = 'vodka',         price = 12,  amount = 50 },
-        { name = 'bandage',       price = 100, amount = 50 },
         { name = 'lighter',       price = 2,   amount = 50 },
         { name = 'rolling_paper', price = 2,   amount = 5000 },
     },
