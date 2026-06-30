@@ -1,22 +1,145 @@
--- RME Mechanic Tablet
--- Using the 'tablet' inventory item (mechanic job only) connects to the closest
--- vehicle and shows live diagnostics + repair/clean actions.
+-- RME Redline Mechanic Tablet (custom frosted-glass NUI)
+-- The 'tablet' inventory item (mechanic job only) connects to the nearest
+-- vehicle and opens a custom UI: live diagnostics, every cosmetic upgrade
+-- (each applied with a work animation), repair/clean actions, and customer
+-- billing that deposits into the shop's society account.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local TabletMenu, TabletAction
+local tabletOpen = false
+local tabletVehicle = nil
+local tabletPlate = nil
+local working = false
 
-local function pctColor(pct)
-    if pct <= 25 then
-        return 'red'
-    elseif pct <= 50 then
-        return 'yellow'
-    else
-        return 'green'
+-- helpers -------------------------------------------------------------------
+
+local function toPct(v, max)
+    return math.max(0, math.min(100, math.ceil((v / (max or 1000)) * 100)))
+end
+
+local function vehName(veh)
+    local model = GetEntityModel(veh)
+    local label = GetLabelText(GetDisplayNameFromVehicleModel(model))
+    if not label or label == 'NULL' or label == '' then
+        label = GetDisplayNameFromVehicleModel(model)
+    end
+    local make = GetMakeNameFromVehicleModel(model)
+    if make and make ~= '' and make ~= 'NULL' then
+        local mk = GetLabelText(make)
+        if mk and mk ~= 'NULL' and mk ~= '' then label = mk .. ' ' .. label end
+    end
+    return label
+end
+
+local function PlayWorkAnim(ms)
+    local ped = PlayerPedId()
+    RequestAnimDict('mini@repair')
+    local t = GetGameTimer()
+    while not HasAnimDictLoaded('mini@repair') and GetGameTimer() - t < 1000 do Wait(0) end
+    TaskPlayAnim(ped, 'mini@repair', 'fixing_a_player', 8.0, -8.0, ms, 1, 0, false, false, false)
+    Wait(ms)
+    ClearPedTasks(ped)
+end
+
+local function SaveTabletVehicle()
+    if tabletVehicle and DoesEntityExist(tabletVehicle) then
+        local props = QBCore.Functions.GetVehicleProperties(tabletVehicle)
+        if props then TriggerServerEvent('qb-mechanicjob:server:SaveVehicleProps', props) end
     end
 end
 
-TabletMenu = function()
+local function buildModList(veh, modType, isHorn)
+    local list = { { label = 'Stock / None', index = -1 } }
+    for i = 0, GetNumVehicleMods(veh, modType) - 1 do
+        local txt
+        if isHorn then
+            txt = (Config.HornLabels and Config.HornLabels[i]) or ('Horn ' .. i)
+        else
+            local l = GetModTextLabel(veh, modType, i)
+            txt = (l and GetLabelText(l)) or (tostring(modType) .. ' #' .. i)
+            if txt == 'NULL' or txt == '' then txt = 'Style ' .. i end
+        end
+        list[#list + 1] = { label = txt, index = i }
+    end
+    return list
+end
+
+local function buildTabletData(veh)
+    SetVehicleModKit(veh, 0)
+    local data = {}
+    data.name = vehName(veh)
+    data.plate = tabletPlate
+
+    local fuel = 0
+    pcall(function() fuel = exports[Config.FuelResource]:GetFuel(veh) or 0 end)
+    data.diag = {
+        engine = toPct(GetVehicleEngineHealth(veh), 1000),
+        body = toPct(GetVehicleBodyHealth(veh), 1000),
+        fuelTank = toPct(GetVehiclePetrolTankHealth(veh), 1000),
+        fuel = math.ceil(fuel),
+        dirt = math.ceil((GetVehicleDirtLevel(veh) / 15.0) * 100),
+        parts = {},
+    }
+
+    data.exterior = {}
+    for i = 1, #Config.ExteriorCategories do
+        local c = Config.ExteriorCategories[i]
+        if GetNumVehicleMods(veh, c.id) > 0 then
+            data.exterior[#data.exterior + 1] = { label = c.label, modType = c.id, options = buildModList(veh, c.id, false) }
+        end
+    end
+
+    data.interior = {}
+    for i = 1, #Config.InteriorCategories do
+        local c = Config.InteriorCategories[i]
+        if GetNumVehicleMods(veh, c.id) > 0 then
+            data.interior[#data.interior + 1] = { label = c.label, modType = c.id, horn = (c.id == 14), options = buildModList(veh, c.id, c.id == 14) }
+        end
+    end
+
+    data.wheelCats = {}
+    for i = 1, #Config.WheelCategories do
+        local c = Config.WheelCategories[i]
+        data.wheelCats[#data.wheelCats + 1] = { label = c.label, id = c.id }
+    end
+
+    data.neon = {}
+    for i = 1, #Config.NeonColors do
+        local c = Config.NeonColors[i]
+        data.neon[#data.neon + 1] = { label = c.label, r = c.r, g = c.g, b = c.b }
+    end
+
+    data.xenon = {}
+    for i = 1, #Config.Xenon do
+        local x = Config.Xenon[i]
+        data.xenon[#data.xenon + 1] = { label = x.label, id = x.id }
+    end
+
+    data.smoke = {}
+    for i = 1, #Config.TyreSmoke do
+        local s = Config.TyreSmoke[i]
+        data.smoke[#data.smoke + 1] = { label = s.label, r = s.r, g = s.g, b = s.b }
+    end
+
+    data.tint = {}
+    for i = 1, #Config.WindowTints do
+        local t = Config.WindowTints[i]
+        data.tint[#data.tint + 1] = { label = t.label, id = t.id }
+    end
+
+    data.plate = {}
+    for i = 1, #Config.PlateIndexes do
+        local p = Config.PlateIndexes[i]
+        data.plate[#data.plate + 1] = { label = p.label, id = p.id }
+    end
+
+    return data
+end
+
+-- open ----------------------------------------------------------------------
+
+RegisterNetEvent('qb-mechanicjob:client:useTablet', function()
+    if tabletOpen then return end
     local vehicle, distance = QBCore.Functions.GetClosestVehicle()
     if not vehicle or vehicle == 0 or distance > 5.0 then
         QBCore.Functions.Notify('No vehicle nearby to connect to', 'error')
@@ -26,96 +149,182 @@ TabletMenu = function()
         QBCore.Functions.Notify('Cannot connect to this vehicle', 'error')
         return
     end
-    local plate = QBCore.Functions.GetPlate(vehicle)
-    if not plate then return end
-
-    local enginePct = math.ceil(GetVehicleEngineHealth(vehicle) / 10)
-    local bodyPct = math.ceil(GetVehicleBodyHealth(vehicle) / 10)
-    local fuelTankPct = math.ceil(GetVehiclePetrolTankHealth(vehicle) / 10)
-    local fuel = 0
-    pcall(function() fuel = exports[Config.FuelResource]:GetFuel(vehicle) or 0 end)
-    local dirtPct = math.ceil((GetVehicleDirtLevel(vehicle) / 15.0) * 100)
-
+    tabletVehicle = vehicle
+    tabletPlate = QBCore.Functions.GetPlate(vehicle)
+    local data = buildTabletData(vehicle)
     QBCore.Functions.TriggerCallback('qb-mechanicjob:server:getVehicleStatus', function(status)
-        local menu = {
-            { header = 'Mechanic Tablet', txt = 'Connected to vehicle ' .. plate, isMenuHeader = true, icon = 'fas fa-tablet-screen-button' },
-            { header = 'Engine', txt = 'Health: <span style="color:' .. pctColor(enginePct) .. ';">' .. enginePct .. '%</span>', isMenuHeader = true },
-            { header = 'Body', txt = 'Health: <span style="color:' .. pctColor(bodyPct) .. ';">' .. bodyPct .. '%</span>', isMenuHeader = true },
-            { header = 'Fuel Tank', txt = 'Integrity: <span style="color:' .. pctColor(fuelTankPct) .. ';">' .. fuelTankPct .. '%</span>', isMenuHeader = true },
-            { header = 'Fuel Level', txt = 'Remaining: ' .. math.ceil(fuel) .. '%', isMenuHeader = true },
-            { header = 'Cleanliness', txt = 'Dirt: ' .. dirtPct .. '%', isMenuHeader = true },
-        }
         if status then
             for component, value in pairs(status) do
                 local part = Config.WearableParts and Config.WearableParts[component]
                 local maxv = (part and part.maxValue) or 100
-                local pct = math.ceil((value / maxv) * 100)
-                menu[#menu + 1] = {
-                    header = (part and part.label) or component,
-                    txt = 'Wear: <span style="color:' .. pctColor(pct) .. ';">' .. pct .. '%</span>',
-                    isMenuHeader = true,
+                data.diag.parts[#data.diag.parts + 1] = {
+                    label = (part and part.label) or component,
+                    pct = math.ceil((value / maxv) * 100),
                 }
             end
         end
-        menu[#menu + 1] = { header = 'Full Repair', txt = 'Engine, body & fuel tank', icon = 'fas fa-wrench', params = { isAction = true, event = function() TabletAction('fullrepair') end, args = {} } }
-        menu[#menu + 1] = { header = 'Restore Worn Parts', txt = 'Reset radiator, axle, brakes, clutch, fuel', icon = 'fas fa-gears', params = { isAction = true, event = function() TabletAction('parts') end, args = {} } }
-        menu[#menu + 1] = { header = 'Clean Vehicle', icon = 'fas fa-soap', params = { isAction = true, event = function() TabletAction('clean') end, args = {} } }
-        menu[#menu + 1] = { header = 'Refresh Diagnostics', icon = 'fas fa-rotate', params = { isAction = true, event = function() TabletMenu() end, args = {} } }
-        menu[#menu + 1] = { header = 'Close', params = { event = 'qb-menu:client:closeMenu' } }
-        exports['qb-menu']:openMenu(menu)
-    end, plate)
-end
+        tabletOpen = true
+        SetNuiFocus(true, true)
+        SendNUIMessage({ action = 'openRedlineTablet', data = data })
+    end, tabletPlate)
+end)
 
-TabletAction = function(kind)
-    local vehicle, distance = QBCore.Functions.GetClosestVehicle()
-    if not vehicle or vehicle == 0 or distance > 5.0 then
+-- apply cosmetics -----------------------------------------------------------
+
+RegisterNUICallback('rmeApply', function(payload, cb)
+    if not tabletOpen or working then cb('busy') return end
+    local veh = tabletVehicle
+    if not veh or not DoesEntityExist(veh) then
         QBCore.Functions.Notify('Lost connection to the vehicle', 'error')
-        return
+        cb('novehicle') return
     end
-    local plate = QBCore.Functions.GetPlate(vehicle)
-    local controls = { disableMovement = true, disableCarMovement = true, disableMouse = false, disableCombat = true }
-    if kind == 'fullrepair' then
-        QBCore.Functions.Progressbar('tablet_fullrepair', 'Running full repair...', 8000, false, true, controls,
-            { animDict = 'mini@repair', anim = 'fixing_a_player', flags = 1 }, {}, {}, function()
-                SetVehicleEngineHealth(vehicle, 1000.0)
-                SetVehicleBodyHealth(vehicle, 1000.0)
-                SetVehiclePetrolTankHealth(vehicle, 1000.0)
-                SetVehicleDeformationFixed(vehicle)
-                SetVehicleFixed(vehicle)
-                SetVehicleUndriveable(vehicle, false)
-                if plate and Config.WearableParts then
-                    for component in pairs(Config.WearableParts) do
-                        TriggerServerEvent('qb-mechanicjob:server:repairVehicleComponent', plate, component)
-                    end
-                end
-                QBCore.Functions.Notify('Vehicle fully repaired', 'success')
-            end, function()
-                QBCore.Functions.Notify('Repair cancelled', 'error')
-            end)
-    elseif kind == 'clean' then
-        QBCore.Functions.Progressbar('tablet_clean', 'Cleaning vehicle...', 5000, false, true, controls,
-            { animDict = 'amb@world_human_maid_clean@', anim = 'base', flags = 1 }, {}, {}, function()
-                SetVehicleDirtLevel(vehicle, 0.0)
-                QBCore.Functions.Notify('Vehicle cleaned', 'success')
-            end, function()
-                QBCore.Functions.Notify('Cleaning cancelled', 'error')
-            end)
-    elseif kind == 'parts' then
-        QBCore.Functions.Progressbar('tablet_parts', 'Restoring worn parts...', 6000, false, true, controls,
-            { animDict = 'mini@repair', anim = 'fixing_a_player', flags = 1 }, {}, {}, function()
-                if plate and Config.WearableParts then
-                    for component in pairs(Config.WearableParts) do
-                        TriggerServerEvent('qb-mechanicjob:server:repairVehicleComponent', plate, component)
-                    end
-                end
-                QBCore.Functions.Notify('Worn parts restored', 'success')
-                TabletMenu()
-            end, function()
-                QBCore.Functions.Notify('Restore cancelled', 'error')
-            end)
+    working = true
+    SetVehicleModKit(veh, 0)
+    PlayWorkAnim(payload.anim or 1500)
+    local kind = payload.kind
+    if kind == 'mod' then
+        SetVehicleMod(veh, payload.modType, payload.index, false)
+        if payload.horn and payload.index ~= -1 then
+            StartVehicleHorn(veh, 3000, GetHashKey('HELDDOWN'), false)
+        end
+    elseif kind == 'wheel' then
+        SetVehicleWheelType(veh, payload.wheelType)
+        SetVehicleMod(veh, 23, payload.index, false)
+    elseif kind == 'neon' then
+        if payload.off then
+            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
+        else
+            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
+            SetVehicleNeonLightsColour(veh, payload.r, payload.g, payload.b)
+        end
+    elseif kind == 'xenon' then
+        if payload.off then
+            ToggleVehicleMod(veh, 22, false)
+        else
+            ToggleVehicleMod(veh, 22, true)
+            SetVehicleXenonLightsColor(veh, payload.id)
+        end
+    elseif kind == 'smoke' then
+        if payload.off then
+            ToggleVehicleMod(veh, 20, false)
+        else
+            ToggleVehicleMod(veh, 20, true)
+            SetVehicleTyreSmokeColor(veh, payload.r, payload.g, payload.b)
+        end
+    elseif kind == 'tint' then
+        SetVehicleWindowTint(veh, payload.id)
+    elseif kind == 'plate' then
+        SetVehicleNumberPlateTextIndex(veh, payload.id)
+    elseif kind == 'paint' then
+        if payload.section == 'secondary' then
+            SetVehicleCustomSecondaryColour(veh, payload.r, payload.g, payload.b)
+        else
+            SetVehicleCustomPrimaryColour(veh, payload.r, payload.g, payload.b)
+        end
     end
-end
+    SaveTabletVehicle()
+    working = false
+    cb('ok')
+end)
 
-RegisterNetEvent('qb-mechanicjob:client:useTablet', function()
-    TabletMenu()
+RegisterNUICallback('rmeWheelList', function(payload, cb)
+    local veh = tabletVehicle
+    if not veh or not DoesEntityExist(veh) then cb({}) return end
+    SetVehicleModKit(veh, 0)
+    local original = GetVehicleWheelType(veh)
+    SetVehicleWheelType(veh, payload.id)
+    local list = { { label = 'Stock', index = -1 } }
+    for i = 0, GetNumVehicleMods(veh, 23) - 1 do
+        local l = GetModTextLabel(veh, 23, i)
+        local txt = (l and GetLabelText(l)) or ('Wheel ' .. i)
+        if txt == 'NULL' or txt == '' then txt = 'Wheel ' .. i end
+        list[#list + 1] = { label = txt, index = i }
+    end
+    SetVehicleWheelType(veh, original)
+    cb(list)
+end)
+
+RegisterNUICallback('rmeRepair', function(payload, cb)
+    if not tabletOpen or working then cb('busy') return end
+    local veh = tabletVehicle
+    if not veh or not DoesEntityExist(veh) then cb('novehicle') return end
+    working = true
+    local kind = payload.kind
+    if kind == 'fullrepair' then
+        PlayWorkAnim(3000)
+        SetVehicleEngineHealth(veh, 1000.0)
+        SetVehicleBodyHealth(veh, 1000.0)
+        SetVehiclePetrolTankHealth(veh, 1000.0)
+        SetVehicleDeformationFixed(veh)
+        SetVehicleFixed(veh)
+        SetVehicleUndriveable(veh, false)
+        if tabletPlate and Config.WearableParts then
+            for component in pairs(Config.WearableParts) do
+                TriggerServerEvent('qb-mechanicjob:server:repairVehicleComponent', tabletPlate, component)
+            end
+        end
+        QBCore.Functions.Notify('Vehicle fully repaired', 'success')
+    elseif kind == 'clean' then
+        PlayWorkAnim(2500)
+        SetVehicleDirtLevel(veh, 0.0)
+        QBCore.Functions.Notify('Vehicle cleaned', 'success')
+    elseif kind == 'parts' then
+        PlayWorkAnim(3000)
+        if tabletPlate and Config.WearableParts then
+            for component in pairs(Config.WearableParts) do
+                TriggerServerEvent('qb-mechanicjob:server:repairVehicleComponent', tabletPlate, component)
+            end
+        end
+        QBCore.Functions.Notify('Worn parts restored', 'success')
+    end
+    working = false
+    cb('ok')
+end)
+
+RegisterNUICallback('rmeBill', function(payload, cb)
+    local amount = tonumber(payload.amount)
+    if not amount or amount <= 0 then
+        QBCore.Functions.Notify('Enter a valid amount', 'error')
+        cb('bad') return
+    end
+    local player, dist = QBCore.Functions.GetClosestPlayer()
+    if not player or player == -1 or dist > 5.0 then
+        QBCore.Functions.Notify('No customer nearby to bill', 'error')
+        cb('nocustomer') return
+    end
+    local serverId = GetPlayerServerId(player)
+    TriggerServerEvent('qb-mechanicjob:server:billCustomer', serverId, math.floor(amount))
+    QBCore.Functions.Notify('Invoice sent to the customer', 'primary')
+    cb('ok')
+end)
+
+RegisterNUICallback('rmeClose', function(_, cb)
+    tabletOpen = false
+    SetNuiFocus(false, false)
+    SaveTabletVehicle()
+    tabletVehicle = nil
+    tabletPlate = nil
+    cb('ok')
+end)
+
+-- customer side: accept / decline the invoice --------------------------------
+
+RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount)
+    local accepted = lib.alertDialog({
+        header = 'Redline Motorsport - Invoice',
+        content = ('**%s** is billing you **$%s** for vehicle work. Pay this invoice?'):format(memberName or 'A mechanic', amount),
+        centered = true,
+        cancel = true,
+        labels = { confirm = 'Pay', cancel = 'Decline' },
+    })
+    TriggerServerEvent('qb-mechanicjob:server:billResponse', accepted == 'confirm')
+end)
+
+-- safety: release NUI focus if the resource stops while the tablet is open
+AddEventHandler('onResourceStop', function(res)
+    if res ~= GetCurrentResourceName() then return end
+    if tabletOpen then
+        tabletOpen = false
+        SetNuiFocus(false, false)
+    end
 end)

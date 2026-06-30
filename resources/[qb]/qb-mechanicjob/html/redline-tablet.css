@@ -1,0 +1,316 @@
+@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+#rme-tablet {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Inter", sans-serif;
+    color: #e8f1ff;
+    background: radial-gradient(circle at 50% 45%, rgba(8, 14, 24, 0.15), rgba(4, 8, 16, 0.5));
+}
+
+#rme-tablet.rme-hidden {
+    display: none !important;
+}
+
+.rme-panel {
+    width: 66vw;
+    height: 74vh;
+    border-radius: 20px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    background: rgba(14, 20, 30, 0.55);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(96, 156, 255, 0.28);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), 0 0 46px rgba(40, 120, 255, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.rme-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(96, 156, 255, 0.22);
+    background: linear-gradient(90deg, rgba(36, 90, 190, 0.22), rgba(20, 28, 42, 0.0));
+}
+
+.rme-brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.rme-brand-main {
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: #6db6ff;
+    text-shadow: 0 0 14px rgba(70, 150, 255, 0.65);
+}
+
+.rme-brand-sub {
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 6px;
+    color: rgba(190, 215, 255, 0.7);
+    margin-top: 2px;
+}
+
+.rme-veh {
+    margin-left: auto;
+    text-align: right;
+}
+
+.rme-veh-name {
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #eaf3ff;
+}
+
+.rme-veh-plate {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(150, 185, 235, 0.75);
+    margin-top: 3px;
+}
+
+.rme-close {
+    margin-left: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(120, 170, 255, 0.25);
+    background: rgba(40, 60, 90, 0.3);
+    color: #cfe2ff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.rme-close:hover {
+    background: rgba(70, 120, 210, 0.4);
+    box-shadow: 0 0 16px rgba(70, 150, 255, 0.5);
+    color: #fff;
+}
+
+.rme-body {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    min-height: 0;
+}
+
+.rme-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 12px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(96, 156, 255, 0.16);
+}
+
+.rme-cat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: rgba(40, 54, 76, 0.25);
+    color: #cdddf5;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.16s ease;
+}
+
+.rme-cat:hover {
+    background: rgba(58, 92, 150, 0.35);
+    border-color: rgba(110, 170, 255, 0.3);
+}
+
+.rme-cat.active {
+    background: linear-gradient(90deg, rgba(60, 120, 230, 0.4), rgba(40, 70, 130, 0.2));
+    border-color: rgba(110, 180, 255, 0.55);
+    box-shadow: 0 0 18px rgba(60, 140, 255, 0.35), inset 3px 0 0 #5aa6ff;
+    color: #fff;
+}
+
+.rme-cat-ico {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.rme-content {
+    padding: 22px 26px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.rme-section-title {
+    font-family: "Rajdhani", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7db4ff;
+    margin: 6px 0 14px;
+}
+
+.rme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.rme-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 14px;
+    border-radius: 13px;
+    background: rgba(46, 60, 84, 0.32);
+    border: 1px solid rgba(120, 170, 255, 0.16);
+    cursor: pointer;
+    transition: all 0.16s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.rme-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(120, 185, 255, 0.6);
+    box-shadow: 0 0 20px rgba(70, 150, 255, 0.4);
+    background: rgba(60, 90, 145, 0.4);
+}
+
+.rme-card.rme-applied {
+    border-color: #62ffa6;
+    box-shadow: 0 0 22px rgba(70, 255, 150, 0.6);
+}
+
+.rme-card-label {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #e8f1ff;
+}
+
+.rme-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.rme-arrow {
+    margin-left: auto;
+    color: #7db4ff;
+    font-size: 18px;
+}
+
+.rme-back {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: #7db4ff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.rme-back:hover {
+    color: #b9d6ff;
+    text-shadow: 0 0 10px rgba(70, 150, 255, 0.6);
+}
+
+/* diagnostics */
+.rme-diag {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 620px;
+}
+
+.rme-bar-row {
+    display: grid;
+    grid-template-columns: 150px 1fr 52px;
+    align-items: center;
+    gap: 14px;
+}
+
+.rme-bar-label {
+    font-size: 13px;
+    color: #cdddf5;
+}
+
+.rme-bar-track {
+    height: 10px;
+    border-radius: 6px;
+    background: rgba(20, 30, 46, 0.6);
+    overflow: hidden;
+    border: 1px solid rgba(120, 170, 255, 0.12);
+}
+
+.rme-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #3d8bff, #6fd2ff);
+    box-shadow: 0 0 12px rgba(70, 150, 255, 0.6);
+}
+
+.rme-bar-fill.mid {
+    background: linear-gradient(90deg, #f0b03c, #ffd36f);
+    box-shadow: 0 0 12px rgba(240, 180, 60, 0.55);
+}
+
+.rme-bar-fill.low {
+    background: linear-gradient(90deg, #ff5a5a, #ff8f6f);
+    box-shadow: 0 0 12px rgba(255, 90, 90, 0.55);
+}
+
+.rme-bar-pct {
+    font-size: 12.5px;
+    text-align: right;
+    color: #eaf3ff;
+}
+
+/* bill */
+.rme-bill {
+    max-width: 420px;
+}
+
+.rme-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px;
+    border-radius: 12px;
+    background: rgba(20, 30, 46, 0.55);
+    border: 1px solid rgba(120, 170, 255, 0.28);
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 14px;
+}
+
+.rme-input:focus {
+    border-color: rgba(120, 185, 255, 0.7);
+    box-shadow: 0 0 16px rgba(70, 150, 255, 0.4);
+}
+
+.rme-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg,
