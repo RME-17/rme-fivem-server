@@ -81,7 +81,7 @@ Config.Shops = {
     },
     beeker = { -- Paleto Location
         managed = true,
-        shopLabel = 'Beeker\\'s Garage',
+        shopLabel = "Beeker's Garage",
         showBlip = true,
         blipSprite = 72,
         blipColor = 46,
