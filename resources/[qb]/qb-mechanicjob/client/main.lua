@@ -239,20 +239,18 @@ CreateThread(function()
     end
 end)
 
--- RME: drive-in bay passive [E] prompt.
--- Shows a floating "[E] Customize Vehicle" whenever you stand or sit near a bay
--- pad, and opens the bay menu on E. OpenCustomBay() (custombay.lua) grabs the
--- closest vehicle within 6m. Works in or out of the car -- no targeting eye.
+-- RME: drive-in bay passive [E] prompt (customer-facing order kiosk).
+-- Shows a floating "[E] Order Customization" whenever anyone stands or sits
+-- near a bay pad, and opens the Redline order builder on E. The order builder
+-- (custombay.lua) grabs the closest vehicle within 6m. No job gate -- customers
+-- place the order; Redline members fulfil it from the tablet.
 CreateThread(function()
     local bayPoints = {}
     for k, v in pairs(Config.Shops) do
         local bays = v.custombays or (v.custombay and { v.custombay })
         if bays then
             for i = 1, #bays do
-                bayPoints[#bayPoints + 1] = {
-                    coords = bays[i],
-                    job = v.managed and k or nil,
-                }
+                bayPoints[#bayPoints + 1] = { coords = bays[i] }
             end
         end
     end
@@ -266,15 +264,9 @@ CreateThread(function()
             local bay = bayPoints[i]
             if #(pos - bay.coords) <= promptRadius then
                 sleep = 0
-                local allowed = true
-                if bay.job then
-                    allowed = (PlayerData and PlayerData.job and PlayerData.job.name == bay.job) or false
-                end
-                if allowed then
-                    DrawBayText3D(vector3(bay.coords.x, bay.coords.y, bay.coords.z + 1.0), '[E]  Customize Vehicle')
-                    if IsControlJustReleased(0, 38) then -- E
-                        OpenCustomBay() -- custombay.lua
-                    end
+                DrawBayText3D(vector3(bay.coords.x, bay.coords.y, bay.coords.z + 1.0), '[E]  Order Customization')
+                if IsControlJustReleased(0, 38) then -- E
+                    OpenCustomBay() -- custombay.lua
                 end
                 break
             end
