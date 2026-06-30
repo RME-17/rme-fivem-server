@@ -45,7 +45,7 @@
 
   /* ===================== Speedometer (bottom-right) ===================== */
   #speedo {
-    position:absolute; right:22px; bottom:20px;
+    position:absolute; right:24px; bottom:22px;
     opacity:0; transform:translateY(12px) scale(.96);
     transition:opacity .3s ease, transform .3s ease;
     pointer-events:none; -webkit-font-smoothing:antialiased;
@@ -53,34 +53,34 @@
   #speedo.visible { opacity:1; transform:none; }
   /* Soft depth halo behind the cluster (radial fade -> transparent, NOT a box) */
   #speedo::before {
-    content:''; position:absolute; left:50%; top:46%;
+    content:''; position:absolute; left:50%; top:45%;
     transform:translate(-50%,-50%);
-    width:120%; height:150%; z-index:-1; pointer-events:none;
-    background:radial-gradient(closest-side, rgba(6,10,18,0.60), rgba(6,10,18,0.28) 55%, rgba(6,10,18,0) 78%);
+    width:124%; height:152%; z-index:-1; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(6,10,18,0.62), rgba(6,10,18,0.30) 54%, rgba(6,10,18,0) 78%);
   }
 
-  .panel { width:248px; padding:4px 2px 4px; background:transparent; }
+  .panel { width:252px; padding:6px 2px 6px; background:transparent; }
 
   .cluster { display:flex; align-items:center; justify-content:center; }
 
   .gauge { position:relative; width:210px; height:210px; flex:0 0 auto; }
   .dial { width:210px; height:210px; display:block; overflow:visible;
-    filter:drop-shadow(0 3px 7px rgba(0,0,0,0.6)); }
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,0.62)); }
 
-  .rpmtrack { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:3.5; stroke-linecap:round; }
-  .rpmfill  { fill:none; stroke:url(#rpmGrad); stroke-width:3.5; stroke-linecap:round;
+  .rpmtrack { fill:none; stroke:rgba(255,255,255,0.045); stroke-width:3; stroke-linecap:round; }
+  .rpmfill  { fill:none; stroke:rgba(154,234,255,0.55); stroke-width:3; stroke-linecap:round;
     transition:stroke-dasharray .12s linear, stroke .2s; }
-  .track { fill:none; stroke:rgba(255,255,255,0.09); stroke-width:11; stroke-linecap:round; }
+  .track { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:11; stroke-linecap:round; }
   .glowtrack { fill:none; stroke:rgba(90,209,255,0.05); stroke-width:18; stroke-linecap:round; }
   .prog  { fill:none; stroke:url(#spdGrad); stroke-width:11; stroke-linecap:round;
     transition:stroke-dasharray .14s linear, stroke .25s; }
-  .tick       { stroke:rgba(255,255,255,0.18); stroke-width:1.5; }
-  .tick-major { stroke:rgba(255,255,255,0.5); stroke-width:2.2; }
+  .tick       { stroke:rgba(255,255,255,0.16); stroke-width:1.4; }
+  .tick-major { stroke:rgba(255,255,255,0.46); stroke-width:2.1; }
 
-  /* Curved side health/damage bars built into the dial */
-  .sidetrack { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:7; stroke-linecap:round; }
-  .sidefill  { fill:none; stroke:url(#ringGrad); stroke-width:7; stroke-linecap:round;
-    filter:drop-shadow(0 0 5px rgba(84,224,160,0.5));
+  /* Curved side health/damage bars built into the dial (green = condition) */
+  .sidetrack { fill:none; stroke:rgba(255,255,255,0.07); stroke-width:6; stroke-linecap:round; }
+  .sidefill  { fill:none; stroke:url(#condGrad); stroke-width:6; stroke-linecap:round;
+    filter:drop-shadow(0 0 5px rgba(84,224,160,0.55));
     transition:stroke-dasharray .35s ease, stroke .3s, filter .3s; }
 
   .center { position:absolute; inset:0; display:flex; flex-direction:column;
@@ -91,47 +91,47 @@
     -webkit-background-clip:text; background-clip:text;
     -webkit-text-fill-color:transparent; color:transparent;
     font-variant-numeric:tabular-nums; font-feature-settings:'tnum' 1;
-    filter:drop-shadow(0 2px 6px rgba(0,0,0,0.75)) drop-shadow(0 0 16px rgba(90,209,255,0.4));
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 16px rgba(90,209,255,0.42));
   }
-  .unit { margin-top:6px; font-size:9px; font-weight:800; letter-spacing:3.5px;
-    color:rgba(255,255,255,0.6); text-shadow:0 1px 3px rgba(0,0,0,0.85); }
+  .unit { margin-top:5px; font-size:9px; font-weight:800; letter-spacing:4px;
+    color:rgba(255,255,255,0.58); text-shadow:0 1px 3px rgba(0,0,0,0.85); }
 
   .gear {
     display:flex; align-items:center; justify-content:center; min-width:32px;
-    margin-top:10px; padding:3px 13px; border-radius:10px;
-    background:linear-gradient(180deg, rgba(90,209,255,0.16), rgba(90,209,255,0.06));
+    margin-top:11px; padding:3px 13px; border-radius:10px;
+    background:linear-gradient(180deg, rgba(90,209,255,0.16), rgba(90,209,255,0.05));
     border:1px solid rgba(90,209,255,0.5);
     color:#9fe6ff; font-size:13px; font-weight:800; letter-spacing:.5px;
     box-shadow:0 0 16px rgba(90,209,255,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
   }
-  .airRow { display:none; align-items:baseline; gap:4px; margin-top:10px; }
+  .airRow { display:none; align-items:baseline; gap:4px; margin-top:11px; }
   .albl { font-size:9px; color:rgba(255,255,255,0.55); font-weight:800; letter-spacing:2px; }
   .aval { font-weight:800; color:#9fe6ff; font-size:16px; font-variant-numeric:tabular-nums; }
   .aunit { color:rgba(255,255,255,0.55); font-size:10px; font-weight:700; }
 
-  /* Icons that label each side bar (sit on the middle of the side arc) */
+  /* Icon nodes that label each side bar */
   .sideIcon { position:absolute; top:50%; transform:translateY(-50%);
-    width:34px; height:34px; border-radius:50%;
+    width:32px; height:32px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    background:radial-gradient(circle, rgba(8,12,20,0.78), rgba(8,12,20,0) 72%); }
-  .sideIcon.left  { left:-15px; }
-  .sideIcon.right { right:-15px; }
-  .sideIcon svg { width:18px; height:18px; color:rgba(255,255,255,0.95);
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.85)); transition:color .3s; }
+    background:radial-gradient(circle, rgba(8,12,20,0.95) 42%, rgba(8,12,20,0) 78%); }
+  .sideIcon.left  { left:-16px; }
+  .sideIcon.right { right:-16px; }
+  .sideIcon svg { width:17px; height:17px; color:rgba(255,255,255,0.95);
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.9)); transition:color .3s; }
 
-  /* Fuel (gas) segmented slider, bottom */
-  .gas { display:flex; align-items:center; gap:8px; width:184px; margin:-4px auto 0; }
-  .gas .mi { width:12px; height:12px; flex:0 0 auto; color:rgba(255,255,255,0.92);
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8)); transition:color .3s; }
-  .bar { position:relative; flex:1; height:7px; border-radius:7px;
-    background:rgba(0,0,0,0.5); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.10), inset 0 1px 2px rgba(0,0,0,0.6);
+  /* Fuel (gas) slider, bottom */
+  .gas { display:flex; align-items:center; gap:9px; width:190px; margin:4px auto 0; }
+  .gas .mi { width:12px; height:12px; flex:0 0 auto; color:rgba(255,255,255,0.9);
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.85)); transition:color .3s; }
+  .bar { position:relative; flex:1; height:6px; border-radius:6px;
+    background:rgba(0,0,0,0.5); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.09), inset 0 1px 2px rgba(0,0,0,0.6);
     overflow:hidden; }
-  .bar > span { position:absolute; left:0; top:0; bottom:0; width:50%; border-radius:7px;
+  .bar > span { position:absolute; left:0; top:0; bottom:0; width:50%; border-radius:6px;
     background:linear-gradient(90deg,#54e0a0,#6fe6c4);
-    box-shadow:0 0 10px rgba(84,224,160,0.55);
+    box-shadow:0 0 10px rgba(84,224,160,0.5);
     transition:width .35s ease, background .3s, box-shadow .3s; }
-  .bar::after { content:''; position:absolute; inset:0; border-radius:7px; pointer-events:none;
-    background:repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 10px, rgba(0,0,0,0.4) 10px 12px); }
+  .bar::after { content:''; position:absolute; inset:0; border-radius:6px; pointer-events:none;
+    background:repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 13px, rgba(0,0,0,0.28) 13px 15px); }
 </style>
 </head>
 <body>
@@ -152,28 +152,32 @@
                 <stop offset="50%" stop-color="#62e6c8"/>
                 <stop offset="100%" stop-color="#7cf2a8"/>
               </linearGradient>
-              <linearGradient id="rpmGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="rgba(120,225,255,0.5)"/>
-                <stop offset="100%" stop-color="rgba(124,242,168,0.7)"/>
+              <linearGradient id="condGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#3fcf94"/>
+                <stop offset="100%" stop-color="#7cf2a8"/>
               </linearGradient>
-              <linearGradient id="ringGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stop-color="#5ad1ff"/>
-                <stop offset="100%" stop-color="#54e0a0"/>
-              </linearGradient>
+              <radialGradient id="face" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(9,14,22,0.66)"/>
+                <stop offset="58%" stop-color="rgba(9,14,22,0.30)"/>
+                <stop offset="100%" stop-color="rgba(9,14,22,0)"/>
+              </radialGradient>
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="2.6" result="b"/>
                 <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
             </defs>
 
+            <!-- Recessed dial face for depth -->
+            <circle cx="100" cy="100" r="64" fill="url(#face)"></circle>
+
             <!-- Curved HEALTH bar hugging the LEFT side (engine) -->
-            <circle class="sidetrack" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="270.9 609.47"></circle>
-            <circle class="sidefill" id="engArc" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="0 609.47"></circle>
+            <circle class="sidetrack" cx="100" cy="100" r="99" transform="rotate(100 100 100)" stroke-dasharray="276.5 622.04"></circle>
+            <circle class="sidefill" id="engArc" cx="100" cy="100" r="99" transform="rotate(100 100 100)" stroke-dasharray="0 622.04"></circle>
 
             <!-- Curved DAMAGE bar hugging the RIGHT side (body), mirrored -->
             <g transform="translate(200,0) scale(-1,1)">
-              <circle class="sidetrack" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="270.9 609.47"></circle>
-              <circle class="sidefill" id="bodyArc" cx="100" cy="100" r="97" transform="rotate(100 100 100)" stroke-dasharray="0 609.47"></circle>
+              <circle class="sidetrack" cx="100" cy="100" r="99" transform="rotate(100 100 100)" stroke-dasharray="276.5 622.04"></circle>
+              <circle class="sidefill" id="bodyArc" cx="100" cy="100" r="99" transform="rotate(100 100 100)" stroke-dasharray="0 622.04"></circle>
             </g>
 
             <!-- Outer RPM ring -->
@@ -216,7 +220,7 @@
 (function(){
   var SPEED_C = 502.65, SPEED_ARC = 376.99;   // main dial (270deg, r=80)
   var RPM_C = 565.49, RPM_ARC = 424.12;        // rpm ring (270deg, r=90)
-  var SIDE_C = 609.47, SIDE_ARC = 270.9;       // side bars (160deg, r=97)
+  var SIDE_C = 622.04, SIDE_ARC = 276.5;       // side bars (160deg, r=99)
   function el(id){ return document.getElementById(id); }
   function clamp(lo, hi, v){ return Math.max(lo, Math.min(hi, v)); }
 
@@ -225,8 +229,8 @@
     var r = el(id);
     r.setAttribute('stroke-dasharray', (frac * SIDE_ARC).toFixed(1) + ' ' + SIDE_C);
     if (pct > 60) {
-      r.style.stroke = 'url(#ringGrad)';
-      r.style.filter = 'drop-shadow(0 0 5px rgba(84,224,160,0.5))';
+      r.style.stroke = 'url(#condGrad)';
+      r.style.filter = 'drop-shadow(0 0 5px rgba(84,224,160,0.55))';
     } else if (pct > 30) {
       r.style.stroke = '#ffcc57';
       r.style.filter = 'drop-shadow(0 0 5px rgba(255,204,87,0.55))';
@@ -244,7 +248,7 @@
     for (var i = 0; i <= N; i++) {
       var major = (i % 5 === 0);
       var rad = (135 + (i / N) * 270) * Math.PI / 180;
-      var r2 = 75, r1 = major ? 65 : 70;
+      var r2 = 74, r1 = major ? 64 : 70;
       var ln = document.createElementNS(svgns, 'line');
       ln.setAttribute('x1', (cx + r1 * Math.cos(rad)).toFixed(2));
       ln.setAttribute('y1', (cy + r1 * Math.sin(rad)).toFixed(2));
@@ -288,7 +292,7 @@
       // Outer RPM ring (GetVehicleCurrentRpm is 0..1)
       var rpm = clamp(0, 1, d.rpm || 0);
       el('rpm').setAttribute('stroke-dasharray', (rpm * RPM_ARC).toFixed(1) + ' ' + RPM_C);
-      el('rpm').style.stroke = (rpm >= 0.85) ? '#ff5d6c' : 'url(#rpmGrad)';
+      el('rpm').style.stroke = (rpm >= 0.85) ? '#ff5d6c' : 'rgba(154,234,255,0.55)';
 
       // Fuel (gas) slider, bottom -- no % text
       var fuel = clamp(0, 100, d.fuel || 0);
@@ -300,11 +304,11 @@
       } else if (fuel <= 40) {
         el('fuelBar').style.background = 'linear-gradient(90deg,#ffcc57,#ffe08a)';
         el('fuelBar').style.boxShadow = '0 0 10px rgba(255,204,87,0.55)';
-        el('fuelIcon').style.color = 'rgba(255,255,255,0.92)';
+        el('fuelIcon').style.color = 'rgba(255,255,255,0.9)';
       } else {
         el('fuelBar').style.background = 'linear-gradient(90deg,#54e0a0,#6fe6c4)';
-        el('fuelBar').style.boxShadow = '0 0 10px rgba(84,224,160,0.55)';
-        el('fuelIcon').style.color = 'rgba(255,255,255,0.92)';
+        el('fuelBar').style.boxShadow = '0 0 10px rgba(84,224,160,0.5)';
+        el('fuelIcon').style.color = 'rgba(255,255,255,0.9)';
       }
 
       // Engine condition (spanner) -> LEFT side bar; Vehicle damage (body) -> RIGHT side bar
