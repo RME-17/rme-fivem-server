@@ -4,23 +4,15 @@
 -- CreateUseableItem registration loops over Config.Consumables.
 -- This keeps the base config.lua untouched (low blast radius).
 --
--- Drinks: the stock 'drink' handler hardcodes a water-bottle prop, so the
--- fountain colas are registered as 'custom' consumables instead, which lets us
--- attach a chosen cup prop + animation.
---
--- CUP MODEL: base-game Burger Shot cups (prop_food_bs_juice01/02) both render
--- DARK/black in-game (Forge 'red' tag = logo accents only). A genuinely RED
--- Burger Shot cup needs a CUSTOM streamed prop. BS_CUP below is a temporary
--- base-game placeholder; swap it to the streamed red cup model once the prop
--- pack resource is installed and ensured.
---   prop_food_bs_juice02 = dark Burger Shot cup (placeholder)
---   prop_food_bs_soda_01 = soda CRATE (big red box), not a cup
+-- Drinks (colas + coffee) use the stock 'drink' handler, which plays the
+-- standard bottle drink animation with the base-game water-bottle prop.
+-- (No genuinely RED Burger Shot cup exists as a base-game or free drop-in
+-- prop, so we keep the reliable stock bottle rather than a wrong-looking cup.)
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
 Config.Consumables.eat = Config.Consumables.eat or {}
 Config.Consumables.drink = Config.Consumables.drink or {}
-Config.Consumables.custom = Config.Consumables.custom or {}
 
 -- Food (replenishes hunger, 0-100). Uses the default burger eat animation/prop.
 local rmeEat = {
@@ -48,48 +40,12 @@ local rmeEat = {
     ['burgershot_thesmurfsicecream'] = math.random(15, 25)
 }
 
--- Plain drinks (replenishes thirst, 0-100). Uses the default bottle animation.
+-- Drinks (replenishes thirst, 0-100). Stock bottle animation + water-bottle prop.
 local rmeDrink = {
-    ['burgershot_coffee'] = math.random(15, 25)
-}
-
--- Fountain colas: custom consumables. Cup-to-mouth sip animation.
--- TODO: replace BS_CUP with the streamed RED Burger Shot cup model once the
--- prop pack is installed (see notes at top of file).
-local BS_CUP = 'prop_food_bs_juice02' -- placeholder dark base-game cup
-
-local function bsDrink(label, amount)
-    return {
-        progress = {
-            label = label,
-            time = 5000
-        },
-        animation = {
-            -- Original cup-to-mouth sip
-            animDict = 'mp_player_intdrink',
-            anim = 'loop_bottle',
-            flags = 49
-        },
-        prop = {
-            model = BS_CUP,
-            bone = 60309,
-            coords = vec3(0.0, 0.0, -0.05),
-            rotation = vec3(0.0, 0.0, -40.0)
-        },
-        replenish = {
-            type = 'Thirst',
-            replenish = amount,
-            isAlcohol = false,
-            event = false,
-            server = false
-        }
-    }
-end
-
-local rmeCustom = {
-    ['burgershot_colas'] = bsDrink('Sipping a Small Cola...', math.random(20, 30)),
-    ['burgershot_colab'] = bsDrink('Sipping a Large Cola...', math.random(40, 50)),
-    ['burgershot_colagoat'] = bsDrink('Sipping a Goat Cola...', math.random(40, 50))
+    ['burgershot_coffee'] = math.random(15, 25),
+    ['burgershot_colas'] = math.random(20, 30),
+    ['burgershot_colab'] = math.random(40, 50),
+    ['burgershot_colagoat'] = math.random(40, 50)
 }
 
 for k, v in pairs(rmeEat) do
@@ -98,8 +54,4 @@ end
 
 for k, v in pairs(rmeDrink) do
     Config.Consumables.drink[k] = v
-end
-
-for k, v in pairs(rmeCustom) do
-    Config.Consumables.custom[k] = v
 end
