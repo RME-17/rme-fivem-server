@@ -3,6 +3,27 @@
     var RES = 'qb-mechanicjob';
     var DATA = null;
 
+    // Inject styling for the Orders tab (keeps redline-tablet.css untouched).
+    (function injectOrderCss() {
+        var css = [
+            '.rme-order{border:1px solid rgba(140,170,220,0.16);border-radius:14px;padding:12px 14px;margin-bottom:12px;background:rgba(255,255,255,0.03);}',
+            '.rme-order.rme-order-match{border-color:rgba(110,170,255,0.55);box-shadow:0 0 18px rgba(61,123,255,0.18);background:rgba(61,123,255,0.08);}',
+            '.rme-order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}',
+            '.rme-order-veh{font-weight:700;font-size:13px;color:#eaf2ff;}',
+            '.rme-order-cust{font-size:11px;color:#8fa6c9;}',
+            '.rme-order-item{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,0.03);margin-top:6px;font-size:12px;color:#dce7f7;}',
+            '.rme-order-item-label{flex:1;}',
+            '.rme-order-note{font-size:11px;color:#7e94b6;font-style:italic;}',
+            '.rme-mini-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#3d7bff,#5a9bff);box-shadow:0 4px 14px rgba(61,123,255,0.35);}',
+            '.rme-mini-btn:hover{filter:brightness(1.1);}',
+            '.rme-order-cancel{border:1px solid rgba(255,120,120,0.4);background:rgba(255,90,90,0.12);color:#ffd9d9;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-top:8px;}',
+            '.rme-order-cancel:hover{background:rgba(255,90,90,0.22);}'
+        ].join('');
+        var s = document.createElement('style');
+        s.textContent = css;
+        document.head.appendChild(s);
+    })();
+
     var PAINT = [
         { label: 'Jet Black', r: 12, g: 12, b: 14 },
         { label: 'Pure White', r: 240, g: 244, b: 250 },
@@ -20,6 +41,7 @@
 
     var CATS = [
         { id: 'diagnostics', label: 'Diagnostics', icon: 'D' },
+        { id: 'orders', label: 'Orders', icon: 'O' },
         { id: 'paint', label: 'Paint', icon: 'P' },
         { id: 'wheels', label: 'Wheels', icon: 'W' },
         { id: 'exterior', label: 'Exterior', icon: 'E' },
@@ -113,6 +135,72 @@
             wrap.appendChild(r);
         });
         ct.appendChild(wrap);
+    }
+
+    function kindLabel(it) {
+        var k = it.kind || 'item';
+        var pre = k.charAt(0).toUpperCase() + k.slice(1);
+        if (k === 'paint') pre = (it.section === 'secondary') ? 'Secondary Paint' : 'Primary Paint';
+        else if (k === 'wheel') pre = 'Wheels';
+        else if (k === 'smoke') pre = 'Tire Smoke';
+        else if (k === 'tint') pre = 'Window Tint';
+        else if (k === 'plate') pre = 'Plate';
+        else if (k === 'neon') pre = 'Neon';
+        return pre + (it.label ? (': ' + it.label) : '');
+    }
+
+    function renderOrders() {
+        var ct = content();
+        ct.appendChild(el('div', 'rme-section-title', 'Customer Orders'));
+        var holder = el('div');
+        holder.id = 'rme-orders-holder';
+        ct.appendChild(holder);
+        loadOrders();
+    }
+
+    function loadOrders() {
+        post('rmeGetOrders', {}, function (res) {
+            res = res || {};
+            var plate = res.plate || '';
+            var orders = res.orders || [];
+            var holder = document.getElementById('rme-orders-holder');
+            if (!holder) return;
+            holder.innerHTML = '';
+            if (orders.length === 0) {
+                holder.appendChild(el('div', 'rme-bill-note', 'No open orders right now. Customers place orders at the drive-in bay.'));
+                return;
+            }
+            orders.forEach(function (o) {
+                var match = (o.plate === plate);
+                var card = el('div', 'rme-order' + (match ? ' rme-order-match' : ''));
+                var head = el('div', 'rme-order-head');
+                head.appendChild(el('span', 'rme-order-veh', (o.vehName || 'Vehicle') + '  \u00B7  ' + o.plate));
+                head.appendChild(el('span', 'rme-order-cust', o.customerName || ''));
+                card.appendChild(head);
+                (o.items || []).forEach(function (it, idx) {
+                    var row = el('div', 'rme-order-item');
+                    row.appendChild(el('span', 'rme-order-item-label', kindLabel(it)));
+                    if (match) {
+                        var b = el('button', 'rme-mini-btn', 'Apply');
+                        b.addEventListener('click', function () {
+                            post('rmeOrderApply', { plate: o.plate, index: idx + 1, item: it }, function () { loadOrders(); });
+                        });
+                        row.appendChild(b);
+                    } else {
+                        row.appendChild(el('span', 'rme-order-note', 'connect to car'));
+                    }
+                    card.appendChild(row);
+                });
+                if (match) {
+                    var cancel = el('button', 'rme-order-cancel', 'Cancel order');
+                    cancel.addEventListener('click', function () {
+                        post('rmeOrderCancel', { plate: o.plate }, function () { loadOrders(); });
+                    });
+                    card.appendChild(cancel);
+                }
+                holder.appendChild(card);
+            });
+        });
     }
 
     function renderPaint() {
@@ -246,6 +334,7 @@
         if (ct) ct.innerHTML = '';
         switch (id) {
             case 'diagnostics': renderDiagnostics(); break;
+            case 'orders': renderOrders(); break;
             case 'paint': renderPaint(); break;
             case 'wheels': renderWheels(); break;
             case 'exterior': renderSections(DATA.exterior); break;
