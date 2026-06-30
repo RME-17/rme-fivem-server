@@ -8,6 +8,9 @@ Config.JobName    = 'burgershot'
 -- Account ingredients are paid from ('cash' or 'bank')
 Config.PayAccount = 'cash'
 
+-- Show supply-ped blips on the map? (Only burgershot members ever see them.)
+Config.ShowSupplyBlips = true
+
 -- ============================================================
 -- COOKING STATIONS (coords captured in-game)
 -- Adjust coords/size here if a station marker is off.
@@ -155,6 +158,7 @@ Config.Recipes = {
 -- ============================================================
 -- INGREDIENT SUPPLY PEDS (paid, locked to the burgershot job)
 -- Staff buy raw ingredients here. price = cost per single item.
+-- blip is only drawn for burgershot members (handled in client.lua).
 -- ============================================================
 Config.BuyAmounts = { 1, 5, 10 }   -- quantity options offered per item
 
@@ -163,6 +167,7 @@ Config.SupplyPeds = {
         label  = 'Frozen Supplies',
         model  = 'mp_m_shopkeep_01',
         coords = vector4(966.15, -1651.91, 29.42, 106.56),
+        blip   = { sprite = 52, color = 3, scale = 0.6 },
         items  = {
             { item = 'burgershot_frozenmeat', price = 5 },
             { item = 'burgershot_frozennuggets', price = 5 },
@@ -175,6 +180,7 @@ Config.SupplyPeds = {
         label  = 'Fresh Supplies',
         model  = 'mp_m_shopkeep_01',
         coords = vector4(556.37, -1621.77, 28.38, 129.5),
+        blip   = { sprite = 52, color = 2, scale = 0.6 },
         items  = {
             { item = 'burgershot_bread', price = 5 },
             { item = 'burgershot_cheddar', price = 5 },

@@ -3,14 +3,15 @@ local PlayerData = QBCore.Functions.GetPlayerData()
 local isCooking = false
 local createdZones = {}
 local spawnedPeds = {}
+local supplyBlips = {}
 
 local function canUse()
     if not Config.RequireJob then return true end
     return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName
 end
 
--- Supply peds are always locked to the burgershot job
-local function canUsePeds()
+-- Supply peds + their blips are always locked to the burgershot job
+local function isBurgerShot()
     return PlayerData.job ~= nil and PlayerData.job.name == Config.JobName
 end
 
@@ -157,13 +158,47 @@ local function spawnSupplyPeds()
                 {
                     icon = 'fas fa-box',
                     label = 'Buy ' .. data.label,
-                    canInteract = function() return canUsePeds() end,
+                    canInteract = function() return isBurgerShot() end,
                     action = function() openSupplyMenu(key) end,
                 },
             },
             distance = 2.5,
         })
         SetModelAsNoLongerNeeded(hash)
+    end
+end
+
+-- ===================== SUPPLY BLIPS (burgershot members only) =====================
+local function createSupplyBlips()
+    if not Config.ShowSupplyBlips then return end
+    for key, data in pairs(Config.SupplyPeds) do
+        if data.blip and not supplyBlips[key] then
+            local c = data.coords
+            local blip = AddBlipForCoord(c.x, c.y, c.z)
+            SetBlipSprite(blip, data.blip.sprite)
+            SetBlipColour(blip, data.blip.color)
+            SetBlipScale(blip, data.blip.scale or 0.7)
+            SetBlipAsShortRange(blip, true)
+            BeginTextCommandSetBlipName('STRING')
+            AddTextComponentSubstringPlayerName('Burger Shot: ' .. data.label)
+            EndTextCommandSetBlipName(blip)
+            supplyBlips[key] = blip
+        end
+    end
+end
+
+local function removeSupplyBlips()
+    for key, blip in pairs(supplyBlips) do
+        if DoesBlipExist(blip) then RemoveBlip(blip) end
+    end
+    supplyBlips = {}
+end
+
+local function refreshSupplyBlips()
+    if isBurgerShot() then
+        createSupplyBlips()
+    else
+        removeSupplyBlips()
     end
 end
 
@@ -214,20 +249,24 @@ CreateThread(function()
     Wait(1000)
     createZones()
     spawnSupplyPeds()
+    refreshSupplyBlips()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
+    refreshSupplyBlips()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(job)
     PlayerData.job = job
+    refreshSupplyBlips()
 end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         removeZones()
         removePeds()
+        removeSupplyBlips()
         if isCooking then
             ClearPedTasks(PlayerPedId())
         end
