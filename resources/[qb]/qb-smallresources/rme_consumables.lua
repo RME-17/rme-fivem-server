@@ -6,8 +6,9 @@
 --
 -- Drinks: the stock 'drink' handler hardcodes a water-bottle prop, so the
 -- fountain colas are registered as 'custom' consumables instead, which lets us
--- attach the REAL base-game Burger Shot soda cup (prop_food_bs_soda_01). That
+-- attach the REAL base-game Burger Shot paper cup (prop_food_bs_juice01). That
 -- prop ships with the base game, so no streaming / prop pack is required.
+-- NOTE: prop_food_bs_soda_01 is the soda CRATE (big red box), not a cup.
 
 Config = Config or {}
 Config.Consumables = Config.Consumables or {}
@@ -46,8 +47,8 @@ local rmeDrink = {
     ['burgershot_coffee'] = math.random(15, 25)
 }
 
--- Fountain colas: custom consumables holding the real Burger Shot soda cup.
-local BS_CUP = 'prop_food_bs_soda_01' -- base-game Burger Shot paper soda cup
+-- Fountain colas: custom consumables holding the real Burger Shot paper cup.
+local BS_CUP = 'prop_food_bs_juice01' -- base-game Burger Shot paper cup (hash 2127253708)
 
 local function bsDrink(label, amount)
     return {
