@@ -22,3 +22,30 @@ Config.PartItems = {
     tint  = { item = 'tint_roll',      label = 'Window Tint Roll' },
     plate = { item = 'plate_kit',      label = 'Plate Kit' },
 }
+
+-- Price charged per cosmetic CATEGORY on a customer order. The order builder
+-- adds these up into ONE total shown at submit time; the member tablet then
+-- shows that same single total on the order (never per-click amounts). A
+-- category is only billed once no matter how many tweaks it includes, and is
+-- skipped entirely when turned OFF / set back to Stock.
+Config.CosmeticPrices = {
+    paint = 1500,
+    wheel = 5000,
+    mod   = 4000,
+    xenon = 800,
+    neon  = 2500,
+    smoke = 1200,
+    tint  = 1000,
+    plate = 900,
+}
+
+-- Shared Redline parts stash. The boss installs crafted spray cans / parts here
+-- and members draw from it. Opened from the physical box at the shop and from the
+-- Storage tab in the member tablet. maxweight is in grams.
+Config.RedlineStorage = {
+    stash     = 'redline_storage',
+    label     = 'Redline Parts Storage',
+    maxweight = 400000,
+    slots     = 50,
+    coords    = vector3(1161.6, -779.9, 57.6),
+}
