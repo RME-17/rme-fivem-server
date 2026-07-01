@@ -60,9 +60,11 @@ QBCore.Functions.CreateUseableItem('tablet', function(source)
 end)
 
 -- Customer billing -----------------------------------------------------------
--- A mechanic invoices a customer by server ID; the customer accepts/declines; on
--- accept the money is pulled (bank first, then cash) and deposited into the
--- mechanic shop's society account.
+-- A mechanic invoices a customer by server ID. The customer's vehicle is
+-- immobilized (client side) the moment the invoice is sent and stays locked
+-- until the bill is actually paid, so a customer cannot get work done and then
+-- drive off. On accept the money is pulled (bank first, then cash) and deposited
+-- into the mechanic shop's society account, and the car is released.
 
 local pendingBills = {}
 
@@ -90,19 +92,19 @@ RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount
     }
     local mechName = ('%s %s'):format(Mechanic.PlayerData.charinfo.firstname, Mechanic.PlayerData.charinfo.lastname)
     TriggerClientEvent('qb-mechanicjob:client:billPrompt', tgt, mechName, amount)
-    TriggerClientEvent('QBCore:Notify', src, ('Invoice sent to %s %s (ID %s)'):format(Target.PlayerData.charinfo.firstname, Target.PlayerData.charinfo.lastname, tgt), 'primary')
+    TriggerClientEvent('QBCore:Notify', src, ('Invoice sent to %s %s (ID %s) - their vehicle is now locked until they pay'):format(Target.PlayerData.charinfo.firstname, Target.PlayerData.charinfo.lastname, tgt), 'primary')
 end)
 
 RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
     local src = source
     local bill = pendingBills[src]
     if not bill then return end
-    pendingBills[src] = nil
     local Customer = exports['qb-core']:GetPlayer(src)
     if not Customer then return end
+    -- Not now / declined: keep the bill pending and the car immobilized.
     if not accepted then
-        TriggerClientEvent('QBCore:Notify', src, 'Invoice declined', 'error')
-        if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer declined the invoice', 'error') end
+        TriggerClientEvent('QBCore:Notify', src, 'Your vehicle stays immobilized until the Redline invoice is paid', 'error')
+        if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer has not paid yet - their vehicle stays locked', 'primary') end
         return
     end
     local amount = bill.amount
@@ -113,10 +115,11 @@ RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
         paid = Customer.Functions.RemoveMoney('cash', amount, 'redline-cosmetics')
     end
     if not paid then
-        TriggerClientEvent('QBCore:Notify', src, 'You cannot afford this invoice', 'error')
-        if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer could not afford the invoice', 'error') end
+        TriggerClientEvent('QBCore:Notify', src, 'You cannot afford this invoice - your vehicle stays locked until it is paid', 'error')
+        if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer could not afford the invoice - vehicle still locked', 'error') end
         return
     end
+    pendingBills[src] = nil
     -- deposit into the shop society account (qb-banking, fall back to qb-management)
     local ok = pcall(function()
         exports['qb-banking']:AddMoney(bill.society, amount, 'Vehicle cosmetics & work')
@@ -125,7 +128,8 @@ RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
         pcall(function() exports['qb-management']:AddMoney(bill.society, amount) end)
     end
     TriggerClientEvent('QBCore:Notify', src, ('You paid $%s to %s'):format(amount, bill.shopLabel or 'the shop'), 'success')
-    if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, ('Customer paid $%s'):format(amount), 'success') end
+    TriggerClientEvent('qb-mechanicjob:client:invoicePaid', src)
+    if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, ('Customer paid $%s - vehicle released'):format(amount), 'success') end
 end)
 
 -- Customer cosmetics order board --------------------------------------------
