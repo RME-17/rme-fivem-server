@@ -2,15 +2,25 @@
     ox_target -> qb-target compatibility shim
     =========================================
     RME: The whole server uses qb-target (one eye, one key = Left Alt).
-    nex_crafting hard-calls exports.ox_target:addLocalEntity(...). Rather than
+    nex_crafting (and other scripts) hard-call exports.ox_target:... . Rather than
     run a second real targeting system (which stole the key and broke every
-    qb-target NPC/job), this resource is named 'ox_target' and simply forwards
-    those calls into qb-target.
+    qb-target NPC/job), this resource is named 'ox_target' and forwards those
+    calls into qb-target.
 
     It registers NO keybind and draws NO eye of its own -- qb-target owns the
     interaction. That is what removes the dual-target conflict.
 
-    Supported ox_target API (the surface nex_crafting / typical scripts use):
+    IMPORTANT (RME fix): selection handlers are dispatched via a client EVENT,
+    NOT by handing qb-target a Lua function. Passing an onSelect function across
+    the ox_target -> qb-target resource boundary and having qb-target store it and
+    call it later was unreliable and produced qb-target "No trigger setup" on
+    click (seen with nex_crafting benches + jim-mining). Instead we keep the
+    onSelect functions locally in `shimCallbacks` and give qb-target a stable
+    client event + id; when qb-target fires it we resolve the function back here
+    and call it. Nothing but strings/numbers cross to qb-target, so every
+    ox_target consumer gets a valid trigger.
+
+    Supported ox_target API:
       addLocalEntity / addEntity / removeLocalEntity / removeEntity
       addModel / removeModel
       addGlobalObject / addGlobalPed / addGlobalVehicle / addGlobalPlayer (+removes)
@@ -24,6 +34,33 @@ local qbTarget = exports['qb-target']
 -- so removal by ox option name still works against qb-target.
 local nameToLabel = {}
 local zoneCounter = 0
+
+-- Local registry of selection callbacks. We never hand qb-target a function;
+-- we hand it a string event + numeric id and resolve the function here on fire.
+local shimCallbacks = {}
+local cbCounter = 0
+local SHIM_EVENT = 'ox_target:shim:onSelect'
+
+AddEventHandler(SHIM_EVENT, function(data)
+    local id = (type(data) == 'table') and data.shimCbId or nil
+    local cb = id and shimCallbacks[id] or nil
+    if not cb then return end
+    local entity = (type(data) == 'table') and data.entity or nil
+    cb.fn({
+        entity = entity,
+        coords = (entity and DoesEntityExist(entity)) and GetEntityCoords(entity)
+            or ((type(data) == 'table') and data.coords) or nil,
+        name = cb.name,
+        distance = cb.distance,
+        zone = (type(data) == 'table') and data.zone or nil,
+    })
+end)
+
+local function storeCallback(fn, name, distance)
+    cbCounter = cbCounter + 1
+    shimCallbacks[cbCounter] = { fn = fn, name = name, distance = distance }
+    return cbCounter
+end
 
 local function nextZoneId(prefix)
     zoneCounter = zoneCounter + 1
@@ -53,17 +90,12 @@ local function convertOption(opt)
     if opt.job then qbOpt.job = opt.job end
     if opt.gang then qbOpt.gang = opt.gang end
 
-    -- selection handler
+    -- selection handler -> always resolved to a qb-target client event so we
+    -- never pass a function across the resource boundary for qb to store/call.
     if type(opt.onSelect) == 'function' then
-        local onSelect = opt.onSelect
-        qbOpt.action = function(entity)
-            onSelect({
-                entity = entity,
-                coords = entity and DoesEntityExist(entity) and GetEntityCoords(entity) or nil,
-                name = opt.name,
-                distance = opt.distance,
-            })
-        end
+        qbOpt.type = 'client'
+        qbOpt.event = SHIM_EVENT
+        qbOpt.shimCbId = storeCallback(opt.onSelect, opt.name, opt.distance)
     elseif opt.serverEvent then
         qbOpt.type = 'server'
         qbOpt.event = opt.serverEvent
@@ -74,10 +106,13 @@ local function convertOption(opt)
         qbOpt.type = 'command'
         qbOpt.event = opt.command
     elseif type(opt.export) == 'string' then
-        qbOpt.action = function(entity)
-            local res, fn = opt.export:match('([^%.]+)%.(.+)')
-            if res and fn then exports[res][fn](nil, { entity = entity }) end
-        end
+        local exp = opt.export
+        qbOpt.type = 'client'
+        qbOpt.event = SHIM_EVENT
+        qbOpt.shimCbId = storeCallback(function(data)
+            local res, fn = exp:match('([^%.]+)%.(.+)')
+            if res and fn then exports[res][fn](nil, data) end
+        end, opt.name, opt.distance)
     end
 
     -- access check (ox: canInteract(entity, distance, coords, name, bone))
@@ -221,4 +256,4 @@ exports('disableTargeting', function(state)
     qbTarget:AllowTargeting(not state)
 end)
 
-print('^2[ox_target shim]^7 Loaded -- forwarding ox_target calls to qb-target (single targeting system, single key).')
+print('^2[ox_target shim]^7 Loaded -- forwarding ox_target calls to qb-target (event-based dispatch, single targeting system, single key).')
