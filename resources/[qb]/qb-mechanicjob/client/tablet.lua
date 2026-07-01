@@ -147,10 +147,12 @@ local function buildTabletData(veh)
         data.tint[#data.tint + 1] = { label = t.label, id = t.id }
     end
 
-    data.plate = {}
+    -- NOTE: keep this as data.plateStyles -- data.plate stays the plate STRING
+    -- above so the member tablet header shows the plate, not [object Object].
+    data.plateStyles = {}
     for i = 1, #Config.PlateIndexes do
         local p = Config.PlateIndexes[i]
-        data.plate[#data.plate + 1] = { label = p.label, id = p.id }
+        data.plateStyles[#data.plateStyles + 1] = { label = p.label, id = p.id }
     end
 
     return data
@@ -325,6 +327,25 @@ RegisterNUICallback('rmeGetOrders', function(_, cb)
     QBCore.Functions.TriggerCallback('qb-mechanicjob:server:getOrders', function(list)
         cb({ plate = tabletPlate, orders = list or {} })
     end)
+end)
+
+-- completed order history (History tab)
+RegisterNUICallback('rmeGetHistory', function(_, cb)
+    QBCore.Functions.TriggerCallback('qb-mechanicjob:server:getHistory', function(list)
+        cb({ history = list or {} })
+    end)
+end)
+
+-- open the shared Redline parts stash (Storage tab). Closes the tablet UI first
+-- so the inventory window takes focus, then asks the server to open the stash.
+RegisterNUICallback('rmeStorage', function(_, cb)
+    tabletOpen = false
+    SetNuiFocus(false, false)
+    SaveTabletVehicle()
+    tabletVehicle = nil
+    tabletPlate = nil
+    TriggerServerEvent('qb-mechanicjob:server:openRedlineStorage')
+    cb('ok')
 end)
 
 RegisterNUICallback('rmeOrderApply', function(payload, cb)
