@@ -25,6 +25,15 @@
     function rgbCss(o) { return 'rgb(' + o.r + ',' + o.g + ',' + o.b + ')'; }
     function hexCss(h) { return (String(h).charAt(0) === '#') ? h : ('#' + h); }
 
+    // Make sure nothing else (the member tablet device or the legacy tuner
+    // tablet) is left visible behind the order builder -- that was the dark box.
+    function hideOtherUis() {
+        var t = document.getElementById('rme-tablet');
+        if (t) t.classList.add('rme-hidden');
+        var legacy = document.querySelector('.tablet');
+        if (legacy) legacy.style.display = 'none';
+    }
+
     function post(name, body, cb) {
         fetch('https://' + RES + '/' + name, {
             method: 'POST',
@@ -252,6 +261,7 @@
     window.addEventListener('message', function (e) {
         var d = e.data || {};
         if (d.action === 'openRedlineOrder') {
+            hideOtherUis();
             DATA = d.data || {};
             PRICES = DATA.prices || {};
             selectedKinds = {};
