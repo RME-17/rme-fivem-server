@@ -34,7 +34,11 @@ nexCrafting.ConfigData = {
         },
 
         interaction = {
-            useTarget = true,
+            -- NOTE (RME): useTarget is intentionally false. On this server nex_crafting's
+            -- target bridge talks to qb-target in a format our qb-target build rejects
+            -- ("@qb-target/client.lua:520: No trigger setup" on click). Marker interaction
+            -- (walk up + press E) avoids the target system entirely and works reliably.
+            useTarget = false,
             useMarker = true,
             interactionKey = 38,
             interactionDistance = 2,
