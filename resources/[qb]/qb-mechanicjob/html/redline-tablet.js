@@ -388,6 +388,13 @@
 
     function show() { root().classList.remove('rme-hidden'); }
     function hide() { root().classList.add('rme-hidden'); }
+    function isOpen() { var r = root(); return r && !r.classList.contains('rme-hidden'); }
+
+    // ESC closes the tablet so a player is never stuck with the mouse captured.
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' && e.keyCode !== 27) return;
+        if (isOpen()) { post('rmeClose', {}, function () { hide(); }); }
+    });
 
     window.addEventListener('message', function (e) {
         var d = e.data || {};
