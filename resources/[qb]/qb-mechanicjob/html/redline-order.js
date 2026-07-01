@@ -44,7 +44,7 @@
         }).then(function (d) { if (cb) cb(d); }).catch(function () { if (cb) cb(null); });
     }
 
-    // Single running total. A cosmetic CATEGORY is billed once (no per-click
+    // Single running total. A cosmetic CATEGORY is billed once (no per-item
     // amounts); turning a category off removes its price again.
     function setKind(kind, active) {
         if (!kind) return;
@@ -183,10 +183,78 @@
         }
     }
 
-    function camBtn(dir, label) {
-        var b = el('button', 'rmo-cam-btn', label);
-        b.addEventListener('click', function () { post('rmoCam', { dir: dir }); });
-        return b;
+    // ---- drag joystick camera -------------------------------------------
+    // A spring-loaded round knob. While the knob is held off-center the camera
+    // orbits in that direction; the further you drag, the faster it moves.
+    // Horizontal = orbit left/right, vertical = tilt up/down. Reuses the
+    // existing rmoCam callback (dir: left/right/up/down/in/out).
+    function buildJoystick() {
+        var cam = el('div', 'rmo-cam');
+        var joy = el('div', 'rmo-joy');
+        joy.id = 'rmo-joy';
+        var knob = el('div', 'rmo-knob');
+        joy.appendChild(knob);
+
+        var MAXR = 26;      // px radius the knob can travel
+        var DEAD = 0.12;    // deadzone (fraction) before it starts moving
+        var dragging = false, nx = 0, ny = 0, accX = 0, accY = 0, timer = null;
+
+        function place(x, y) { knob.style.transform = 'translate(' + x + 'px,' + y + 'px)'; }
+
+        function tick() {
+            var ax = Math.abs(nx) > DEAD ? Math.abs(nx) : 0;
+            var ay = Math.abs(ny) > DEAD ? Math.abs(ny) : 0;
+            accX += ax; accY += ay;
+            if (accX >= 1) { accX -= 1; post('rmoCam', { dir: nx > 0 ? 'right' : 'left' }); }
+            if (accY >= 1) { accY -= 1; post('rmoCam', { dir: ny < 0 ? 'up' : 'down' }); }
+        }
+        function move(e) {
+            if (!dragging) return;
+            var r = joy.getBoundingClientRect();
+            var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            var dx = e.clientX - cx, dy = e.clientY - cy;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > MAXR) { dx = dx / dist * MAXR; dy = dy / dist * MAXR; }
+            place(dx, dy);
+            nx = dx / MAXR; ny = dy / MAXR;
+        }
+        function start(e) {
+            dragging = true;
+            joy.classList.add('dragging');
+            try { joy.setPointerCapture(e.pointerId); } catch (err) {}
+            move(e);
+            if (!timer) timer = setInterval(tick, 45);
+            e.preventDefault();
+        }
+        function end() {
+            dragging = false;
+            joy.classList.remove('dragging');
+            nx = 0; ny = 0; accX = 0; accY = 0;
+            place(0, 0);
+            if (timer) { clearInterval(timer); timer = null; }
+        }
+        joy.addEventListener('pointerdown', start);
+        joy.addEventListener('pointermove', move);
+        joy.addEventListener('pointerup', end);
+        joy.addEventListener('pointercancel', end);
+        joy.addEventListener('lostpointercapture', end);
+
+        var zoom = el('div', 'rmo-zoom');
+        var zin = el('button', 'rmo-cam-btn', '+');
+        zin.addEventListener('click', function () { post('rmoCam', { dir: 'in' }); });
+        var zout = el('button', 'rmo-cam-btn', '\u2212');
+        zout.addEventListener('click', function () { post('rmoCam', { dir: 'out' }); });
+        zoom.appendChild(zin);
+        zoom.appendChild(zout);
+
+        var meta = el('div', 'rmo-cam-meta');
+        meta.appendChild(el('span', 'rmo-cam-label', 'Camera'));
+        meta.appendChild(el('span', 'rmo-cam-hint', 'Drag the knob to orbit'));
+
+        cam.appendChild(joy);
+        cam.appendChild(zoom);
+        cam.appendChild(meta);
+        return cam;
     }
 
     function buildShell() {
@@ -220,33 +288,25 @@
         body.appendChild(ct);
 
         var footer = el('div', 'rmo-footer');
-        var cam = el('div', 'rmo-cam');
-        cam.appendChild(el('span', 'rmo-cam-label', 'Camera'));
-        cam.appendChild(camBtn('left', '\u2039'));
-        cam.appendChild(camBtn('right', '\u203A'));
-        cam.appendChild(camBtn('up', '\u25B2'));
-        cam.appendChild(camBtn('down', '\u25BC'));
-        cam.appendChild(camBtn('in', '+'));
-        cam.appendChild(camBtn('out', '\u2212'));
-        var actions = el('div', 'rmo-actions');
+        footer.appendChild(buildJoystick());
+
         var total = el('div', 'rmo-total');
-        total.style.display = 'flex';
-        total.style.alignItems = 'center';
-        total.style.gap = '8px';
-        total.style.marginRight = '16px';
-        total.style.fontWeight = '700';
-        total.style.color = '#fff';
-        total.innerHTML = '<span style="opacity:.7;font-weight:500;letter-spacing:1px;">TOTAL</span><span id="rmo-total-amt" style="color:#ff3b3b;font-size:20px;">$0</span>';
+        total.appendChild(el('span', 'rmo-total-label', 'Total'));
+        total.appendChild(el('span', 'rmo-total-amt', '$0'));
+        var amt = total.querySelector('.rmo-total-amt');
+        if (amt) amt.id = 'rmo-total-amt';
+
+        var actions = el('div', 'rmo-actions');
         var cancel = el('button', 'rmo-btn rmo-btn-ghost', 'Cancel');
         cancel.addEventListener('click', function () { post('rmoClose', {}, function () { hide(); }); });
         var submit = el('button', 'rmo-btn rmo-btn-primary', 'Submit Order');
         submit.addEventListener('click', function () {
             post('rmoSubmit', {}, function (d) { if (d === 'ok' || d === null) hide(); });
         });
-        actions.appendChild(total);
         actions.appendChild(cancel);
         actions.appendChild(submit);
-        footer.appendChild(cam);
+
+        footer.appendChild(total);
         footer.appendChild(actions);
 
         panel.appendChild(header);
@@ -257,6 +317,59 @@
 
     function show() { root().classList.remove('rmo-hidden'); }
     function hide() { root().classList.add('rmo-hidden'); }
+    function isOpen() { var r = root(); return r && !r.classList.contains('rmo-hidden'); }
+
+    // ---- frosted invoice card (customer receives a Redline bill) ---------
+    function invoiceOverlay() {
+        var ov = document.getElementById('rmo-invoice');
+        if (!ov) {
+            ov = el('div', 'rmo-invoice-overlay rmo-hidden');
+            ov.id = 'rmo-invoice';
+            document.body.appendChild(ov);
+        }
+        return ov;
+    }
+    function respondInvoice(accepted) {
+        var ov = document.getElementById('rmo-invoice');
+        if (ov) ov.classList.add('rmo-hidden');
+        post('rmoInvoiceResponse', { accepted: accepted === true });
+    }
+    function showInvoice(amount) {
+        var ov = invoiceOverlay();
+        ov.innerHTML = '';
+        var card = el('div', 'rmo-invoice-card');
+        var top = el('div', 'rmo-inv-top');
+        top.appendChild(el('div', 'rmo-inv-brand', 'REDLINE'));
+        top.appendChild(el('div', 'rmo-inv-sub', 'Motorsport \u00B7 Invoice'));
+        var bodyEl = el('div', 'rmo-inv-body');
+        bodyEl.appendChild(el('div', 'rmo-inv-title', 'Amount due'));
+        bodyEl.appendChild(el('div', 'rmo-inv-amt', '<span>$' + (amount || 0) + '</span>'));
+        bodyEl.appendChild(el('div', 'rmo-inv-text', 'Redline Motorsport is invoicing you for vehicle work. Do you want to pay this invoice?'));
+        var acts = el('div', 'rmo-inv-actions');
+        var decline = el('button', 'rmo-btn rmo-btn-ghost', 'Decline');
+        decline.addEventListener('click', function () { respondInvoice(false); });
+        var pay = el('button', 'rmo-btn rmo-btn-primary', 'Pay');
+        pay.addEventListener('click', function () { respondInvoice(true); });
+        acts.appendChild(decline);
+        acts.appendChild(pay);
+        card.appendChild(top);
+        card.appendChild(bodyEl);
+        card.appendChild(acts);
+        ov.appendChild(card);
+        ov.classList.remove('rmo-hidden');
+    }
+    function invoiceOpen() {
+        var ov = document.getElementById('rmo-invoice');
+        return ov && !ov.classList.contains('rmo-hidden');
+    }
+
+    // ESC closes the order builder (revert) or declines an open invoice, so a
+    // player can never get stuck with the mouse captured.
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' && e.keyCode !== 27) return;
+        if (invoiceOpen()) { respondInvoice(false); return; }
+        if (isOpen()) { post('rmoClose', {}, function () { hide(); }); }
+    });
 
     window.addEventListener('message', function (e) {
         var d = e.data || {};
@@ -271,6 +384,11 @@
             show();
         } else if (d.action === 'closeRedlineOrder') {
             hide();
+        } else if (d.action === 'openRedlineInvoice') {
+            showInvoice(d.amount);
+        } else if (d.action === 'closeRedlineInvoice') {
+            var ov = document.getElementById('rmo-invoice');
+            if (ov) ov.classList.add('rmo-hidden');
         }
     });
 })();
