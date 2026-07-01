@@ -13,6 +13,69 @@ local tabletVehicle = nil
 local tabletPlate = nil
 local working = false
 
+-- "look at tablet" pose ------------------------------------------------------
+-- While the tablet UI is open the member holds a tablet prop and plays a
+-- looping look-down animation. A maintainer thread keeps the pose alive between
+-- the short full-body work animations that briefly take over the ped when a
+-- cosmetic/repair is applied.
+local tabletProp = nil
+local TABLET_DICT = 'amb@world_human_stand_mobile@male@text@base'
+local TABLET_ANIM = 'base'
+
+local function loadTabletDict()
+    if HasAnimDictLoaded(TABLET_DICT) then return end
+    RequestAnimDict(TABLET_DICT)
+    local t = GetGameTimer()
+    while not HasAnimDictLoaded(TABLET_DICT) and GetGameTimer() - t < 1000 do Wait(0) end
+end
+
+local function attachTabletProp(ped)
+    if tabletProp and DoesEntityExist(tabletProp) then return end
+    local model = `prop_cs_tablet`
+    RequestModel(model)
+    local t = GetGameTimer()
+    while not HasModelLoaded(model) and GetGameTimer() - t < 1000 do Wait(0) end
+    if not HasModelLoaded(model) then return end
+    local c = GetEntityCoords(ped)
+    tabletProp = CreateObject(model, c.x, c.y, c.z, true, true, false)
+    -- bone 28422 = right hand. Offsets can be fine-tuned in-game if needed.
+    AttachEntityToEntity(tabletProp, ped, GetPedBoneIndex(ped, 28422),
+        0.0, 0.0, 0.03, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+    SetModelAsNoLongerNeeded(model)
+end
+
+local function removeTabletProp()
+    if tabletProp and DoesEntityExist(tabletProp) then DeleteEntity(tabletProp) end
+    tabletProp = nil
+end
+
+local function startTabletPose()
+    CreateThread(function()
+        loadTabletDict()
+        while tabletOpen do
+            -- don't fight the full-body work animation used while applying parts
+            if not working then
+                local ped = PlayerPedId()
+                if not IsEntityPlayingAnim(ped, TABLET_DICT, TABLET_ANIM, 3) then
+                    loadTabletDict()
+                    -- flag 49 = looping + upper-body + secondary, so the member
+                    -- keeps looking at the tablet without locking their legs.
+                    TaskPlayAnim(ped, TABLET_DICT, TABLET_ANIM, 3.0, -3.0, -1, 49, 0.0, false, false, false)
+                end
+                attachTabletProp(ped)
+            end
+            Wait(400)
+        end
+    end)
+end
+
+local function stopTabletPose()
+    local ped = PlayerPedId()
+    StopAnimTask(ped, TABLET_DICT, TABLET_ANIM, 3.0)
+    ClearPedSecondaryTask(ped)
+    removeTabletProp()
+end
+
 -- customer-side invoice state: unpaid invoices are tracked by PLATE so they can
 -- be re-applied after a relog. While a plate is owed, the matching car is frozen
 -- + undriveable, and the frosted invoice card re-opens if they climb into the
@@ -202,6 +265,8 @@ RegisterNetEvent('qb-mechanicjob:client:useTablet', function()
         end
         tabletOpen = true
         SetNuiFocus(true, true)
+        -- member picks up the tablet and looks at it while the UI is open
+        startTabletPose()
         SendNUIMessage({ action = 'openRedlineTablet', data = data })
     end, tabletPlate)
 end)
@@ -356,6 +421,7 @@ end)
 -- so the inventory window takes focus, then asks the server to open the stash.
 RegisterNUICallback('rmeStorage', function(_, cb)
     tabletOpen = false
+    stopTabletPose()
     SetNuiFocus(false, false)
     SaveTabletVehicle()
     tabletVehicle = nil
@@ -428,6 +494,7 @@ end)
 
 RegisterNUICallback('rmeClose', function(_, cb)
     tabletOpen = false
+    stopTabletPose()
     SetNuiFocus(false, false)
     SaveTabletVehicle()
     tabletVehicle = nil
@@ -561,6 +628,7 @@ AddEventHandler('onResourceStop', function(res)
         tabletOpen = false
         SetNuiFocus(false, false)
     end
+    stopTabletPose()
     local veh = nearbyVehicle(30.0)
     if veh then releaseVehicle(veh) end
 end)
