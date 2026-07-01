@@ -66,6 +66,20 @@
     function content() { return document.getElementById('rme-content'); }
     function rgbCss(o) { return 'rgb(' + o.r + ',' + o.g + ',' + o.b + ')'; }
 
+    // Requirement note shown at the top of a cosmetic section, telling the member
+    // which physical part they must carry (one is consumed per apply).
+    function reqNote(kind) {
+        if (!DATA || !DATA.requireItems) return null;
+        var pi = DATA.partItems || {};
+        var m = pi[kind];
+        if (!m) return null;
+        return el('div', 'rme-req-note', 'Requires 1x ' + m.label + ' in your inventory - one is consumed each time you apply an item here.');
+    }
+    function addReqNote(ct, kind) {
+        var n = reqNote(kind);
+        if (n) ct.appendChild(n);
+    }
+
     function post(name, body, cb) {
         fetch('https://' + RES + '/' + name, {
             method: 'POST',
@@ -205,6 +219,7 @@
 
     function renderPaint() {
         var ct = content();
+        addReqNote(ct, 'paint');
         ['primary', 'secondary'].forEach(function (section) {
             ct.appendChild(el('div', 'rme-section-title', section === 'primary' ? 'Primary Color' : 'Secondary Color'));
             optionGrid(ct, PAINT, function (p) {
@@ -215,6 +230,7 @@
 
     function renderWheels() {
         var ct = content();
+        addReqNote(ct, 'wheel');
         ct.appendChild(el('div', 'rme-section-title', 'Wheel Types'));
         var g = el('div', 'rme-grid');
         (DATA.wheelCats || []).forEach(function (cat) {
@@ -233,6 +249,7 @@
         var back = el('div', 'rme-back', '\u2190 Back to wheel types');
         back.addEventListener('click', function () { selectCat('wheels'); });
         ct.appendChild(back);
+        addReqNote(ct, 'wheel');
         ct.appendChild(el('div', 'rme-section-title', cat.label));
         optionGrid(ct, list, function (o) {
             return { kind: 'wheel', wheelType: cat.id, index: o.index };
@@ -241,6 +258,7 @@
 
     function renderSections(sections) {
         var ct = content();
+        addReqNote(ct, 'mod');
         if (!sections || sections.length === 0) {
             ct.appendChild(el('div', 'rme-bill-note', 'No options available for this vehicle.'));
             return;
@@ -255,6 +273,7 @@
 
     function renderNeon() {
         var ct = content();
+        addReqNote(ct, 'neon');
         var g = el('div', 'rme-grid');
         g.appendChild(makeCard('Neons Off', function (c) { post('rmeApply', { kind: 'neon', off: true }, function () { flash(c); }); }));
         (DATA.neon || []).forEach(function (n) {
@@ -267,6 +286,7 @@
 
     function renderSmoke() {
         var ct = content();
+        addReqNote(ct, 'smoke');
         var g = el('div', 'rme-grid');
         g.appendChild(makeCard('Smoke Off', function (c) { post('rmeApply', { kind: 'smoke', off: true }, function () { flash(c); }); }));
         (DATA.smoke || []).forEach(function (s) {
@@ -279,6 +299,7 @@
 
     function renderXenon() {
         var ct = content();
+        addReqNote(ct, 'xenon');
         var g = el('div', 'rme-grid');
         g.appendChild(makeCard('Xenon Off', function (c) { post('rmeApply', { kind: 'xenon', off: true }, function () { flash(c); }); }));
         (DATA.xenon || []).forEach(function (x) {
@@ -291,34 +312,55 @@
 
     function renderRepair() {
         var ct = content();
+        ct.appendChild(el('div', 'rme-section-title', 'Repair & Clean'));
+        var defs = [
+            ['Full Repair', 'fullrepair', 'Restores engine, body and fuel-tank health to 100%, fixes all visual crash damage and dents, and restores every tracked wear part. This is the full service - use it after a crash or heavy damage.'],
+            ['Restore Worn Parts', 'parts', 'Restores only the tracked wear components (brakes, clutch, suspension, etc.) back to full. It does NOT touch body or engine crash damage - a lighter maintenance service.'],
+            ['Clean Vehicle', 'clean', 'Washes off all dirt and dust so the car looks freshly detailed. Purely cosmetic - it does not repair anything.']
+        ];
         var g = el('div', 'rme-grid');
-        [['Full Repair', 'fullrepair'], ['Restore Worn Parts', 'parts'], ['Clean Vehicle', 'clean']].forEach(function (row) {
-            g.appendChild(makeCard(row[0], function (c) {
+        defs.forEach(function (row) {
+            var c = el('div', 'rme-card rme-card-desc');
+            var txt = el('div', 'rme-card-textwrap');
+            txt.appendChild(el('div', 'rme-card-label', row[0]));
+            txt.appendChild(el('div', 'rme-card-desc-text', row[2]));
+            c.appendChild(txt);
+            c.addEventListener('click', function () {
                 post('rmeRepair', { kind: row[1] }, function () { flash(c); });
-            }));
+            });
+            g.appendChild(c);
         });
         ct.appendChild(g);
+        ct.appendChild(el('div', 'rme-bill-note', 'Repair and clean actions are free and do not use any part items.'));
     }
 
     function renderBill() {
         var ct = content();
         var wrap = el('div', 'rme-bill');
-        wrap.appendChild(el('div', 'rme-section-title', 'Invoice the nearest customer'));
-        var input = el('input', 'rme-input');
-        input.type = 'number';
-        input.min = '1';
-        input.placeholder = 'Amount ($)';
+        wrap.appendChild(el('div', 'rme-section-title', 'Bill a customer'));
+        wrap.appendChild(el('div', 'rme-field-label', 'Customer player ID'));
+        var idInput = el('input', 'rme-input');
+        idInput.type = 'number';
+        idInput.min = '1';
+        idInput.placeholder = 'Player ID (server ID)';
+        wrap.appendChild(idInput);
+        wrap.appendChild(el('div', 'rme-field-label', 'Invoice amount'));
+        var amtInput = el('input', 'rme-input');
+        amtInput.type = 'number';
+        amtInput.min = '1';
+        amtInput.placeholder = 'Amount ($)';
+        wrap.appendChild(amtInput);
         var btn = el('button', 'rme-btn', 'Send Invoice');
         btn.addEventListener('click', function () {
-            var amt = parseInt(input.value, 10);
-            if (amt > 0) {
-                post('rmeBill', { amount: amt });
-                input.value = '';
-            }
+            var pid = parseInt(idInput.value, 10);
+            var amt = parseInt(amtInput.value, 10);
+            if (!pid || pid <= 0) return;
+            if (!amt || amt <= 0) return;
+            post('rmeBill', { target: pid, amount: amt });
+            amtInput.value = '';
         });
-        wrap.appendChild(input);
         wrap.appendChild(btn);
-        wrap.appendChild(el('div', 'rme-bill-note', 'The customer must accept the invoice. Payment is deposited into the Redline society account.'));
+        wrap.appendChild(el('div', 'rme-bill-note', 'Enter the customer server ID (they can read it from the pause menu or a scoreboard). The customer must accept the invoice; payment is deposited into the Redline society account.'));
         ct.appendChild(wrap);
     }
 
@@ -342,8 +384,8 @@
             case 'neon': renderNeon(); break;
             case 'xenon': renderXenon(); break;
             case 'smoke': renderSmoke(); break;
-            case 'tint': optionGrid(content(), DATA.tint || [], function (o) { return { kind: 'tint', id: o.id }; }); break;
-            case 'plate': optionGrid(content(), DATA.plate || [], function (o) { return { kind: 'plate', id: o.id }; }); break;
+            case 'tint': addReqNote(content(), 'tint'); optionGrid(content(), DATA.tint || [], function (o) { return { kind: 'tint', id: o.id }; }); break;
+            case 'plate': addReqNote(content(), 'plate'); optionGrid(content(), DATA.plate || [], function (o) { return { kind: 'plate', id: o.id }; }); break;
             case 'repair': renderRepair(); break;
             case 'bill': renderBill(); break;
         }
