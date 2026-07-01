@@ -173,10 +173,6 @@ Config = {
             },
         }
     },
-    -- Jewelry crafting is a LOCATION, not a placed bench/prop.
-    -- Players walk to this spot and use the qb-target option to craft.
-    -- Metal split: GOLD for rings, chains, the watch and gold earrings; SILVER
-    -- for the three gem necklaces and the diamond earrings.
     jewelry_bench = {
         location = vec4(1109.86, -2008.29, 31.06, 241.9),
         xpType = 'craftingrep',
@@ -284,6 +280,95 @@ Config = {
                 requiredItems = {
                     { item = 'ls_silver_ingot', amount = 6 },
                     { item = 'sapphire',        amount = 2 }
+                }
+            },
+        }
+    },
+    -- Redline Motorsport parts bench (LOCATION at the Redline shop, no prop item).
+    -- Members craft the physical cosmetic parts from materials recycled at the
+    -- Paleto recycling warehouse. Adjust `location` to fine-tune the exact spot.
+    redline_bench = {
+        location = vec4(1160.5, -782.7, 57.6, 100.0),
+        xpType = 'craftingrep',
+        recipes = {
+            {
+                item = 'spray_can',
+                xpRequired = 0,
+                xpGain = 3,
+                requiredItems = {
+                    { item = 'plastic',  amount = 5 },
+                    { item = 'steel',    amount = 3 },
+                    { item = 'aluminum', amount = 2 }
+                }
+            },
+            {
+                item = 'car_wheel',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'steel',    amount = 8 },
+                    { item = 'rubber',   amount = 10 },
+                    { item = 'aluminum', amount = 4 }
+                }
+            },
+            {
+                item = 'body_kit',
+                xpRequired = 0,
+                xpGain = 6,
+                requiredItems = {
+                    { item = 'steel',    amount = 12 },
+                    { item = 'aluminum', amount = 8 },
+                    { item = 'plastic',  amount = 6 }
+                }
+            },
+            {
+                item = 'xenon_bulb',
+                xpRequired = 0,
+                xpGain = 3,
+                requiredItems = {
+                    { item = 'glass',   amount = 4 },
+                    { item = 'copper',  amount = 3 },
+                    { item = 'plastic', amount = 2 }
+                }
+            },
+            {
+                item = 'tyre_smoke_kit',
+                xpRequired = 0,
+                xpGain = 4,
+                requiredItems = {
+                    { item = 'plastic', amount = 4 },
+                    { item = 'rubber',  amount = 4 },
+                    { item = 'copper',  amount = 2 }
+                }
+            },
+            {
+                item = 'neon_kit',
+                xpRequired = 0,
+                xpGain = 5,
+                requiredItems = {
+                    { item = 'glass',   amount = 6 },
+                    { item = 'copper',  amount = 6 },
+                    { item = 'plastic', amount = 4 }
+                }
+            },
+            {
+                item = 'tint_roll',
+                xpRequired = 0,
+                xpGain = 3,
+                requiredItems = {
+                    { item = 'plastic', amount = 6 },
+                    { item = 'glass',   amount = 3 },
+                    { item = 'rubber',  amount = 2 }
+                }
+            },
+            {
+                item = 'plate_kit',
+                xpRequired = 0,
+                xpGain = 3,
+                requiredItems = {
+                    { item = 'aluminum', amount = 4 },
+                    { item = 'steel',    amount = 2 },
+                    { item = 'plastic',  amount = 2 }
                 }
             },
         }
