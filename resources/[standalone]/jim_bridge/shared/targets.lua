@@ -205,7 +205,19 @@ local targetFunc = {
     },
 }
 
-
+-- RME FIX: prefer qb-target over the ox_target shim.
+-- The server runs qb-target; the ox_target resource is only a compatibility
+-- shim kept for nex_crafting. jim_bridge otherwise selects ox_target first,
+-- which mis-registers zone targets (e.g. the jim-mining store) and causes
+-- qb-target to throw "No trigger setup" on click. Moving the qb-target entry to
+-- the front of the detection list makes jim_bridge talk to qb-target directly
+-- (same as stopping ox_target) while leaving the shim available for nex_crafting.
+for _rmeIndex = 1, #targetFunc do
+    if targetFunc[_rmeIndex].targetName == QBTargetExport then
+        table.insert(targetFunc, 1, table.remove(targetFunc, _rmeIndex))
+        break
+    end
+end
 
 -------------------------------------------------------------
 -- Utility Data & Tables
