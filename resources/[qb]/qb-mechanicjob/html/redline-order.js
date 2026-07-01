@@ -2,6 +2,8 @@
     'use strict';
     var RES = 'qb-mechanicjob';
     var DATA = null;
+    var PRICES = {};
+    var selectedKinds = {};
 
     var CATS = [
         { id: 'paint', label: 'Paint', icon: 'P' },
@@ -31,6 +33,28 @@
         }).then(function (r) {
             return r.json().catch(function () { return null; });
         }).then(function (d) { if (cb) cb(d); }).catch(function () { if (cb) cb(null); });
+    }
+
+    // Single running total. A cosmetic CATEGORY is billed once (no per-click
+    // amounts); turning a category off removes its price again.
+    function setKind(kind, active) {
+        if (!kind) return;
+        if (active) selectedKinds[kind] = true;
+        else delete selectedKinds[kind];
+        renderTotal();
+    }
+    function computeTotal() {
+        var t = 0;
+        for (var k in selectedKinds) {
+            if (selectedKinds.hasOwnProperty(k) && selectedKinds[k]) {
+                t += (PRICES[k] || 0);
+            }
+        }
+        return t;
+    }
+    function renderTotal() {
+        var e = document.getElementById('rmo-total-amt');
+        if (e) e.textContent = '$' + computeTotal();
     }
 
     function flash(card) {
@@ -70,6 +94,7 @@
                 grp.colors.forEach(function (col) {
                     g.appendChild(makeCard(col.label, function (c) {
                         selectOne(g, c);
+                        setKind('paint', true);
                         post('rmoPreview', { kind: 'paint', section: section, colorId: col.id, label: col.label }, function () { flash(c); });
                     }, { swatch: hexCss(col.hex) }));
                 });
@@ -101,18 +126,20 @@
         list.forEach(function (o) {
             g.appendChild(makeCard(o.label, function (c) {
                 selectOne(g, c);
+                setKind('wheel', o.index !== -1);
                 post('rmoPreview', { kind: 'wheel', wheelType: cat.id, index: o.index, label: cat.label + ' - ' + o.label }, function () { flash(c); });
             }));
         });
         ct.appendChild(g);
     }
 
-    function renderSwatchList(items, payloadFn, withOff, offLabel) {
+    function renderSwatchList(kind, items, payloadFn, withOff, offLabel) {
         var ct = content();
         var g = el('div', 'rmo-grid');
         if (withOff) {
             g.appendChild(makeCard(offLabel || 'Off', function (c) {
                 selectOne(g, c);
+                setKind(kind, false);
                 post('rmoPreview', payloadFn({ off: true }), function () { flash(c); });
             }));
         }
@@ -120,6 +147,7 @@
             var sw = (o.r !== undefined) ? { swatch: rgbCss(o) } : undefined;
             g.appendChild(makeCard(o.label, function (c) {
                 selectOne(g, c);
+                setKind(kind, true);
                 post('rmoPreview', payloadFn(o), function () { flash(c); });
             }, sw));
         });
@@ -139,10 +167,10 @@
         switch (id) {
             case 'paint': renderPaint(); break;
             case 'wheels': renderWheels(); break;
-            case 'neon': renderSwatchList(DATA.neon || [], function (o) { return o.off ? { kind: 'neon', off: true } : { kind: 'neon', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Neons Off'); break;
-            case 'smoke': renderSwatchList(DATA.smoke || [], function (o) { return o.off ? { kind: 'smoke', off: true } : { kind: 'smoke', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Smoke Off'); break;
-            case 'tint': renderSwatchList(DATA.tint || [], function (o) { return { kind: 'tint', id: o.id, label: o.label }; }, false); break;
-            case 'plate': renderSwatchList(DATA.plate || [], function (o) { return { kind: 'plate', id: o.id, label: o.label }; }, false); break;
+            case 'neon': renderSwatchList('neon', DATA.neon || [], function (o) { return o.off ? { kind: 'neon', off: true } : { kind: 'neon', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Neons Off'); break;
+            case 'smoke': renderSwatchList('smoke', DATA.smoke || [], function (o) { return o.off ? { kind: 'smoke', off: true } : { kind: 'smoke', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Smoke Off'); break;
+            case 'tint': renderSwatchList('tint', DATA.tint || [], function (o) { return { kind: 'tint', id: o.id, label: o.label }; }, false); break;
+            case 'plate': renderSwatchList('plate', DATA.plateStyles || [], function (o) { return { kind: 'plate', id: o.id, label: o.label }; }, false); break;
         }
     }
 
@@ -192,12 +220,21 @@
         cam.appendChild(camBtn('in', '+'));
         cam.appendChild(camBtn('out', '\u2212'));
         var actions = el('div', 'rmo-actions');
+        var total = el('div', 'rmo-total');
+        total.style.display = 'flex';
+        total.style.alignItems = 'center';
+        total.style.gap = '8px';
+        total.style.marginRight = '16px';
+        total.style.fontWeight = '700';
+        total.style.color = '#fff';
+        total.innerHTML = '<span style="opacity:.7;font-weight:500;letter-spacing:1px;">TOTAL</span><span id="rmo-total-amt" style="color:#ff3b3b;font-size:20px;">$0</span>';
         var cancel = el('button', 'rmo-btn rmo-btn-ghost', 'Cancel');
         cancel.addEventListener('click', function () { post('rmoClose', {}, function () { hide(); }); });
         var submit = el('button', 'rmo-btn rmo-btn-primary', 'Submit Order');
         submit.addEventListener('click', function () {
             post('rmoSubmit', {}, function (d) { if (d === 'ok' || d === null) hide(); });
         });
+        actions.appendChild(total);
         actions.appendChild(cancel);
         actions.appendChild(submit);
         footer.appendChild(cam);
@@ -216,8 +253,11 @@
         var d = e.data || {};
         if (d.action === 'openRedlineOrder') {
             DATA = d.data || {};
+            PRICES = DATA.prices || {};
+            selectedKinds = {};
             buildShell();
             selectCat('paint');
+            renderTotal();
             show();
         } else if (d.action === 'closeRedlineOrder') {
             hide();
