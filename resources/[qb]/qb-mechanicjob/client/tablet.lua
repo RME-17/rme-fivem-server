@@ -420,16 +420,21 @@ RegisterNUICallback('rmeClose', function(_, cb)
 end)
 
 -- customer side: accept / decline the invoice --------------------------------
+-- Shown as the frosted Redline card (html/redline-order.js). We take NUI focus
+-- so the customer can click Pay/Decline (or press ESC to decline), then release
+-- focus in the rmoInvoiceResponse callback below.
 
 RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount)
-    local accepted = lib.alertDialog({
-        header = 'Redline Motorsport - Invoice',
-        content = ('**%s** is billing you **$%s** for vehicle work. Pay this invoice?'):format(memberName or 'A mechanic', amount),
-        centered = true,
-        cancel = true,
-        labels = { confirm = 'Pay', cancel = 'Decline' },
-    })
-    TriggerServerEvent('qb-mechanicjob:server:billResponse', accepted == 'confirm')
+    SetNuiFocus(true, true)
+    SendNUIMessage({ action = 'openRedlineInvoice', amount = amount })
+end)
+
+RegisterNUICallback('rmoInvoiceResponse', function(data, cb)
+    SetNuiFocus(false, false)
+    SendNUIMessage({ action = 'closeRedlineInvoice' })
+    local accepted = data and data.accepted == true
+    TriggerServerEvent('qb-mechanicjob:server:billResponse', accepted)
+    cb('ok')
 end)
 
 -- safety: release NUI focus if the resource stops while the tablet is open
