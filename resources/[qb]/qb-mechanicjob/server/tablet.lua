@@ -134,7 +134,32 @@ end)
 -- in the Orders tab of the member tablet. Members apply each item one at a time
 -- on the real car while it is present.
 
-local orders = {} -- plate -> { plate, vehName, customer, customerName, items = {...}, time }
+local orders = {} -- plate -> { plate, vehName, customer, customerName, items = {...}, total, time }
+local history = {} -- completed orders (newest last): { plate, vehName, customerName, total, time }
+
+-- Sum the price of each cosmetic CATEGORY represented in an order, counting a
+-- category only once and skipping anything turned OFF or set back to Stock. This
+-- is the single total the customer sees at submit and the member sees on the
+-- order card -- there are never per-item amounts.
+local function computeOrderTotal(items)
+    if type(items) ~= 'table' then return 0 end
+    local prices = Config.CosmeticPrices or {}
+    local seen = {}
+    local total = 0
+    for _, it in ipairs(items) do
+        if type(it) == 'table' then
+            local kind = it.kind
+            local skip = false
+            if it.off == true then skip = true end
+            if kind == 'wheel' and tonumber(it.index) == -1 then skip = true end
+            if kind and not skip and not seen[kind] then
+                seen[kind] = true
+                total = total + (prices[kind] or 0)
+            end
+        end
+    end
+    return total
+end
 
 local function notifyMechanics(msg)
     local players = QBCore.Functions.GetQBPlayers()
@@ -153,16 +178,18 @@ RegisterNetEvent('qb-mechanicjob:server:submitOrder', function(plate, vehName, i
     if type(items) ~= 'table' or #items == 0 then return end
     if type(plate) ~= 'string' then return end
     local cname = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
+    local total = computeOrderTotal(items)
     orders[plate] = {
         plate = plate,
         vehName = vehName or 'Vehicle',
         customer = src,
         customerName = cname,
         items = items,
+        total = total,
         time = os.time(),
     }
-    TriggerClientEvent('QBCore:Notify', src, 'Your customization order was sent to Redline Motorsport', 'success')
-    notifyMechanics(('New Redline order: %s (%s)'):format(vehName or 'Vehicle', plate))
+    TriggerClientEvent('QBCore:Notify', src, ('Your customization order ($%s) was sent to Redline Motorsport'):format(total), 'success')
+    notifyMechanics(('New Redline order: %s (%s) - $%s'):format(vehName or 'Vehicle', plate, total))
 end)
 
 QBCore.Functions.CreateCallback('qb-mechanicjob:server:getOrders', function(source, cb)
@@ -171,6 +198,17 @@ QBCore.Functions.CreateCallback('qb-mechanicjob:server:getOrders', function(sour
     local list = {}
     for _, o in pairs(orders) do
         list[#list + 1] = o
+    end
+    cb(list)
+end)
+
+-- Completed order history (newest first), shown in the History tab.
+QBCore.Functions.CreateCallback('qb-mechanicjob:server:getHistory', function(source, cb)
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not isMechanic(Player) then cb({}) return end
+    local list = {}
+    for i = #history, 1, -1 do
+        list[#list + 1] = history[i]
     end
     cb(list)
 end)
@@ -186,6 +224,13 @@ RegisterNetEvent('qb-mechanicjob:server:completeOrderItem', function(plate, inde
         table.remove(o.items, index)
     end
     if #o.items == 0 then
+        history[#history + 1] = {
+            plate = o.plate,
+            vehName = o.vehName,
+            customerName = o.customerName,
+            total = o.total or 0,
+            time = os.time(),
+        }
         orders[plate] = nil
         if o.customer then TriggerClientEvent('QBCore:Notify', o.customer, 'Your Redline order is complete', 'success') end
     end
@@ -199,6 +244,25 @@ RegisterNetEvent('qb-mechanicjob:server:cancelOrder', function(plate)
     if not o then return end
     orders[plate] = nil
     if o.customer then TriggerClientEvent('QBCore:Notify', o.customer, 'Your Redline order was cancelled', 'error') end
+end)
+
+-- Shared Redline parts stash -------------------------------------------------
+-- Opened from the physical box at the shop and from the Storage tab in the
+-- member tablet. qb-inventory auto-initializes the stash on first open.
+RegisterNetEvent('qb-mechanicjob:server:openRedlineStorage', function()
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not isMechanic(Player) then
+        TriggerClientEvent('QBCore:Notify', src, 'Only Redline members can open this storage', 'error')
+        return
+    end
+    local cfg = Config.RedlineStorage
+    if not cfg then return end
+    exports['qb-inventory']:OpenInventory(src, cfg.stash, {
+        label = cfg.label,
+        maxweight = cfg.maxweight,
+        slots = cfg.slots,
+    })
 end)
 
 AddEventHandler('playerDropped', function()
