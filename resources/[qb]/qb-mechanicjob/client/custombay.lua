@@ -57,6 +57,7 @@ local function buildOrderCatalog(veh)
     local cat = {}
     cat.name = vehName(veh)
     cat.plate = QBCore.Functions.GetPlate(veh)
+    cat.prices = Config.CosmeticPrices or {}
     cat.paint = {}
     for _, gname in ipairs(PAINT_GROUPS) do
         local grp = Config.Paints[gname]
@@ -86,9 +87,11 @@ local function buildOrderCatalog(veh)
     for i = 1, #Config.WindowTints do
         cat.tint[#cat.tint + 1] = { label = Config.WindowTints[i].label, id = Config.WindowTints[i].id }
     end
-    cat.plate = {}
+    -- NOTE: keep this as cat.plateStyles -- cat.plate stays the plate STRING
+    -- above so the order header shows the plate, not [object Object].
+    cat.plateStyles = {}
     for i = 1, #Config.PlateIndexes do
-        cat.plate[#cat.plate + 1] = { label = Config.PlateIndexes[i].label, id = Config.PlateIndexes[i].id }
+        cat.plateStyles[#cat.plateStyles + 1] = { label = Config.PlateIndexes[i].label, id = Config.PlateIndexes[i].id }
     end
     return cat
 end
