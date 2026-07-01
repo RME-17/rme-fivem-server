@@ -23,6 +23,7 @@ server_scripts {
     'server/main.lua',
     'server/functions.lua',
     'server/commands.lua',
+    'server/rme_stash_image_sync.lua',
 }
 
 ui_page 'html/index.html'
