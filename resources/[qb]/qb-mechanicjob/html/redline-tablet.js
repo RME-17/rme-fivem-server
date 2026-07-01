@@ -3,54 +3,39 @@
     var RES = 'qb-mechanicjob';
     var DATA = null;
 
-    // Inject styling for the Orders tab (keeps redline-tablet.css untouched).
+    // Styling for the Orders / History / Storage tabs (keeps the base css file
+    // untouched).
     (function injectOrderCss() {
         var css = [
             '.rme-order{border:1px solid rgba(140,170,220,0.16);border-radius:14px;padding:12px 14px;margin-bottom:12px;background:rgba(255,255,255,0.03);}',
             '.rme-order.rme-order-match{border-color:rgba(110,170,255,0.55);box-shadow:0 0 18px rgba(61,123,255,0.18);background:rgba(61,123,255,0.08);}',
-            '.rme-order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}',
+            '.rme-order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;}',
             '.rme-order-veh{font-weight:700;font-size:13px;color:#eaf2ff;}',
             '.rme-order-cust{font-size:11px;color:#8fa6c9;}',
+            '.rme-order-total{font-weight:800;font-size:15px;color:#ff6b6b;white-space:nowrap;}',
             '.rme-order-item{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,0.03);margin-top:6px;font-size:12px;color:#dce7f7;}',
             '.rme-order-item-label{flex:1;}',
             '.rme-order-note{font-size:11px;color:#7e94b6;font-style:italic;}',
             '.rme-mini-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#3d7bff,#5a9bff);box-shadow:0 4px 14px rgba(61,123,255,0.35);}',
             '.rme-mini-btn:hover{filter:brightness(1.1);}',
             '.rme-order-cancel{border:1px solid rgba(255,120,120,0.4);background:rgba(255,90,90,0.12);color:#ffd9d9;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-top:8px;}',
-            '.rme-order-cancel:hover{background:rgba(255,90,90,0.22);}'
+            '.rme-order-cancel:hover{background:rgba(255,90,90,0.22);}',
+            '.rme-storage{max-width:460px;}',
+            '.rme-hist-time{font-size:11px;color:#7e94b6;margin-top:4px;}'
         ].join('');
         var s = document.createElement('style');
         s.textContent = css;
         document.head.appendChild(s);
     })();
 
-    var PAINT = [
-        { label: 'Jet Black', r: 12, g: 12, b: 14 },
-        { label: 'Pure White', r: 240, g: 244, b: 250 },
-        { label: 'Redline Red', r: 200, g: 24, b: 36 },
-        { label: 'Racing Blue', r: 28, g: 96, b: 220 },
-        { label: 'Cyan Glow', r: 40, g: 190, b: 230 },
-        { label: 'Sunset Orange', r: 240, g: 120, b: 30 },
-        { label: 'Money Green', r: 30, g: 170, b: 90 },
-        { label: 'Royal Purple', r: 120, g: 50, b: 200 },
-        { label: 'Hot Pink', r: 235, g: 70, b: 160 },
-        { label: 'Gold', r: 212, g: 175, b: 55 },
-        { label: 'Gunmetal', r: 60, g: 70, b: 84 },
-        { label: 'Silver', r: 170, g: 178, b: 188 }
-    ];
-
+    // Member tablet tabs: no cosmetic pickers -- members only see orders, the
+    // history, the amounts, the shared parts storage, plus repair/clean and
+    // manual billing. Customers choose cosmetics at the drive-in bay instead.
     var CATS = [
         { id: 'diagnostics', label: 'Diagnostics', icon: 'D' },
         { id: 'orders', label: 'Orders', icon: 'O' },
-        { id: 'paint', label: 'Paint', icon: 'P' },
-        { id: 'wheels', label: 'Wheels', icon: 'W' },
-        { id: 'exterior', label: 'Exterior', icon: 'E' },
-        { id: 'interior', label: 'Interior', icon: 'I' },
-        { id: 'neon', label: 'Neon Kits', icon: 'N' },
-        { id: 'xenon', label: 'Headlights', icon: 'H' },
-        { id: 'smoke', label: 'Tire Smoke', icon: 'S' },
-        { id: 'tint', label: 'Window Tint', icon: 'T' },
-        { id: 'plate', label: 'Plate Style', icon: 'L' },
+        { id: 'history', label: 'History', icon: 'H' },
+        { id: 'storage', label: 'Storage', icon: 'B' },
         { id: 'repair', label: 'Repair & Clean', icon: 'R' },
         { id: 'bill', label: 'Bill Customer', icon: '$' }
     ];
@@ -64,21 +49,6 @@
 
     function root() { return document.getElementById('rme-tablet'); }
     function content() { return document.getElementById('rme-content'); }
-    function rgbCss(o) { return 'rgb(' + o.r + ',' + o.g + ',' + o.b + ')'; }
-
-    // Requirement note shown at the top of a cosmetic section, telling the member
-    // which physical part they must carry (one is consumed per apply).
-    function reqNote(kind) {
-        if (!DATA || !DATA.requireItems) return null;
-        var pi = DATA.partItems || {};
-        var m = pi[kind];
-        if (!m) return null;
-        return el('div', 'rme-req-note', 'Requires 1x ' + m.label + ' in your inventory - one is consumed each time you apply an item here.');
-    }
-    function addReqNote(ct, kind) {
-        var n = reqNote(kind);
-        if (n) ct.appendChild(n);
-    }
 
     function post(name, body, cb) {
         fetch('https://' + RES + '/' + name, {
@@ -88,37 +58,6 @@
         }).then(function (r) {
             return r.json().catch(function () { return null; });
         }).then(function (d) { if (cb) cb(d); }).catch(function () { if (cb) cb(null); });
-    }
-
-    function flash(card) {
-        if (!card) return;
-        card.classList.add('rme-applied');
-        setTimeout(function () { card.classList.remove('rme-applied'); }, 600);
-    }
-
-    function makeCard(label, onClick, opt) {
-        opt = opt || {};
-        var c = el('div', 'rme-card');
-        if (opt.swatch) {
-            var dot = el('span', 'rme-swatch');
-            dot.style.background = opt.swatch;
-            c.appendChild(dot);
-        }
-        c.appendChild(el('span', 'rme-card-label', label));
-        if (opt.arrow) c.appendChild(el('span', 'rme-arrow', '\u203A'));
-        c.addEventListener('click', function () { if (onClick) onClick(c); });
-        return c;
-    }
-
-    function optionGrid(target, options, payloadFn, swatchFn) {
-        var g = el('div', 'rme-grid');
-        options.forEach(function (o) {
-            var sw = swatchFn ? swatchFn(o) : null;
-            g.appendChild(makeCard(o.label, function (c) {
-                post('rmeApply', payloadFn(o), function () { flash(c); });
-            }, { swatch: sw }));
-        });
-        target.appendChild(g);
     }
 
     function renderDiagnostics() {
@@ -188,8 +127,11 @@
                 var match = (o.plate === plate);
                 var card = el('div', 'rme-order' + (match ? ' rme-order-match' : ''));
                 var head = el('div', 'rme-order-head');
-                head.appendChild(el('span', 'rme-order-veh', (o.vehName || 'Vehicle') + '  \u00B7  ' + o.plate));
-                head.appendChild(el('span', 'rme-order-cust', o.customerName || ''));
+                var left = el('div');
+                left.appendChild(el('div', 'rme-order-veh', (o.vehName || 'Vehicle') + '  \u00B7  ' + o.plate));
+                left.appendChild(el('div', 'rme-order-cust', o.customerName || ''));
+                head.appendChild(left);
+                head.appendChild(el('span', 'rme-order-total', '$' + (o.total || 0)));
                 card.appendChild(head);
                 (o.items || []).forEach(function (it, idx) {
                     var row = el('div', 'rme-order-item');
@@ -217,97 +159,51 @@
         });
     }
 
-    function renderPaint() {
+    function renderHistory() {
         var ct = content();
-        addReqNote(ct, 'paint');
-        ['primary', 'secondary'].forEach(function (section) {
-            ct.appendChild(el('div', 'rme-section-title', section === 'primary' ? 'Primary Color' : 'Secondary Color'));
-            optionGrid(ct, PAINT, function (p) {
-                return { kind: 'paint', section: section, r: p.r, g: p.g, b: p.b };
-            }, function (p) { return rgbCss(p); });
-        });
+        ct.appendChild(el('div', 'rme-section-title', 'Completed Orders'));
+        var holder = el('div');
+        holder.id = 'rme-history-holder';
+        ct.appendChild(holder);
+        loadHistory();
     }
 
-    function renderWheels() {
-        var ct = content();
-        addReqNote(ct, 'wheel');
-        ct.appendChild(el('div', 'rme-section-title', 'Wheel Types'));
-        var g = el('div', 'rme-grid');
-        (DATA.wheelCats || []).forEach(function (cat) {
-            g.appendChild(makeCard(cat.label, function () {
-                post('rmeWheelList', { id: cat.id }, function (list) {
-                    renderWheelList(cat, list || []);
-                });
-            }, { arrow: true }));
-        });
-        ct.appendChild(g);
-    }
-
-    function renderWheelList(cat, list) {
-        var ct = content();
-        ct.innerHTML = '';
-        var back = el('div', 'rme-back', '\u2190 Back to wheel types');
-        back.addEventListener('click', function () { selectCat('wheels'); });
-        ct.appendChild(back);
-        addReqNote(ct, 'wheel');
-        ct.appendChild(el('div', 'rme-section-title', cat.label));
-        optionGrid(ct, list, function (o) {
-            return { kind: 'wheel', wheelType: cat.id, index: o.index };
-        });
-    }
-
-    function renderSections(sections) {
-        var ct = content();
-        addReqNote(ct, 'mod');
-        if (!sections || sections.length === 0) {
-            ct.appendChild(el('div', 'rme-bill-note', 'No options available for this vehicle.'));
-            return;
-        }
-        sections.forEach(function (sec) {
-            ct.appendChild(el('div', 'rme-section-title', sec.label));
-            optionGrid(ct, sec.options, function (o) {
-                return { kind: 'mod', modType: sec.modType, index: o.index, horn: !!sec.horn };
+    function loadHistory() {
+        post('rmeGetHistory', {}, function (res) {
+            res = res || {};
+            var hist = res.history || [];
+            var holder = document.getElementById('rme-history-holder');
+            if (!holder) return;
+            holder.innerHTML = '';
+            if (hist.length === 0) {
+                holder.appendChild(el('div', 'rme-bill-note', 'No completed orders yet. Finished orders and their totals show up here.'));
+                return;
+            }
+            hist.forEach(function (h) {
+                var card = el('div', 'rme-order');
+                var head = el('div', 'rme-order-head');
+                var left = el('div');
+                left.appendChild(el('div', 'rme-order-veh', (h.vehName || 'Vehicle') + '  \u00B7  ' + (h.plate || '')));
+                left.appendChild(el('div', 'rme-order-cust', h.customerName || ''));
+                head.appendChild(left);
+                head.appendChild(el('span', 'rme-order-total', '$' + (h.total || 0)));
+                card.appendChild(head);
+                holder.appendChild(card);
             });
         });
     }
 
-    function renderNeon() {
+    function renderStorage() {
         var ct = content();
-        addReqNote(ct, 'neon');
-        var g = el('div', 'rme-grid');
-        g.appendChild(makeCard('Neons Off', function (c) { post('rmeApply', { kind: 'neon', off: true }, function () { flash(c); }); }));
-        (DATA.neon || []).forEach(function (n) {
-            g.appendChild(makeCard(n.label, function (c) {
-                post('rmeApply', { kind: 'neon', r: n.r, g: n.g, b: n.b }, function () { flash(c); });
-            }, { swatch: rgbCss(n) }));
+        ct.appendChild(el('div', 'rme-section-title', 'Parts Storage'));
+        var wrap = el('div', 'rme-storage');
+        wrap.appendChild(el('div', 'rme-bill-note', 'Open the shared Redline parts storage. The boss stocks crafted spray cans and parts here and members draw from it to fulfil orders. Opening storage closes this tablet.'));
+        var btn = el('button', 'rme-btn', 'Open Redline Storage');
+        btn.addEventListener('click', function () {
+            post('rmeStorage', {}, function () { hide(); });
         });
-        ct.appendChild(g);
-    }
-
-    function renderSmoke() {
-        var ct = content();
-        addReqNote(ct, 'smoke');
-        var g = el('div', 'rme-grid');
-        g.appendChild(makeCard('Smoke Off', function (c) { post('rmeApply', { kind: 'smoke', off: true }, function () { flash(c); }); }));
-        (DATA.smoke || []).forEach(function (s) {
-            g.appendChild(makeCard(s.label, function (c) {
-                post('rmeApply', { kind: 'smoke', r: s.r, g: s.g, b: s.b }, function () { flash(c); });
-            }, { swatch: rgbCss(s) }));
-        });
-        ct.appendChild(g);
-    }
-
-    function renderXenon() {
-        var ct = content();
-        addReqNote(ct, 'xenon');
-        var g = el('div', 'rme-grid');
-        g.appendChild(makeCard('Xenon Off', function (c) { post('rmeApply', { kind: 'xenon', off: true }, function () { flash(c); }); }));
-        (DATA.xenon || []).forEach(function (x) {
-            g.appendChild(makeCard(x.label, function (c) {
-                post('rmeApply', { kind: 'xenon', id: x.id }, function () { flash(c); });
-            }));
-        });
-        ct.appendChild(g);
+        wrap.appendChild(btn);
+        ct.appendChild(wrap);
     }
 
     function renderRepair() {
@@ -326,7 +222,10 @@
             txt.appendChild(el('div', 'rme-card-desc-text', row[2]));
             c.appendChild(txt);
             c.addEventListener('click', function () {
-                post('rmeRepair', { kind: row[1] }, function () { flash(c); });
+                post('rmeRepair', { kind: row[1] }, function () {
+                    c.classList.add('rme-applied');
+                    setTimeout(function () { c.classList.remove('rme-applied'); }, 600);
+                });
             });
             g.appendChild(c);
         });
@@ -360,7 +259,7 @@
             amtInput.value = '';
         });
         wrap.appendChild(btn);
-        wrap.appendChild(el('div', 'rme-bill-note', 'Enter the customer server ID (they can read it from the pause menu or a scoreboard). The customer must accept the invoice; payment is deposited into the Redline society account.'));
+        wrap.appendChild(el('div', 'rme-bill-note', 'Enter the customer server ID (they can read it from the pause menu or a scoreboard). The customer must accept the invoice; payment is deposited into the Redline society account. Use the total shown on the matching order.'));
         ct.appendChild(wrap);
     }
 
@@ -377,15 +276,8 @@
         switch (id) {
             case 'diagnostics': renderDiagnostics(); break;
             case 'orders': renderOrders(); break;
-            case 'paint': renderPaint(); break;
-            case 'wheels': renderWheels(); break;
-            case 'exterior': renderSections(DATA.exterior); break;
-            case 'interior': renderSections(DATA.interior); break;
-            case 'neon': renderNeon(); break;
-            case 'xenon': renderXenon(); break;
-            case 'smoke': renderSmoke(); break;
-            case 'tint': addReqNote(content(), 'tint'); optionGrid(content(), DATA.tint || [], function (o) { return { kind: 'tint', id: o.id }; }); break;
-            case 'plate': addReqNote(content(), 'plate'); optionGrid(content(), DATA.plate || [], function (o) { return { kind: 'plate', id: o.id }; }); break;
+            case 'history': renderHistory(); break;
+            case 'storage': renderStorage(); break;
             case 'repair': renderRepair(); break;
             case 'bill': renderBill(); break;
         }
