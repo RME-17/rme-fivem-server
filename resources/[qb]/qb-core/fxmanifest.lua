@@ -15,6 +15,7 @@ shared_scripts {
     'shared/items.lua',
     'shared/rme_custom_items.lua',
     'shared/rme_mechanic_items.lua',
+    'shared/rme_mining_items.lua',
     'shared/rme_useable_overrides.lua',
     'shared/jobs.lua',
     'shared/vehicles.lua',
