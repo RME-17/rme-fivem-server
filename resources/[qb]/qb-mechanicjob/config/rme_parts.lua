@@ -45,7 +45,7 @@ Config.CosmeticPrices = {
 Config.RedlineStorage = {
     stash     = 'redline_storage',
     label     = 'Redline Parts Storage',
-    maxweight = 400000,
+    maxweight = 2000000,
     slots     = 50,
     coords    = vector3(1161.6, -779.9, 57.6),
 }

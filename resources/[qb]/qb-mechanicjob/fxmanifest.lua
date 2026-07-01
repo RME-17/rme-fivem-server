@@ -20,7 +20,8 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
-    'server/tablet.lua'
+    'server/tablet.lua',
+    'server/redline_stock.lua'
 }
 
 ui_page 'html/index.html'
