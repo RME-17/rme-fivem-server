@@ -1,59 +1,35 @@
 Config = {}
 
--- Admin command to open the placement / manage menu (server-side gates the actual
--- place/remove to admins, so it is safe to leave open).
+-- Admin command to open the creator panel (server-side gates place/save/delete to admins).
 Config.Command = 'rmecraft'
 
--- Eye interaction appearance
+-- Eye interaction
 Config.TargetIcon = 'fas fa-hammer'
-Config.TargetLabel = 'Use %s'   -- %s = bench label
 Config.TargetDistance = 2.0
 
-Config.DefaultCraftTime = 5000  -- ms, used when a recipe has no `time`
+Config.DefaultCraftTime = 5000 -- ms fallback
 
---[[
-    BENCH TYPES
-    -----------
-    A placed bench references one of these by its key. Recipes live here (NOT in the
-    database), so you edit recipes by editing this file and restarting the resource.
+-- UI theme (blue + green). Change these hex values to recolor the whole UI.
+Config.Theme = {
+    primary = '#3B82F6', -- blue
+    accent  = '#22C55E', -- green
+}
 
-    access:
-      'public'  -> anyone
-      'job'     -> set accessValue = 'jobname' (and optional accessGrade = minGrade)
-      'gang'    -> set accessValue = 'gangname'
+-- Bench props selectable in the Basic tab (add any prop model names you like).
+Config.Props = {
+    'gr_prop_gr_bench_04a',
+    'gr_prop_gr_bench_03b',
+    'prop_tool_bench02',
+    'prop_toolchest_04',
+    'prop_toolchest_05',
+}
 
-    recipe:
-      output    = item to give
-      amount    = how many to give
-      time      = craft time in ms (optional)
-      materials = { { item = 'x', amount = n }, ... }  -- consumed on craft
-
-    IMPORTANT: the item names below are EXAMPLES using common qb-core items.
-    Change them to match YOUR server's items (qb-core shared items + rme-items,
-    e.g. your mining outputs like copperore/ironore/goldingot, etc.).
-]]
-Config.BenchTypes = {
-    ['workbench'] = {
-        label = 'Workbench',
-        prop = 'gr_prop_gr_bench_04a',
-        access = 'public',
-        recipes = {
-            { output = 'lockpick', amount = 1, time = 5000,
-              materials = { { item = 'metalscrap', amount = 3 }, { item = 'plastic', amount = 2 } } },
-            { output = 'advancedlockpick', amount = 1, time = 8000,
-              materials = { { item = 'metalscrap', amount = 6 }, { item = 'aluminum', amount = 3 }, { item = 'plastic', amount = 2 } } },
-        },
-    },
-
-    ['mechbench'] = {
-        label = 'Mechanic Bench',
-        prop = 'gr_prop_gr_bench_04a',
-        access = 'job',
-        accessValue = 'mechanic',
-        accessGrade = 0,
-        recipes = {
-            { output = 'repairkit', amount = 1, time = 10000,
-              materials = { { item = 'steel', amount = 5 }, { item = 'aluminum', amount = 5 }, { item = 'plastic', amount = 3 } } },
-        },
-    },
+-- Item categories for the recipe item picker. Any item not listed here shows
+-- under "Other". Edit these to match YOUR server's items. The picker still shows
+-- EVERY server item (with its qb-inventory image) regardless of category.
+Config.ItemCategories = {
+    ['Ores & Raw'] = { 'copperore','ironore','goldore','silverore','carbon','stone','coal','metalscrap','plastic','aluminum','steel','copper','iron','rubber','glass' },
+    ['Ingots & Gems'] = { 'goldingot','silveringot','uncut_emerald','uncut_ruby','uncut_sapphire','uncut_diamond','diamond','emerald','ruby','sapphire' },
+    ['Jewelry'] = { 'gold_ring','silver_ring','silverchain','goldearring','silverearring','diamond_necklace' },
+    ['Tools'] = { 'goldpan','pickaxe','miningdrill','mininglaser','drillbit','lockpick','advancedlockpick','repairkit','drill','screwdriverset' },
 }
