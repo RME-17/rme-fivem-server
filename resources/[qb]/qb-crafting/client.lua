@@ -254,3 +254,47 @@ CreateThread(function()
         Wait(sleep)
     end
 end)
+
+-- Permanent Redline Parts Crafting Bench (no prop -- members walk to the shop and use the target option)
+CreateThread(function()
+    local spot = Config.redline_bench
+    if not spot or not spot.location then return end
+    local loc = spot.location
+
+    exports['qb-target']:AddCircleZone('redline_craft_spot', vector3(loc.x, loc.y, loc.z), 1.5, {
+        name = 'redline_craft_spot',
+        useZ = true,
+        debugPoly = false,
+    }, {
+        options = {
+            {
+                icon = 'fas fa-spray-can',
+                label = 'Craft Redline Parts',
+                action = function()
+                    OpenCraftingMenu('redline_bench')
+                end
+            }
+        },
+        distance = 2.0
+    })
+
+    print(('[qb-crafting] Redline crafting bench registered at %s, %s, %s'):format(loc.x, loc.y, loc.z))
+end)
+
+-- Ground marker so members can find the Redline crafting bench
+CreateThread(function()
+    local spot = Config.redline_bench
+    if not spot or not spot.location then return end
+    local loc = spot.location
+    local center = vector3(loc.x, loc.y, loc.z)
+    while true do
+        local sleep = 1500
+        local pcoords = GetEntityCoords(PlayerPedId())
+        local dist = #(pcoords - center)
+        if dist < 25.0 then
+            sleep = 0
+            DrawMarker(2, center.x, center.y, center.z + 0.6, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 220, 20, 60, 180, false, true, 2, false, nil, nil, false)
+        end
+        Wait(sleep)
+    end
+end)
