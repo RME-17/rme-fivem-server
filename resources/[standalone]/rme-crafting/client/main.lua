@@ -5,7 +5,7 @@ local placing = false
 local currentCraftBench = nil
 
 -- ============================================================
--- Data for the NUI
+-- Data builders for the NUI
 -- ============================================================
 local function buildItemList()
     local items = {}
@@ -41,6 +41,25 @@ local function buildGangs()
     return gangs
 end
 
+local function buildInvCounts()
+    local counts = {}
+    local pd = QBCore.Functions.GetPlayerData()
+    local items = (pd and pd.items) or {}
+    for _, it in pairs(items) do
+        if it and it.name then
+            counts[it.name] = (counts[it.name] or 0) + (it.amount or it.count or 1)
+        end
+    end
+    return counts
+end
+
+local function getXPInfo()
+    local pd = QBCore.Functions.GetPlayerData()
+    local xp = (pd and pd.metadata and pd.metadata.craftingxp) or 0
+    local per = (Config.XP and Config.XP.perLevel) or 100
+    return { xp = xp, level = math.floor(xp / per), perLevel = per, into = xp % per, enabled = (Config.XP and Config.XP.enabled) or false }
+end
+
 local function hasAccess(b)
     if not b or b.access == nil or b.access == 'public' then return true end
     local pd = QBCore.Functions.GetPlayerData()
@@ -57,14 +76,27 @@ end
 -- Craft NUI
 -- ============================================================
 local function openCraft(b)
+    if not b then return end
     if not hasAccess(b) then QBCore.Functions.Notify('You cannot use this bench.', 'error') return end
     currentCraftBench = b.id
     SetNuiFocus(true, true)
-    SendNUIMessage({ action = 'openCraft', bench = b, items = buildItemList(), theme = Config.Theme })
+    SendNUIMessage({
+        action = 'openCraft',
+        bench = b,
+        items = buildItemList(),
+        theme = Config.Theme,
+        inventory = buildInvCounts(),
+        xp = getXPInfo(),
+    })
+end
+
+local function reopenCraft(id)
+    local b = benchCache[id]
+    if b then openCraft(b) end
 end
 
 -- ============================================================
--- Target (we own the action -> it fires)
+-- Target
 -- ============================================================
 local function addBenchTarget(b, entity)
     exports['qb-target']:AddTargetEntity(entity, {
@@ -214,6 +246,7 @@ local function openCreator()
         benches = list,
         items = buildItemList(),
         categories = Config.ItemCategories,
+        recipeCategories = Config.RecipeCategories,
         jobs = buildJobs(),
         gangs = buildGangs(),
         props = Config.Props,
@@ -241,6 +274,16 @@ RegisterNUICallback('placeBench', function(data, cb)
     SetNuiFocus(false, false)
     cb('ok')
     startPlacement(data.prop, function(coords)
+        data.id = nil
+        data.x, data.y, data.z, data.heading = coords.x, coords.y, coords.z, coords.w
+        TriggerServerEvent('rme-crafting:server:saveBench', data)
+    end)
+end)
+
+RegisterNUICallback('moveBench', function(data, cb)
+    SetNuiFocus(false, false)
+    cb('ok')
+    startPlacement(data.prop, function(coords)
         data.x, data.y, data.z, data.heading = coords.x, coords.y, coords.z, coords.w
         TriggerServerEvent('rme-crafting:server:saveBench', data)
     end)
@@ -255,17 +298,31 @@ end)
 RegisterNUICallback('craft', function(data, cb)
     cb('ok')
     SetNuiFocus(false, false)
-    local ped = PlayerPedId()
-    local b = benchCache[currentCraftBench]
+    local benchId = currentCraftBench
+    local b = benchCache[benchId]
     local recipe = b and b.recipes and b.recipes[data.index]
-    local time = (recipe and recipe.time) or Config.DefaultCraftTime
-    QBCore.Functions.Progressbar('rme_craft', 'Crafting...', time, false, true, {
-        disableMovement = true, disableCarMovement = true, disableMouse = false, disableCombat = true,
-    }, { animDict = 'mini@repair', anim = 'fixing_a_player', flags = 16 }, {}, {}, function()
-        StopAnimTask(ped, 'mini@repair', 'fixing_a_player', 1.0)
-        TriggerServerEvent('rme-crafting:server:craft', currentCraftBench, data.index)
-    end, function()
-        StopAnimTask(ped, 'mini@repair', 'fixing_a_player', 1.0)
-        QBCore.Functions.Notify('Cancelled.', 'error')
+    if not recipe then return end
+    local qty = math.max(1, math.min(tonumber(data.qty) or 1, 20))
+    local ped = PlayerPedId()
+    CreateThread(function()
+        if Config.SkillCheck and Config.SkillCheck.enabled and lib and lib.skillCheck then
+            local ok = lib.skillCheck(Config.SkillCheck.difficulty, Config.SkillCheck.inputs)
+            if not ok then
+                QBCore.Functions.Notify('Craft failed (skill check).', 'error')
+                Wait(200); reopenCraft(benchId); return
+            end
+        end
+        local time = recipe.time or Config.DefaultCraftTime
+        QBCore.Functions.Progressbar('rme_craft', 'Crafting...', time, false, true, {
+            disableMovement = true, disableCarMovement = true, disableMouse = false, disableCombat = true,
+        }, { animDict = 'mini@repair', anim = 'fixing_a_player', flags = 16 }, {}, {}, function()
+            StopAnimTask(ped, 'mini@repair', 'fixing_a_player', 1.0)
+            TriggerServerEvent('rme-crafting:server:craft', benchId, data.index, qty)
+            Wait(600); reopenCraft(benchId)
+        end, function()
+            StopAnimTask(ped, 'mini@repair', 'fixing_a_player', 1.0)
+            QBCore.Functions.Notify('Cancelled.', 'error')
+            Wait(200); reopenCraft(benchId)
+        end)
     end)
 end)
