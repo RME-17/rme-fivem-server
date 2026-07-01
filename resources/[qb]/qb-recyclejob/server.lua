@@ -1,6 +1,8 @@
 local QBCore = exports['qb-core']:GetCoreObject({ 'Functions' })
 local sharedItems = exports['qb-core']:GetShared('Items')
 
+-- Boxes only yield raw recycling materials now (plastic, glass, steel, etc).
+-- These feed the Redline part crafting recipes in qb-crafting.
 local Recieve = {
     { item = 'metalscrap', min = 1, max = 5 },
     { item = 'plastic',    min = 1, max = 5 },
@@ -11,10 +13,8 @@ local Recieve = {
     { item = 'steel',      min = 1, max = 5 },
     { item = 'glass',      min = 1, max = 5 },
 }
-local luckyItem = 'cryptostick' -- Item to be given as a lucky item
 local maxRecieved = 5           -- Max items to be received
 local dropLocation = Config.DropLocation
-local LuckyItemChance = 20      -- 20% chance to get a lucky item
 local uhohs = {}
 local Sales, Stock, salesLoc = {}, {}, Config.SellPed
 
@@ -145,7 +145,6 @@ end
 
 RegisterNetEvent('qb-recyclejob:server:getItem', function()
     local src = source
-    local Player = exports['qb-core']:GetPlayer(src)
     if not isClose(src, 'turnIn') then
         if not uhohs[src] then
             uhohs[src] = 1
@@ -168,12 +167,6 @@ RegisterNetEvent('qb-recyclejob:server:getItem', function()
         itemAmountRecieved = itemAmountRecieved - 1
         getItem(src, item.item, itemAmount)
     until itemAmountRecieved == 0
-
-    local luckyChance = math.random(1, 100)
-    if luckyChance <= LuckyItemChance then
-        Player.AddItem(luckyItem, 1)
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, sharedItems[luckyItem], 'add', 1)
-    end
 end)
 
 RegisterNetEvent('qb-recyclejob:server:sellItem', function(item, amount)
