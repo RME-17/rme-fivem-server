@@ -21,6 +21,10 @@ local angleZ = 145.0
 local angleY = 22.0
 local radius = 5.5
 local radiusMin, radiusMax = 3.0, 9.0
+-- The order panel is docked to the RIGHT of the screen, so aim the camera a bit
+-- to the right of the car. That pushes the vehicle into the open left area and
+-- removes the empty dark space next to the panel.
+local lateralShift = 1.3
 
 local function cosd(d) return math.cos(math.rad(d)) end
 local function sind(d) return math.sin(math.rad(d)) end
@@ -33,7 +37,12 @@ local function updateCam()
     local py = c.y + horiz * cosd(angleZ)
     local pz = c.z + radius * sind(angleY) + 0.3
     SetCamCoord(cam, px, py, pz)
-    PointCamAtCoord(cam, c.x, c.y, c.z + 0.3)
+    -- camera right vector (horizontal) for the current orbit angle
+    local rx = -cosd(angleZ)
+    local ry = sind(angleZ)
+    local tx = c.x + rx * lateralShift
+    local ty = c.y + ry * lateralShift
+    PointCamAtCoord(cam, tx, ty, c.z + 0.3)
 end
 
 local function vehName(veh)
