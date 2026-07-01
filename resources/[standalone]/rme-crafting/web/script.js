@@ -217,7 +217,7 @@ function openCraft(d){
 }
 
 // ================= wiring =================
-window.addEventListener('DOMContentLoaded', function(){
+function wireUI(){
   document.getElementById('newBenchBtn').onclick=newBench;
   document.getElementById('closeCreator').onclick=function(){ closeAll(); post('close'); };
   document.getElementById('saveBench').onclick=function(){ if(editing){ post('saveBench', editing); closeAll(); } };
@@ -227,4 +227,5 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('pickerClose').onclick=function(){ document.getElementById('itemPicker').classList.add('hidden'); };
   document.getElementById('pickerSearch').oninput=renderPickerGrid;
   document.getElementById('closeCraft').onclick=function(){ closeAll(); post('close'); };
-});
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', wireUI); } else { wireUI(); }
