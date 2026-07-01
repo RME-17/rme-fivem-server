@@ -18,6 +18,13 @@ local function isMechanic(Player)
     return job.type == 'mechanic' or MechanicJobs[job.name] == true
 end
 
+local function normPlate(p)
+    if not p or type(p) ~= 'string' then return nil end
+    p = p:gsub('%s+', ''):upper()
+    if p == '' then return nil end
+    return p
+end
+
 -- Consume the physical part required to apply a cosmetic. The member tablet calls
 -- this BEFORE it applies any upgrade. Returns (ok, needLabel):
 --   ok = false, 'not_mechanic'  -> caller is not a mechanic
@@ -60,15 +67,46 @@ QBCore.Functions.CreateUseableItem('tablet', function(source)
 end)
 
 -- Customer billing -----------------------------------------------------------
--- A mechanic invoices a customer by server ID. The customer's vehicle is
--- immobilized (client side) the moment the invoice is sent and stays locked
--- until the bill is actually paid, so a customer cannot get work done and then
--- drive off. On accept the money is pulled (bank first, then cash) and deposited
--- into the mechanic shop's society account, and the car is released.
+-- A mechanic invoices a customer by server ID for a specific vehicle plate. The
+-- customer's vehicle is immobilized (client side) the moment the invoice is sent
+-- and stays locked until the bill is actually paid, so a customer cannot get
+-- work done and then drive off. Unpaid invoices are persisted to the DB keyed by
+-- citizenid + plate, so they SURVIVE a relog/disconnect: on next login the
+-- invoice is re-sent and the car is locked again. On accept the money is pulled
+-- (bank first, then cash) and deposited into the mechanic shop's society account,
+-- and the car is released.
 
+-- pendingBills[src] = { [plate] = { amount, society, shopLabel, mechanic, citizenid, plate } }
 local pendingBills = {}
 
-RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount)
+-- Ensure the persistence table exists (id-less composite key on citizenid+plate).
+CreateThread(function()
+    MySQL.query([[CREATE TABLE IF NOT EXISTS redline_invoices (
+        citizenid VARCHAR(50) NOT NULL,
+        plate VARCHAR(12) NOT NULL,
+        amount INT NOT NULL DEFAULT 0,
+        society VARCHAR(50),
+        shoplabel VARCHAR(100),
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (citizenid, plate)
+    )]])
+end)
+
+local function storeInvoice(cid, plate, amount, society, shopLabel)
+    if not cid or not plate then return end
+    MySQL.insert(
+        'INSERT INTO redline_invoices (citizenid, plate, amount, society, shoplabel) VALUES (?, ?, ?, ?, ?) ' ..
+        'ON DUPLICATE KEY UPDATE amount = ?, society = ?, shoplabel = ?',
+        { cid, plate, amount, society, shopLabel, amount, society, shopLabel }
+    )
+end
+
+local function clearInvoice(cid, plate)
+    if not cid or not plate then return end
+    MySQL.query('DELETE FROM redline_invoices WHERE citizenid = ? AND plate = ?', { cid, plate })
+end
+
+RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount, plate)
     local src = source
     local Mechanic = exports['qb-core']:GetPlayer(src)
     if not Mechanic then return end
@@ -84,24 +122,44 @@ RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount
         return
     end
     local tgt = Target.PlayerData.source
-    pendingBills[tgt] = {
+    local cid = Target.PlayerData.citizenid
+    plate = normPlate(plate)
+    local society = Mechanic.PlayerData.job.name
+    local shopLabel = Mechanic.PlayerData.job.label
+    local key = plate or '_noplate'
+    pendingBills[tgt] = pendingBills[tgt] or {}
+    pendingBills[tgt][key] = {
         amount = amount,
-        society = Mechanic.PlayerData.job.name,
-        shopLabel = Mechanic.PlayerData.job.label,
+        society = society,
+        shopLabel = shopLabel,
         mechanic = src,
+        citizenid = cid,
+        plate = plate,
     }
+    if plate then storeInvoice(cid, plate, amount, society, shopLabel) end
     local mechName = ('%s %s'):format(Mechanic.PlayerData.charinfo.firstname, Mechanic.PlayerData.charinfo.lastname)
-    TriggerClientEvent('qb-mechanicjob:client:billPrompt', tgt, mechName, amount)
+    TriggerClientEvent('qb-mechanicjob:client:billPrompt', tgt, mechName, amount, plate)
     TriggerClientEvent('QBCore:Notify', src, ('Invoice sent to %s %s (ID %s) - their vehicle is now locked until they pay'):format(Target.PlayerData.charinfo.firstname, Target.PlayerData.charinfo.lastname, tgt), 'primary')
 end)
 
-RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
+RegisterNetEvent('qb-mechanicjob:server:billResponse', function(plate, accepted)
     local src = source
-    local bill = pendingBills[src]
-    if not bill then return end
     local Customer = exports['qb-core']:GetPlayer(src)
     if not Customer then return end
-    -- Not now / declined: keep the bill pending and the car immobilized.
+    local cid = Customer.PlayerData.citizenid
+    plate = normPlate(plate)
+    local key = plate or '_noplate'
+    local bills = pendingBills[src]
+    local bill = bills and bills[key]
+    -- fallback: recover the invoice from the DB (e.g. after a server restart)
+    if not bill and plate then
+        local row = MySQL.single.await('SELECT amount, society, shoplabel FROM redline_invoices WHERE citizenid = ? AND plate = ?', { cid, plate })
+        if row then
+            bill = { amount = row.amount, society = row.society, shopLabel = row.shoplabel, plate = plate, citizenid = cid }
+        end
+    end
+    if not bill then return end
+    -- Pay later / declined: keep the bill pending and the car immobilized.
     if not accepted then
         TriggerClientEvent('QBCore:Notify', src, 'Your vehicle stays immobilized until the Redline invoice is paid', 'error')
         if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer has not paid yet - their vehicle stays locked', 'primary') end
@@ -119,7 +177,8 @@ RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
         if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, 'Customer could not afford the invoice - vehicle still locked', 'error') end
         return
     end
-    pendingBills[src] = nil
+    if bills then bills[key] = nil end
+    if bill.plate then clearInvoice(cid, bill.plate) end
     -- deposit into the shop society account (qb-banking, fall back to qb-management)
     local ok = pcall(function()
         exports['qb-banking']:AddMoney(bill.society, amount, 'Vehicle cosmetics & work')
@@ -128,8 +187,37 @@ RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
         pcall(function() exports['qb-management']:AddMoney(bill.society, amount) end)
     end
     TriggerClientEvent('QBCore:Notify', src, ('You paid $%s to %s'):format(amount, bill.shopLabel or 'the shop'), 'success')
-    TriggerClientEvent('qb-mechanicjob:client:invoicePaid', src)
+    TriggerClientEvent('qb-mechanicjob:client:invoicePaid', src, bill.plate)
     if bill.mechanic then TriggerClientEvent('QBCore:Notify', bill.mechanic, ('Customer paid $%s - vehicle released'):format(amount), 'success') end
+end)
+
+-- On login (or after a resource restart) the client asks for any unpaid invoices
+-- so it can re-immobilize the matching vehicles and re-show the card.
+RegisterNetEvent('qb-mechanicjob:server:requestInvoices', function()
+    local src = source
+    local Player = exports['qb-core']:GetPlayer(src)
+    if not Player then return end
+    local cid = Player.PlayerData.citizenid
+    local rows = MySQL.query.await('SELECT plate, amount, society, shoplabel FROM redline_invoices WHERE citizenid = ?', { cid })
+    if not rows or #rows == 0 then return end
+    pendingBills[src] = pendingBills[src] or {}
+    local list = {}
+    for i = 1, #rows do
+        local p = normPlate(rows[i].plate)
+        if p then
+            pendingBills[src][p] = {
+                amount = rows[i].amount,
+                society = rows[i].society,
+                shopLabel = rows[i].shoplabel,
+                citizenid = cid,
+                plate = p,
+            }
+            list[#list + 1] = { plate = p, amount = rows[i].amount }
+        end
+    end
+    if #list > 0 then
+        TriggerClientEvent('qb-mechanicjob:client:syncInvoices', src, list)
+    end
 end)
 
 -- Customer cosmetics order board --------------------------------------------
