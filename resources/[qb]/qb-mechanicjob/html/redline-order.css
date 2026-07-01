@@ -1,7 +1,8 @@
-/* RME Redline customer order builder - floating frosted-glass command panel.
-   Redesigned: the old near-opaque full-height dark slab (the "black box") is
-   gone. This is a rounded, translucent glass card that floats on the right so
-   the live car preview shows through cleanly on the left. */
+/* RME Redline customer order builder - floating glass command panel.
+   IMPORTANT: FiveM's CEF browser renders `backdrop-filter` as an OPAQUE BLACK
+   rectangle (same gotcha as rme-infohud). So we do NOT use backdrop-filter here.
+   The frosted-glass look is faked with semi-transparent tinted gradients, which
+   render correctly and let the live car preview show through on the left. */
 
 #rmo-order, #rmo-order * { box-sizing: border-box; }
 
@@ -21,17 +22,17 @@
 
 #rmo-order.rmo-hidden { display: none; }
 
-/* ambient glow pinned to the right edge so the panel feels lit, not boxed-in */
+/* ambient glow pinned to the right edge so the panel feels lit, not boxed-in.
+   Uses a soft radial gradient (no filter blur needed) so it renders cleanly. */
 #rmo-order::before {
     content: "";
     position: absolute;
     top: 50%;
-    right: -140px;
-    width: 520px;
-    height: 620px;
+    right: -160px;
+    width: 560px;
+    height: 680px;
     transform: translateY(-50%);
-    background: radial-gradient(closest-side, rgba(255, 74, 92, 0.20), transparent 70%);
-    filter: blur(30px);
+    background: radial-gradient(closest-side, rgba(255, 74, 92, 0.22), transparent 72%);
     pointer-events: none;
 }
 
@@ -46,13 +47,13 @@
     flex-direction: column;
     border-radius: 22px;
     overflow: hidden;
+    /* translucent tinted glass (NO backdrop-filter). Alpha < 1 lets the scene
+       show through so it reads as glass, not a solid black box. */
     background:
-        radial-gradient(680px 300px at 12% -8%, rgba(255, 74, 92, 0.16), transparent 60%),
-        radial-gradient(560px 320px at 100% 110%, rgba(58, 120, 255, 0.14), transparent 62%),
-        linear-gradient(155deg, rgba(24, 28, 40, 0.72), rgba(12, 15, 24, 0.66));
-    backdrop-filter: blur(30px) saturate(160%);
-    -webkit-backdrop-filter: blur(30px) saturate(160%);
-    border: 1px solid rgba(150, 178, 255, 0.16);
+        radial-gradient(680px 300px at 12% -8%, rgba(255, 74, 92, 0.20), transparent 60%),
+        radial-gradient(560px 320px at 100% 110%, rgba(58, 120, 255, 0.16), transparent 62%),
+        linear-gradient(155deg, rgba(20, 24, 36, 0.82), rgba(10, 13, 21, 0.76));
+    border: 1px solid rgba(150, 178, 255, 0.18);
     box-shadow:
         0 30px 80px rgba(0, 0, 0, 0.55),
         0 0 0 1px rgba(255, 255, 255, 0.03) inset,
@@ -83,7 +84,7 @@
     justify-content: space-between;
     padding: 22px 24px 20px;
     border-bottom: 1px solid rgba(150, 178, 255, 0.12);
-    background: linear-gradient(180deg, rgba(255, 74, 92, 0.10), rgba(255, 255, 255, 0));
+    background: linear-gradient(180deg, rgba(255, 74, 92, 0.12), rgba(255, 255, 255, 0));
 }
 .rmo-brand { display: flex; flex-direction: column; line-height: 1.05; }
 .rmo-brand-main {
@@ -94,7 +95,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 16px rgba(255, 74, 92, 0.35));
+    text-shadow: 0 0 18px rgba(255, 74, 92, 0.35);
 }
 .rmo-brand-sub {
     font-size: 9.5px;
@@ -107,7 +108,7 @@
     text-align: right;
     padding: 8px 14px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(150, 178, 255, 0.12);
 }
 .rmo-veh-name { font-size: 14px; font-weight: 700; color: #f2f6ff; }
@@ -124,7 +125,7 @@
     gap: 7px;
     overflow-y: auto;
     border-right: 1px solid rgba(150, 178, 255, 0.10);
-    background: rgba(10, 13, 22, 0.28);
+    background: rgba(8, 11, 19, 0.35);
 }
 .rmo-cat {
     display: flex;
@@ -133,7 +134,7 @@
     padding: 11px 12px;
     border-radius: 13px;
     border: 1px solid transparent;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.04);
     color: #c4d3ec;
     font-size: 13px;
     font-weight: 600;
@@ -141,19 +142,19 @@
     text-align: left;
     transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
-.rmo-cat:hover { background: rgba(255, 74, 92, 0.12); color: #fff; transform: translateX(2px); }
+.rmo-cat:hover { background: rgba(255, 74, 92, 0.14); color: #fff; transform: translateX(2px); }
 .rmo-cat.active {
-    background: linear-gradient(90deg, rgba(255, 74, 92, 0.30), rgba(255, 74, 92, 0.06));
-    border-color: rgba(255, 120, 135, 0.5);
+    background: linear-gradient(90deg, rgba(255, 74, 92, 0.34), rgba(255, 74, 92, 0.08));
+    border-color: rgba(255, 120, 135, 0.55);
     color: #fff;
-    box-shadow: 0 6px 18px rgba(255, 74, 92, 0.22);
+    box-shadow: 0 6px 18px rgba(255, 74, 92, 0.25);
 }
 .rmo-cat-ico {
     width: 26px; height: 26px;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(255, 74, 92, 0.30), rgba(255, 157, 91, 0.20));
+    background: linear-gradient(160deg, rgba(255, 74, 92, 0.34), rgba(255, 157, 91, 0.22));
     color: #ffd9dd;
     font-size: 12px; font-weight: 800;
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
@@ -191,23 +192,23 @@
     gap: 10px;
     padding: 11px 13px;
     border-radius: 13px;
-    background: rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(150, 178, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(150, 178, 255, 0.14);
     cursor: pointer;
     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     font-size: 13px;
     color: #dce7f7;
 }
 .rmo-card:hover {
-    background: rgba(255, 74, 92, 0.12);
-    border-color: rgba(255, 120, 135, 0.45);
+    background: rgba(255, 74, 92, 0.14);
+    border-color: rgba(255, 120, 135, 0.5);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 .rmo-card.rmo-selected {
     border-color: rgba(255, 140, 152, 0.9);
     box-shadow: 0 0 18px rgba(255, 74, 92, 0.4), inset 0 0 0 1px rgba(255, 140, 152, 0.4);
-    background: linear-gradient(150deg, rgba(255, 74, 92, 0.22), rgba(255, 157, 91, 0.10));
+    background: linear-gradient(150deg, rgba(255, 74, 92, 0.26), rgba(255, 157, 91, 0.12));
 }
 .rmo-card.rmo-applied { animation: rmoPulse 0.55s ease; }
 @keyframes rmoPulse {
@@ -243,7 +244,7 @@
     display: flex;
     flex-direction: column;
     gap: 13px;
-    background: linear-gradient(0deg, rgba(10, 13, 22, 0.42), rgba(255, 255, 255, 0));
+    background: linear-gradient(0deg, rgba(8, 11, 19, 0.5), rgba(255, 255, 255, 0));
 }
 
 /* drag joystick camera */
@@ -253,8 +254,8 @@
     width: 76px; height: 76px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: radial-gradient(circle at 50% 34%, rgba(255, 74, 92, 0.16), rgba(10, 14, 22, 0.92));
-    border: 1px solid rgba(150, 178, 255, 0.24);
+    background: radial-gradient(circle at 50% 34%, rgba(255, 74, 92, 0.18), rgba(8, 11, 19, 0.95));
+    border: 1px solid rgba(150, 178, 255, 0.26);
     box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
     touch-action: none;
     cursor: grab;
@@ -291,15 +292,15 @@
 .rmo-cam-btn {
     width: 34px; height: 30px;
     border-radius: 10px;
-    border: 1px solid rgba(150, 178, 255, 0.24);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(150, 178, 255, 0.26);
+    background: rgba(255, 255, 255, 0.06);
     color: #ffd9dd;
     font-size: 15px;
     cursor: pointer;
     transition: all 0.14s ease;
 }
 .rmo-cam-btn:hover {
-    background: rgba(255, 74, 92, 0.22);
+    background: rgba(255, 74, 92, 0.24);
     border-color: rgba(255, 140, 152, 0.6);
     color: #fff;
 }
@@ -311,7 +312,7 @@
     justify-content: space-between;
     padding: 8px 14px;
     border-radius: 13px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(150, 178, 255, 0.12);
 }
 .rmo-total-label {
@@ -343,11 +344,11 @@
     letter-spacing: 0.4px;
 }
 .rmo-btn-ghost {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.07);
     color: #c4d3ec;
-    border: 1px solid rgba(150, 178, 255, 0.2);
+    border: 1px solid rgba(150, 178, 255, 0.22);
 }
-.rmo-btn-ghost:hover { background: rgba(255, 74, 92, 0.16); color: #ffd9d9; border-color: rgba(255, 120, 120, 0.5); }
+.rmo-btn-ghost:hover { background: rgba(255, 74, 92, 0.18); color: #ffd9d9; border-color: rgba(255, 120, 120, 0.5); }
 .rmo-btn-primary {
     background: linear-gradient(90deg, #ff4a5c, #ff8154);
     color: #fff;
@@ -364,7 +365,7 @@
 }
 .rmo-content::-webkit-scrollbar-track, .rmo-nav::-webkit-scrollbar-track { background: transparent; }
 
-/* ===== frosted invoice card (customer receives a Redline bill) ===== */
+/* ===== invoice card (customer receives a Redline bill) ===== */
 .rmo-invoice-overlay {
     position: fixed;
     inset: 0;
@@ -372,9 +373,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(1200px 800px at 50% 40%, rgba(0, 0, 0, 0.30), rgba(0, 0, 0, 0.66));
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    /* plain radial dim, NO backdrop-filter (renders black in CEF) */
+    background: radial-gradient(1200px 800px at 50% 40%, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.74));
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     color: #eaf2ff;
     animation: rmoFade 0.22s ease;
@@ -387,18 +387,16 @@
     border-radius: 22px;
     overflow: hidden;
     background:
-        radial-gradient(600px 300px at 20% -12%, rgba(255, 74, 92, 0.18), transparent 60%),
-        linear-gradient(160deg, rgba(22, 26, 40, 0.82), rgba(11, 14, 22, 0.78));
-    backdrop-filter: blur(30px) saturate(160%);
-    -webkit-backdrop-filter: blur(30px) saturate(160%);
-    border: 1px solid rgba(150, 178, 255, 0.2);
+        radial-gradient(600px 300px at 20% -12%, rgba(255, 74, 92, 0.22), transparent 60%),
+        linear-gradient(160deg, rgba(20, 24, 36, 0.94), rgba(10, 13, 21, 0.92));
+    border: 1px solid rgba(150, 178, 255, 0.22);
     box-shadow: 0 34px 90px rgba(0, 0, 0, 0.6);
     animation: rmoIn 0.4s cubic-bezier(.16, .84, .32, 1);
 }
 .rmo-inv-top {
     padding: 24px 26px 16px;
     border-bottom: 1px solid rgba(150, 178, 255, 0.12);
-    background: linear-gradient(180deg, rgba(255, 74, 92, 0.12), rgba(255, 255, 255, 0));
+    background: linear-gradient(180deg, rgba(255, 74, 92, 0.14), rgba(255, 255, 255, 0));
 }
 .rmo-inv-brand {
     font-size: 22px;
