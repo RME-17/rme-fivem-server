@@ -2,25 +2,27 @@
     'use strict';
     var RES = 'qb-mechanicjob';
     var DATA = null;
+    var currentMode = 'cosmetics';
+    var currentTab = null;
 
     // Styling for the Orders / History / Storage tabs (keeps the base css file
     // untouched).
     (function injectOrderCss() {
         var css = [
-            '.rme-order{border:1px solid rgba(140,170,220,0.16);border-radius:14px;padding:12px 14px;margin-bottom:12px;background:rgba(255,255,255,0.03);}',
+            '.rme-order{border:1px solid rgba(140,170,220,0.16);border-radius:14px;padding:13px 15px;margin-bottom:12px;background:rgba(255,255,255,0.03);}',
             '.rme-order.rme-order-match{border-color:rgba(110,170,255,0.55);box-shadow:0 0 18px rgba(61,123,255,0.18);background:rgba(61,123,255,0.08);}',
             '.rme-order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;}',
             '.rme-order-veh{font-weight:700;font-size:13px;color:#eaf2ff;}',
             '.rme-order-cust{font-size:11px;color:#8fa6c9;}',
-            '.rme-order-total{font-weight:800;font-size:15px;color:#ff6b6b;white-space:nowrap;}',
-            '.rme-order-item{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,0.03);margin-top:6px;font-size:12px;color:#dce7f7;}',
+            '.rme-order-total{font-weight:800;font-size:16px;color:#ff6b6b;white-space:nowrap;}',
+            '.rme-order-item{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;border-radius:9px;background:rgba(255,255,255,0.03);margin-top:6px;font-size:12px;color:#dce7f7;}',
             '.rme-order-item-label{flex:1;}',
             '.rme-order-note{font-size:11px;color:#7e94b6;font-style:italic;}',
-            '.rme-mini-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#3d7bff,#5a9bff);box-shadow:0 4px 14px rgba(61,123,255,0.35);}',
+            '.rme-mini-btn{border:none;border-radius:9px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#3d7bff,#5a9bff);box-shadow:0 4px 14px rgba(61,123,255,0.35);}',
             '.rme-mini-btn:hover{filter:brightness(1.1);}',
-            '.rme-order-cancel{border:1px solid rgba(255,120,120,0.4);background:rgba(255,90,90,0.12);color:#ffd9d9;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-top:8px;}',
+            '.rme-order-cancel{border:1px solid rgba(255,120,120,0.4);background:rgba(255,90,90,0.12);color:#ffd9d9;border-radius:9px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;margin-top:10px;}',
             '.rme-order-cancel:hover{background:rgba(255,90,90,0.22);}',
-            '.rme-storage{max-width:460px;}',
+            '.rme-storage{max-width:470px;}',
             '.rme-hist-time{font-size:11px;color:#7e94b6;margin-top:4px;}'
         ].join('');
         var s = document.createElement('style');
@@ -28,17 +30,37 @@
         document.head.appendChild(s);
     })();
 
-    // Member tablet tabs: no cosmetic pickers -- members only see orders, the
-    // history, the amounts, the shared parts storage, plus repair/clean and
-    // manual billing. Customers choose cosmetics at the drive-in bay instead.
-    var CATS = [
-        { id: 'diagnostics', label: 'Diagnostics', icon: 'D' },
-        { id: 'orders', label: 'Orders', icon: 'O' },
-        { id: 'history', label: 'History', icon: 'H' },
-        { id: 'storage', label: 'Storage', icon: 'B' },
-        { id: 'repair', label: 'Repair & Clean', icon: 'R' },
-        { id: 'bill', label: 'Bill Customer', icon: '$' }
+    // Inline SVG icons for a cleaner tablet look.
+    var ICONS = {
+        orders: '<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4"/><path d="M9 11h6M9 15h4"/>',
+        history: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+        storage: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+        bill: '<path d="M12 3v18"/><path d="M8 7.5h6a2.75 2.75 0 0 1 0 5.5H9.5a2.75 2.75 0 0 0 0 5.5H17"/>',
+        diagnostics: '<path d="M3 12h4l2.5 7 4.5-15 2.5 8H21"/>',
+        repair: '<path d="M14.6 6.4a4 4 0 0 0-5.2 5.2l-5.6 5.6 2.1 2.1 5.6-5.6a4 4 0 0 0 5.2-5.2l-2.7 2.7-1.8-1.8z"/>'
+    };
+    function svgIcon(name) {
+        return '<svg class="rme-ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || '') + '</svg>';
+    }
+
+    // Two sections in the same tablet: Cosmetics (order fulfilment side) and a
+    // separate Mechanic section (diagnostics + repair/clean).
+    var MODES = [
+        { id: 'cosmetics', label: 'Cosmetics', tabs: [
+            { id: 'orders', label: 'Orders', icon: 'orders' },
+            { id: 'history', label: 'History', icon: 'history' },
+            { id: 'storage', label: 'Storage', icon: 'storage' },
+            { id: 'bill', label: 'Bill Customer', icon: 'bill' }
+        ] },
+        { id: 'mechanic', label: 'Mechanic', tabs: [
+            { id: 'diagnostics', label: 'Diagnostics', icon: 'diagnostics' },
+            { id: 'repair', label: 'Repair & Clean', icon: 'repair' }
+        ] }
     ];
+    function modeById(id) {
+        for (var i = 0; i < MODES.length; i++) { if (MODES[i].id === id) return MODES[i]; }
+        return MODES[0];
+    }
 
     function el(tag, cls, html) {
         var e = document.createElement(tag);
@@ -62,6 +84,7 @@
 
     function renderDiagnostics() {
         var ct = content();
+        ct.appendChild(el('div', 'rme-section-title', 'Vehicle Diagnostics'));
         var d = DATA.diag || {};
         var wrap = el('div', 'rme-diag');
         var rows = [
@@ -188,6 +211,7 @@
                 head.appendChild(left);
                 head.appendChild(el('span', 'rme-order-total', '$' + (h.total || 0)));
                 card.appendChild(head);
+                if (h.time) card.appendChild(el('div', 'rme-hist-time', h.time));
                 holder.appendChild(card);
             });
         });
@@ -263,7 +287,21 @@
         ct.appendChild(wrap);
     }
 
-    function selectCat(id) {
+    function renderTab(id) {
+        var ct = content();
+        if (ct) ct.innerHTML = '';
+        switch (id) {
+            case 'orders': renderOrders(); break;
+            case 'history': renderHistory(); break;
+            case 'storage': renderStorage(); break;
+            case 'bill': renderBill(); break;
+            case 'diagnostics': renderDiagnostics(); break;
+            case 'repair': renderRepair(); break;
+        }
+    }
+
+    function selectTab(id) {
+        currentTab = id;
         var nav = document.getElementById('rme-nav');
         if (nav) {
             var btns = nav.querySelectorAll('.rme-cat');
@@ -271,54 +309,81 @@
                 btns[i].classList.toggle('active', btns[i].getAttribute('data-cat') === id);
             }
         }
-        var ct = content();
-        if (ct) ct.innerHTML = '';
-        switch (id) {
-            case 'diagnostics': renderDiagnostics(); break;
-            case 'orders': renderOrders(); break;
-            case 'history': renderHistory(); break;
-            case 'storage': renderStorage(); break;
-            case 'repair': renderRepair(); break;
-            case 'bill': renderBill(); break;
+        renderTab(id);
+    }
+
+    function renderNav() {
+        var nav = document.getElementById('rme-nav');
+        if (!nav) return;
+        nav.innerHTML = '';
+        var mode = modeById(currentMode);
+        mode.tabs.forEach(function (t) {
+            var b = el('button', 'rme-cat');
+            b.setAttribute('data-cat', t.id);
+            b.innerHTML = '<span class="rme-cat-ico">' + svgIcon(t.icon) + '</span><span class="rme-cat-txt">' + t.label + '</span>';
+            b.addEventListener('click', function () { selectTab(t.id); });
+            nav.appendChild(b);
+        });
+    }
+
+    function selectMode(id) {
+        currentMode = id;
+        var seg = document.getElementById('rme-modes');
+        if (seg) {
+            var btns = seg.querySelectorAll('.rme-mode');
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].classList.toggle('active', btns[i].getAttribute('data-mode') === id);
+            }
         }
+        renderNav();
+        selectTab(modeById(id).tabs[0].id);
     }
 
     function buildShell() {
         var r = root();
         r.innerHTML = '';
-        var panel = el('div', 'rme-panel');
+        var device = el('div', 'rme-device');
+        var screen = el('div', 'rme-screen');
 
         var header = el('div', 'rme-header');
         var brand = el('div', 'rme-brand');
         brand.appendChild(el('span', 'rme-brand-main', 'REDLINE'));
         brand.appendChild(el('span', 'rme-brand-sub', 'MOTORSPORT'));
+
+        var modes = el('div', 'rme-modes');
+        modes.id = 'rme-modes';
+        MODES.forEach(function (m) {
+            var mb = el('button', 'rme-mode' + (m.id === currentMode ? ' active' : ''), m.label);
+            mb.setAttribute('data-mode', m.id);
+            mb.addEventListener('click', function () { selectMode(m.id); });
+            modes.appendChild(mb);
+        });
+
+        var right = el('div', 'rme-head-right');
         var veh = el('div', 'rme-veh');
         veh.appendChild(el('div', 'rme-veh-name', DATA.name || 'Vehicle'));
         veh.appendChild(el('div', 'rme-veh-plate', 'PLATE \u00B7 ' + (DATA.plate || '')));
         var close = el('button', 'rme-close', '\u2715');
         close.addEventListener('click', function () { post('rmeClose', {}, function () { hide(); }); });
+        right.appendChild(veh);
+        right.appendChild(close);
+
         header.appendChild(brand);
-        header.appendChild(veh);
-        header.appendChild(close);
+        header.appendChild(modes);
+        header.appendChild(right);
 
         var body = el('div', 'rme-body');
         var nav = el('div', 'rme-nav');
         nav.id = 'rme-nav';
-        CATS.forEach(function (c) {
-            var b = el('button', 'rme-cat');
-            b.setAttribute('data-cat', c.id);
-            b.innerHTML = '<span class="rme-cat-ico">' + c.icon + '</span><span>' + c.label + '</span>';
-            b.addEventListener('click', function () { selectCat(c.id); });
-            nav.appendChild(b);
-        });
         var ct = el('div', 'rme-content');
         ct.id = 'rme-content';
         body.appendChild(nav);
         body.appendChild(ct);
 
-        panel.appendChild(header);
-        panel.appendChild(body);
-        r.appendChild(panel);
+        screen.appendChild(header);
+        screen.appendChild(body);
+        device.appendChild(screen);
+        r.appendChild(device);
     }
 
     function show() { root().classList.remove('rme-hidden'); }
@@ -328,8 +393,9 @@
         var d = e.data || {};
         if (d.action === 'openRedlineTablet') {
             DATA = d.data || {};
+            currentMode = 'cosmetics';
             buildShell();
-            selectCat('diagnostics');
+            selectMode('cosmetics');
             show();
         } else if (d.action === 'closeRedlineTablet') {
             hide();
