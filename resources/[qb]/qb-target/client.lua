@@ -41,7 +41,7 @@ local table_wipe   = table.wipe
 local QBCore, PlayerData
 local ItemCheck    = function(_) return true end
 local JobCheck     = function(_) return true end
-local GangCheck    = function(_) return true end
+local GangCheck     = function(_) return true end
 local JobTypeCheck = function(_) return true end
 local CitizenCheck = function(_) return true end
 
@@ -524,6 +524,11 @@ RegisterNUICallback('selectTarget', function(option, cb)
 				TriggerEvent(data.event, data)
 			end
 		else
+			-- RME TEMP DEBUG: dump the clicked option so we can see what handler field it uses.
+			print('^3[qb-target DEBUG]^7 Clicked option has no action/onSelect/serverEvent/event. Dumping its keys:')
+			for k, v in pairs(data) do
+				print('^3[qb-target DEBUG]^7   '..tostring(k)..' = '..tostring(v)..'  ('..type(v)..')')
+			end
 			error('No trigger setup')
 		end
 	end)
