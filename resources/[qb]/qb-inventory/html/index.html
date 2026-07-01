@@ -56,6 +56,9 @@
                                     ></div>
                                     <div class="item-slot-durability-fill" v-else style="width: 0%"></div>
                                 </div>
+                                <div class="item-slot-label" v-if="getItemInSlot(slot, 'player') && (getItemInSlot(slot, 'player').name.startsWith('veh_') || ['spray_can','car_wheel','body_kit','xenon_bulb','tyre_smoke_kit','neon_kit','tint_roll','plate_kit','plastic','metalscrap','copper','aluminum','aluminumoxide','iron','ironoxide','steel','rubber','glass'].includes(getItemInSlot(slot, 'player').name))">
+                                    <p v-text="getItemInSlot(slot, 'player').label"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -119,6 +122,9 @@
                                         }"
                                     ></div>
                                     <div class="item-slot-durability-fill" v-else style="width: 0%"></div>
+                                </div>
+                                <div class="item-slot-label" v-if="getItemInSlot(slot, 'other') && (getItemInSlot(slot, 'other').name.startsWith('veh_') || ['spray_can','car_wheel','body_kit','xenon_bulb','tyre_smoke_kit','neon_kit','tint_roll','plate_kit','plastic','metalscrap','copper','aluminum','aluminumoxide','iron','ironoxide','steel','rubber','glass'].includes(getItemInSlot(slot, 'other').name))">
+                                    <p v-text="getItemInSlot(slot, 'other').label"></p>
                                 </div>
                             </div>
                         </div>
