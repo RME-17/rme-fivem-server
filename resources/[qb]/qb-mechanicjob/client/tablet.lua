@@ -13,6 +13,12 @@ local tabletVehicle = nil
 local tabletPlate = nil
 local working = false
 
+-- customer-side invoice state: while an invoice is unpaid the customer's car is
+-- frozen + undriveable, and the frosted invoice card re-opens if they climb back
+-- into the driver seat. Cleared only when the server confirms payment.
+local pendingInvoice = nil -- { amount = number, veh = entity }
+local invoiceCardOpen = false
+
 -- helpers -------------------------------------------------------------------
 
 local function toPct(v, max)
@@ -419,22 +425,82 @@ RegisterNUICallback('rmeClose', function(_, cb)
     cb('ok')
 end)
 
--- customer side: accept / decline the invoice --------------------------------
--- Shown as the frosted Redline card (html/redline-order.js). We take NUI focus
--- so the customer can click Pay/Decline (or press ESC to decline), then release
--- focus in the rmoInvoiceResponse callback below.
+-- customer side: invoice + car immobilization --------------------------------
+-- Shown as the frosted Redline card (html/redline-order.js). The moment the
+-- invoice arrives the customer's vehicle is frozen + undriveable so they cannot
+-- get the work done and drive off. The car stays locked -- and the card re-opens
+-- if they climb back into the driver seat -- until the server confirms payment.
 
-RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount)
+local function findInvoiceVehicle()
+    local ped = PlayerPedId()
+    local veh = GetVehiclePedIsIn(ped, false)
+    if veh and veh ~= 0 then return veh end
+    local v, d = QBCore.Functions.GetClosestVehicle()
+    if v and v ~= 0 and d and d <= 12.0 then return v end
+    return nil
+end
+
+local function immobilize(veh)
+    if not veh or not DoesEntityExist(veh) then return end
+    SetVehicleUndriveable(veh, true)
+    SetVehicleEngineOn(veh, false, true, true)
+    SetVehicleDoorsLocked(veh, 2)
+    FreezeEntityPosition(veh, true)
+end
+
+local function releaseVehicle(veh)
+    if not veh or not DoesEntityExist(veh) then return end
+    FreezeEntityPosition(veh, false)
+    SetVehicleUndriveable(veh, false)
+    SetVehicleDoorsLocked(veh, 1)
+end
+
+local function showInvoiceCard(amount)
+    invoiceCardOpen = true
     SetNuiFocus(true, true)
     SendNUIMessage({ action = 'openRedlineInvoice', amount = amount })
+end
+
+RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount)
+    local veh = findInvoiceVehicle()
+    pendingInvoice = { amount = amount, veh = veh }
+    if veh then immobilize(veh) end
+    showInvoiceCard(amount)
 end)
 
 RegisterNUICallback('rmoInvoiceResponse', function(data, cb)
+    invoiceCardOpen = false
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'closeRedlineInvoice' })
     local accepted = data and data.accepted == true
     TriggerServerEvent('qb-mechanicjob:server:billResponse', accepted)
     cb('ok')
+end)
+
+-- server confirms the bill is paid: release the car and clear the invoice.
+RegisterNetEvent('qb-mechanicjob:client:invoicePaid', function()
+    if pendingInvoice and pendingInvoice.veh then releaseVehicle(pendingInvoice.veh) end
+    pendingInvoice = nil
+    invoiceCardOpen = false
+end)
+
+-- keep the car locked while unpaid, and re-open the card if they get back in.
+CreateThread(function()
+    while true do
+        local wait = 1500
+        if pendingInvoice then
+            local veh = pendingInvoice.veh
+            if veh and DoesEntityExist(veh) then
+                immobilize(veh)
+                local ped = PlayerPedId()
+                if not invoiceCardOpen and GetPedInVehicleSeat(veh, -1) == ped then
+                    showInvoiceCard(pendingInvoice.amount)
+                end
+                wait = 500
+            end
+        end
+        Wait(wait)
+    end
 end)
 
 -- safety: release NUI focus if the resource stops while the tablet is open
@@ -444,4 +510,5 @@ AddEventHandler('onResourceStop', function(res)
         tabletOpen = false
         SetNuiFocus(false, false)
     end
+    if pendingInvoice and pendingInvoice.veh then releaseVehicle(pendingInvoice.veh) end
 end)
