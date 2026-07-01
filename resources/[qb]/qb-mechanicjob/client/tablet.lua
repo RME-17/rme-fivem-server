@@ -13,16 +13,25 @@ local tabletVehicle = nil
 local tabletPlate = nil
 local working = false
 
--- customer-side invoice state: while an invoice is unpaid the customer's car is
--- frozen + undriveable, and the frosted invoice card re-opens if they climb back
--- into the driver seat. Cleared only when the server confirms payment.
-local pendingInvoice = nil -- { amount = number, veh = entity }
+-- customer-side invoice state: unpaid invoices are tracked by PLATE so they can
+-- be re-applied after a relog. While a plate is owed, the matching car is frozen
+-- + undriveable, and the frosted invoice card re-opens if they climb into the
+-- driver seat. Cleared per-plate only when the server confirms payment.
+local pendingInvoices = {} -- normalized plate -> amount
 local invoiceCardOpen = false
+local currentCardPlate = nil
 
 -- helpers -------------------------------------------------------------------
 
 local function toPct(v, max)
     return math.max(0, math.min(100, math.ceil((v / (max or 1000)) * 100)))
+end
+
+local function normPlate(p)
+    if not p or type(p) ~= 'string' then return nil end
+    p = p:gsub('%s+', ''):upper()
+    if p == '' then return nil end
+    return p
 end
 
 local function vehName(veh)
@@ -323,7 +332,8 @@ RegisterNUICallback('rmeBill', function(payload, cb)
         QBCore.Functions.Notify('Enter a valid player ID to bill', 'error')
         cb('bad') return
     end
-    TriggerServerEvent('qb-mechanicjob:server:billCustomer', serverId, math.floor(amount))
+    -- send the connected vehicle plate so the customer's car is the one locked
+    TriggerServerEvent('qb-mechanicjob:server:billCustomer', serverId, math.floor(amount), tabletPlate)
     cb('ok')
 end)
 
@@ -427,18 +437,11 @@ end)
 
 -- customer side: invoice + car immobilization --------------------------------
 -- Shown as the frosted Redline card (html/redline-order.js). The moment the
--- invoice arrives the customer's vehicle is frozen + undriveable so they cannot
--- get the work done and drive off. The car stays locked -- and the card re-opens
--- if they climb back into the driver seat -- until the server confirms payment.
-
-local function findInvoiceVehicle()
-    local ped = PlayerPedId()
-    local veh = GetVehiclePedIsIn(ped, false)
-    if veh and veh ~= 0 then return veh end
-    local v, d = QBCore.Functions.GetClosestVehicle()
-    if v and v ~= 0 and d and d <= 12.0 then return v end
-    return nil
-end
+-- invoice arrives the customer's vehicle (matched by PLATE) is frozen +
+-- undriveable so they cannot get the work done and drive off. The car stays
+-- locked -- and the card re-opens if they climb into the driver seat -- until
+-- the server confirms payment. Unpaid plates persist across relogs (the server
+-- re-sends them via syncInvoices on login).
 
 local function immobilize(veh)
     if not veh or not DoesEntityExist(veh) then return end
@@ -455,17 +458,43 @@ local function releaseVehicle(veh)
     SetVehicleDoorsLocked(veh, 1)
 end
 
-local function showInvoiceCard(amount)
+-- the vehicle the player is in, else the nearest one within range (or nil)
+local function nearbyVehicle(range)
+    local ped = PlayerPedId()
+    local veh = GetVehiclePedIsIn(ped, false)
+    if veh and veh ~= 0 then return veh end
+    local v, d = QBCore.Functions.GetClosestVehicle()
+    if v and v ~= 0 and d and d <= (range or 12.0) then return v end
+    return nil
+end
+
+local function showInvoiceCard(plate, amount)
     invoiceCardOpen = true
+    currentCardPlate = plate
     SetNuiFocus(true, true)
     SendNUIMessage({ action = 'openRedlineInvoice', amount = amount })
 end
 
-RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount)
-    local veh = findInvoiceVehicle()
-    pendingInvoice = { amount = amount, veh = veh }
-    if veh then immobilize(veh) end
-    showInvoiceCard(amount)
+RegisterNetEvent('qb-mechanicjob:client:billPrompt', function(memberName, amount, plate)
+    plate = normPlate(plate)
+    if plate then pendingInvoices[plate] = amount end
+    -- lock the matching car right away if it is here
+    local veh = nearbyVehicle(12.0)
+    if veh then
+        if not plate or normPlate(QBCore.Functions.GetPlate(veh)) == plate then
+            immobilize(veh)
+        end
+    end
+    showInvoiceCard(plate, amount)
+end)
+
+-- re-sent on login / resource restart: rebuild the owed-plate list
+RegisterNetEvent('qb-mechanicjob:client:syncInvoices', function(list)
+    if type(list) ~= 'table' then return end
+    for i = 1, #list do
+        local p = normPlate(list[i].plate)
+        if p then pendingInvoices[p] = list[i].amount end
+    end
 end)
 
 RegisterNUICallback('rmoInvoiceResponse', function(data, cb)
@@ -473,34 +502,56 @@ RegisterNUICallback('rmoInvoiceResponse', function(data, cb)
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'closeRedlineInvoice' })
     local accepted = data and data.accepted == true
-    TriggerServerEvent('qb-mechanicjob:server:billResponse', accepted)
+    TriggerServerEvent('qb-mechanicjob:server:billResponse', currentCardPlate, accepted)
+    currentCardPlate = nil
     cb('ok')
 end)
 
--- server confirms the bill is paid: release the car and clear the invoice.
-RegisterNetEvent('qb-mechanicjob:client:invoicePaid', function()
-    if pendingInvoice and pendingInvoice.veh then releaseVehicle(pendingInvoice.veh) end
-    pendingInvoice = nil
+-- server confirms a plate is paid: release that car and clear the invoice.
+RegisterNetEvent('qb-mechanicjob:client:invoicePaid', function(plate)
+    plate = normPlate(plate)
+    if plate then pendingInvoices[plate] = nil end
     invoiceCardOpen = false
+    local veh = nearbyVehicle(30.0)
+    if veh then
+        if not plate or normPlate(QBCore.Functions.GetPlate(veh)) == plate then
+            releaseVehicle(veh)
+        end
+    end
 end)
 
--- keep the car locked while unpaid, and re-open the card if they get back in.
+-- keep owed cars locked while unpaid, and re-open the card if they get back in.
 CreateThread(function()
     while true do
         local wait = 1500
-        if pendingInvoice then
-            local veh = pendingInvoice.veh
+        if next(pendingInvoices) ~= nil then
+            wait = 500
+            local veh = nearbyVehicle(12.0)
             if veh and DoesEntityExist(veh) then
-                immobilize(veh)
-                local ped = PlayerPedId()
-                if not invoiceCardOpen and GetPedInVehicleSeat(veh, -1) == ped then
-                    showInvoiceCard(pendingInvoice.amount)
+                local p = normPlate(QBCore.Functions.GetPlate(veh))
+                local amt = p and pendingInvoices[p]
+                if amt then
+                    immobilize(veh)
+                    local ped = PlayerPedId()
+                    if not invoiceCardOpen and GetPedInVehicleSeat(veh, -1) == ped then
+                        showInvoiceCard(p, amt)
+                    end
                 end
-                wait = 500
             end
         end
         Wait(wait)
     end
+end)
+
+-- ask the server for any unpaid invoices on spawn and after a resource restart
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+    Wait(2000)
+    TriggerServerEvent('qb-mechanicjob:server:requestInvoices')
+end)
+
+CreateThread(function()
+    Wait(4000)
+    TriggerServerEvent('qb-mechanicjob:server:requestInvoices')
 end)
 
 -- safety: release NUI focus if the resource stops while the tablet is open
@@ -510,5 +561,6 @@ AddEventHandler('onResourceStop', function(res)
         tabletOpen = false
         SetNuiFocus(false, false)
     end
-    if pendingInvoice and pendingInvoice.veh then releaseVehicle(pendingInvoice.veh) end
+    local veh = nearbyVehicle(30.0)
+    if veh then releaseVehicle(veh) end
 end)
