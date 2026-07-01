@@ -524,11 +524,6 @@ RegisterNUICallback('selectTarget', function(option, cb)
 				TriggerEvent(data.event, data)
 			end
 		else
-			-- RME TEMP DEBUG: dump the clicked option so we can see what handler field it uses.
-			print('^3[qb-target DEBUG]^7 Clicked option has no action/onSelect/serverEvent/event. Dumping its keys:')
-			for k, v in pairs(data) do
-				print('^3[qb-target DEBUG]^7   '..tostring(k)..' = '..tostring(v)..'  ('..type(v)..')')
-			end
 			error('No trigger setup')
 		end
 	end)

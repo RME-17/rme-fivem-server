@@ -34,11 +34,12 @@ nexCrafting.ConfigData = {
         },
 
         interaction = {
-            -- Eye interaction. Works because core qb-target was patched to accept
-            -- nex_crafting's ox-style `onSelect` options (see qb-target/client.lua
-            -- selectTarget). If you ever revert that qb-target patch, set
-            -- useTarget = false to fall back to marker (walk up + press E).
-            useTarget = true,
+            -- Marker interaction (walk up + press E). NOTE (RME): nex_crafting registers
+            -- its qb-target options with NO click handler on this build (debug showed the
+            -- clicked option only had icon+label, no action/onSelect/event), so the eye
+            -- can never fire it and its interaction code is escrow-encrypted (can't fix).
+            -- Marker mode is handled internally by nex_crafting and works reliably.
+            useTarget = false,
             useMarker = true,
             interactionKey = 38,
             interactionDistance = 2,
