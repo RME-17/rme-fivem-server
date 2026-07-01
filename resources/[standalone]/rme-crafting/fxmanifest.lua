@@ -4,12 +4,13 @@ lua54 'yes'
 
 name 'rme-crafting'
 author 'RME'
-description 'RME custom crafting v2: placeable benches, NUI creator (Basic/Access/Recipes/Settings), item picker with images + categories, DB-stored recipes, qb-target eye. Fully editable, no escrow.'
-version '2.0.0'
+description 'RME custom crafting v3: placeable benches, NUI creator (Basic/Access/Recipes/Settings), item picker w/ images+categories, per-recipe access/level/fail/xp, skill-check, batch crafting, DB-stored. Fully editable, no escrow.'
+version '3.0.0'
 
 ui_page 'web/index.html'
 
 shared_scripts {
+    '@ox_lib/init.lua',
     'config.lua',
 }
 
@@ -34,4 +35,5 @@ dependencies {
     'qb-inventory',
     'oxmysql',
     'progressbar',
+    'ox_lib',
 }
