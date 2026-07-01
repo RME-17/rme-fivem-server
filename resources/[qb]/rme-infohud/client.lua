@@ -1,5 +1,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = {}
+-- when true (player is inside the Redline order builder) the top-right info card
+-- is hidden and refreshes are suppressed so it can't flash back on.
+local hudHidden = false
 
 local function jobLabel(data)
     if not data or not data.job then return 'Civilian' end
@@ -16,6 +19,7 @@ local function gangLabel(data)
 end
 
 local function sendUpdate()
+    if hudHidden then return end
     if not PlayerData or not PlayerData.citizenid then return end
     local money = PlayerData.money or {}
     SendNUIMessage({
@@ -33,7 +37,7 @@ end
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
-    SendNUIMessage({ action = 'show' })
+    if not hudHidden then SendNUIMessage({ action = 'show' }) end
     sendUpdate()
 end)
 
@@ -59,6 +63,19 @@ end)
 RegisterNetEvent('hud:client:OnMoneyChange', function()
     PlayerData = QBCore.Functions.GetPlayerData()
     sendUpdate()
+end)
+
+-- The Redline order builder fires this locally to hide the top-right info card
+-- while it is open, then to bring it back on close.
+AddEventHandler('rme:hud:setVisible', function(visible)
+    if visible == false then
+        hudHidden = true
+        SendNUIMessage({ action = 'hide' })
+    else
+        hudHidden = false
+        SendNUIMessage({ action = 'show' })
+        sendUpdate()
+    end
 end)
 
 AddEventHandler('onResourceStart', function(resource)

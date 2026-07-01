@@ -36,42 +36,60 @@ local function getBody(veh)
 end
 
 local shown = false
+-- when true (player is inside the Redline order builder) the speedo cluster is
+-- force-hidden so it never bleeds through the order builder panel.
+local forceHidden = false
+
+-- The Redline order builder fires this locally to hide the speedo while open,
+-- then to restore normal behaviour on close.
+AddEventHandler('rme:hud:setVisible', function(visible)
+    forceHidden = (visible == false)
+    if forceHidden and shown then
+        shown = false
+        SendNUIMessage({ action = 'speedo', show = false })
+    end
+end)
 
 CreateThread(function()
     while true do
         local sleep = 350
-        local ped = PlayerPedId()
-        if IsPedInAnyVehicle(ped, false) then
-            local veh = GetVehiclePedIsIn(ped, false)
-            if veh ~= 0 and not IsThisModelABicycle(GetEntityModel(veh)) then
-                sleep = 90
-                local isAir = IsPedInAnyHeli(ped) or IsPedInAnyPlane(ped)
-                local speed = math.floor(GetEntitySpeed(veh) * speedMult + 0.5)
-                local rpm = GetVehicleCurrentRpm(veh)
-                local gear = GetVehicleCurrentGear(veh)
-                local fuel = getFuel(veh)
-                local health = getHealth(veh)
-                local body = getBody(veh)
-                local alt = math.floor(GetEntityCoords(ped).z + 0.5)
-                local heading, dir = getCompass(veh)
-                if not shown then
-                    shown = true
-                    SendNUIMessage({ action = 'speedo', show = true })
+        if not forceHidden then
+            local ped = PlayerPedId()
+            if IsPedInAnyVehicle(ped, false) then
+                local veh = GetVehiclePedIsIn(ped, false)
+                if veh ~= 0 and not IsThisModelABicycle(GetEntityModel(veh)) then
+                    sleep = 90
+                    local isAir = IsPedInAnyHeli(ped) or IsPedInAnyPlane(ped)
+                    local speed = math.floor(GetEntitySpeed(veh) * speedMult + 0.5)
+                    local rpm = GetVehicleCurrentRpm(veh)
+                    local gear = GetVehicleCurrentGear(veh)
+                    local fuel = getFuel(veh)
+                    local health = getHealth(veh)
+                    local body = getBody(veh)
+                    local alt = math.floor(GetEntityCoords(ped).z + 0.5)
+                    local heading, dir = getCompass(veh)
+                    if not shown then
+                        shown = true
+                        SendNUIMessage({ action = 'speedo', show = true })
+                    end
+                    SendNUIMessage({
+                        action = 'update',
+                        speed = speed,
+                        unit = speedUnit,
+                        rpm = rpm,
+                        gear = gear,
+                        fuel = fuel,
+                        health = health,
+                        body = body,
+                        altitude = alt,
+                        isAir = isAir,
+                        heading = heading,
+                        dir = dir,
+                    })
+                elseif shown then
+                    shown = false
+                    SendNUIMessage({ action = 'speedo', show = false })
                 end
-                SendNUIMessage({
-                    action = 'update',
-                    speed = speed,
-                    unit = speedUnit,
-                    rpm = rpm,
-                    gear = gear,
-                    fuel = fuel,
-                    health = health,
-                    body = body,
-                    altitude = alt,
-                    isAir = isAir,
-                    heading = heading,
-                    dir = dir,
-                })
             elseif shown then
                 shown = false
                 SendNUIMessage({ action = 'speedo', show = false })

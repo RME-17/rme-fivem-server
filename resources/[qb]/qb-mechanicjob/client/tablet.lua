@@ -458,6 +458,15 @@ RegisterNUICallback('rmeOrderApply', function(payload, cb)
         elseif kind == 'wheel' then
             SetVehicleWheelType(veh, item.wheelType)
             SetVehicleMod(veh, 23, item.index, false)
+        elseif kind == 'mod' then
+            if item.toggle then
+                ToggleVehicleMod(veh, item.modType, item.on == true)
+            else
+                SetVehicleMod(veh, item.modType, item.index, false)
+                if item.horn and item.index ~= -1 then
+                    StartVehicleHorn(veh, 3000, GetHashKey('HELDDOWN'), false)
+                end
+            end
         elseif kind == 'neon' then
             if item.off then
                 for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end

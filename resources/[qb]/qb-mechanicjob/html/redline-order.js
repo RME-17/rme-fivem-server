@@ -8,6 +8,9 @@
     var CATS = [
         { id: 'paint', label: 'Paint', icon: 'P' },
         { id: 'wheels', label: 'Wheels', icon: 'W' },
+        { id: 'exterior', label: 'Exterior', icon: 'E' },
+        { id: 'interior', label: 'Interior', icon: 'I' },
+        { id: 'performance', label: 'Performance', icon: 'U' },
         { id: 'neon', label: 'Neon Kits', icon: 'N' },
         { id: 'smoke', label: 'Tire Smoke', icon: 'S' },
         { id: 'tint', label: 'Window Tint', icon: 'T' },
@@ -142,6 +145,50 @@
         ct.appendChild(g);
     }
 
+    // Exterior / Interior / Performance upgrades: a list of mod CATEGORIES, each
+    // opening a submenu of the individual mod styles (Stock + every option), or
+    // an on/off toggle (e.g. Turbo). Mirrors the wheels drill-down pattern.
+    function renderModCats(list, kind, title) {
+        var ct = content();
+        ct.appendChild(el('div', 'rmo-section-title', title));
+        if (!list || list.length === 0) {
+            ct.appendChild(el('div', 'rmo-group-title', 'No options available for this vehicle'));
+            return;
+        }
+        var g = el('div', 'rmo-grid');
+        list.forEach(function (cat) {
+            g.appendChild(makeCard(cat.label, function () {
+                renderModList(cat, kind);
+            }, { arrow: true }));
+        });
+        ct.appendChild(g);
+    }
+
+    function renderModList(cat, kind) {
+        var ct = content();
+        ct.innerHTML = '';
+        var back = el('div', 'rmo-back', '\u2190 Back');
+        back.addEventListener('click', function () { selectCat(kind); });
+        ct.appendChild(back);
+        ct.appendChild(el('div', 'rmo-section-title', cat.label));
+        var g = el('div', 'rmo-grid');
+        (cat.options || []).forEach(function (o) {
+            g.appendChild(makeCard(o.label, function (c) {
+                selectOne(g, c);
+                var isStock = (o.index === -1) || (o.off === true);
+                setKind('mod_' + cat.modType, !isStock);
+                var payload;
+                if (cat.toggle) {
+                    payload = { kind: 'mod', modType: cat.modType, toggle: true, on: o.on === true, label: cat.label + ' - ' + o.label };
+                } else {
+                    payload = { kind: 'mod', modType: cat.modType, index: o.index, horn: cat.horn === true, label: cat.label + ' - ' + o.label };
+                }
+                post('rmoPreview', payload, function () { flash(c); });
+            }));
+        });
+        ct.appendChild(g);
+    }
+
     function renderSwatchList(kind, items, payloadFn, withOff, offLabel) {
         var ct = content();
         var g = el('div', 'rmo-grid');
@@ -176,6 +223,9 @@
         switch (id) {
             case 'paint': renderPaint(); break;
             case 'wheels': renderWheels(); break;
+            case 'exterior': renderModCats(DATA.exterior, 'exterior', 'Exterior Upgrades'); break;
+            case 'interior': renderModCats(DATA.interior, 'interior', 'Interior Upgrades'); break;
+            case 'performance': renderModCats(DATA.performance, 'performance', 'Performance Upgrades'); break;
             case 'neon': renderSwatchList('neon', DATA.neon || [], function (o) { return o.off ? { kind: 'neon', off: true } : { kind: 'neon', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Neons Off'); break;
             case 'smoke': renderSwatchList('smoke', DATA.smoke || [], function (o) { return o.off ? { kind: 'smoke', off: true } : { kind: 'smoke', r: o.r, g: o.g, b: o.b, label: o.label }; }, true, 'Smoke Off'); break;
             case 'tint': renderSwatchList('tint', DATA.tint || [], function (o) { return { kind: 'tint', id: o.id, label: o.label }; }, false); break;

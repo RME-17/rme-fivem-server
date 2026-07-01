@@ -10,9 +10,9 @@
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-end;
-    padding: 28px 30px 28px 0;
+    padding: 0;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     color: #eaf2ff;
     pointer-events: none;
@@ -42,10 +42,11 @@
     width: 520px;
     max-width: 40vw;
     height: 100%;
-    max-height: 900px;
+    max-height: none;
     display: flex;
     flex-direction: column;
-    border-radius: 22px;
+    /* flush to the very top and bottom of the window (full-height sidebar) */
+    border-radius: 0;
     overflow: hidden;
     /* translucent tinted glass (NO backdrop-filter). Alpha < 1 lets the scene
        show through so it reads as glass, not a solid black box. */
@@ -54,6 +55,8 @@
         radial-gradient(560px 320px at 100% 110%, rgba(58, 120, 255, 0.16), transparent 62%),
         linear-gradient(155deg, rgba(20, 24, 36, 0.82), rgba(10, 13, 21, 0.76));
     border: 1px solid rgba(150, 178, 255, 0.18);
+    border-top: none;
+    border-bottom: none;
     box-shadow:
         0 30px 80px rgba(0, 0, 0, 0.55),
         0 0 0 1px rgba(255, 255, 255, 0.03) inset,
