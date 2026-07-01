@@ -1,9 +1,10 @@
 -- RME Redline Mechanic Tablet (custom frosted-glass NUI)
 -- The 'tablet' inventory item (mechanic job only) connects to the nearest
 -- vehicle and opens a custom UI: live diagnostics, every cosmetic upgrade
--- (each applied with a work animation), repair/clean actions, customer billing
--- that deposits into the shop's society account, and an Orders tab where members
--- fulfil customer cosmetics orders one item at a time on the connected car.
+-- (each applied with a work animation AND each consuming a physical part item),
+-- repair/clean actions, customer billing by server ID that deposits into the
+-- shop society account, and an Orders tab where members fulfil customer
+-- cosmetics orders one item at a time on the connected car.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -49,6 +50,22 @@ local function SaveTabletVehicle()
     end
 end
 
+-- Ask the server to consume the required part for this action, then run apply().
+-- kind = tablet action kind; skip = true for OFF / Stock selections (no part).
+local function withPart(kind, skip, apply)
+    QBCore.Functions.TriggerCallback('qb-mechanicjob:server:consumePart', function(ok, need)
+        if not ok then
+            if need == 'not_mechanic' then
+                QBCore.Functions.Notify('Only Redline mechanics can do this', 'error')
+            else
+                QBCore.Functions.Notify('You need a ' .. (need or 'part') .. ' in your inventory to do this', 'error')
+            end
+            return
+        end
+        apply()
+    end, kind, skip)
+end
+
 local function buildModList(veh, modType, isHorn)
     local list = { { label = 'Stock / None', index = -1 } }
     for i = 0, GetNumVehicleMods(veh, modType) - 1 do
@@ -70,6 +87,8 @@ local function buildTabletData(veh)
     local data = {}
     data.name = vehName(veh)
     data.plate = tabletPlate
+    data.requireItems = Config.RequirePartItems and true or false
+    data.partItems = Config.PartItems or {}
 
     local fuel = 0
     pcall(function() fuel = exports[Config.FuelResource]:GetFuel(veh) or 0 end)
@@ -179,52 +198,55 @@ RegisterNUICallback('rmeApply', function(payload, cb)
         QBCore.Functions.Notify('Lost connection to the vehicle', 'error')
         cb('novehicle') return
     end
-    working = true
-    SetVehicleModKit(veh, 0)
-    PlayWorkAnim(payload.anim or 1500)
     local kind = payload.kind
-    if kind == 'mod' then
-        SetVehicleMod(veh, payload.modType, payload.index, false)
-        if payload.horn and payload.index ~= -1 then
-            StartVehicleHorn(veh, 3000, GetHashKey('HELDDOWN'), false)
+    local skip = (payload.off == true) or (payload.index == -1)
+    withPart(kind, skip, function()
+        working = true
+        SetVehicleModKit(veh, 0)
+        PlayWorkAnim(payload.anim or 1500)
+        if kind == 'mod' then
+            SetVehicleMod(veh, payload.modType, payload.index, false)
+            if payload.horn and payload.index ~= -1 then
+                StartVehicleHorn(veh, 3000, GetHashKey('HELDDOWN'), false)
+            end
+        elseif kind == 'wheel' then
+            SetVehicleWheelType(veh, payload.wheelType)
+            SetVehicleMod(veh, 23, payload.index, false)
+        elseif kind == 'neon' then
+            if payload.off then
+                for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
+            else
+                for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
+                SetVehicleNeonLightsColour(veh, payload.r, payload.g, payload.b)
+            end
+        elseif kind == 'xenon' then
+            if payload.off then
+                ToggleVehicleMod(veh, 22, false)
+            else
+                ToggleVehicleMod(veh, 22, true)
+                SetVehicleXenonLightsColor(veh, payload.id)
+            end
+        elseif kind == 'smoke' then
+            if payload.off then
+                ToggleVehicleMod(veh, 20, false)
+            else
+                ToggleVehicleMod(veh, 20, true)
+                SetVehicleTyreSmokeColor(veh, payload.r, payload.g, payload.b)
+            end
+        elseif kind == 'tint' then
+            SetVehicleWindowTint(veh, payload.id)
+        elseif kind == 'plate' then
+            SetVehicleNumberPlateTextIndex(veh, payload.id)
+        elseif kind == 'paint' then
+            if payload.section == 'secondary' then
+                SetVehicleCustomSecondaryColour(veh, payload.r, payload.g, payload.b)
+            else
+                SetVehicleCustomPrimaryColour(veh, payload.r, payload.g, payload.b)
+            end
         end
-    elseif kind == 'wheel' then
-        SetVehicleWheelType(veh, payload.wheelType)
-        SetVehicleMod(veh, 23, payload.index, false)
-    elseif kind == 'neon' then
-        if payload.off then
-            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
-        else
-            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
-            SetVehicleNeonLightsColour(veh, payload.r, payload.g, payload.b)
-        end
-    elseif kind == 'xenon' then
-        if payload.off then
-            ToggleVehicleMod(veh, 22, false)
-        else
-            ToggleVehicleMod(veh, 22, true)
-            SetVehicleXenonLightsColor(veh, payload.id)
-        end
-    elseif kind == 'smoke' then
-        if payload.off then
-            ToggleVehicleMod(veh, 20, false)
-        else
-            ToggleVehicleMod(veh, 20, true)
-            SetVehicleTyreSmokeColor(veh, payload.r, payload.g, payload.b)
-        end
-    elseif kind == 'tint' then
-        SetVehicleWindowTint(veh, payload.id)
-    elseif kind == 'plate' then
-        SetVehicleNumberPlateTextIndex(veh, payload.id)
-    elseif kind == 'paint' then
-        if payload.section == 'secondary' then
-            SetVehicleCustomSecondaryColour(veh, payload.r, payload.g, payload.b)
-        else
-            SetVehicleCustomPrimaryColour(veh, payload.r, payload.g, payload.b)
-        end
-    end
-    SaveTabletVehicle()
-    working = false
+        SaveTabletVehicle()
+        working = false
+    end)
     cb('ok')
 end)
 
@@ -288,14 +310,12 @@ RegisterNUICallback('rmeBill', function(payload, cb)
         QBCore.Functions.Notify('Enter a valid amount', 'error')
         cb('bad') return
     end
-    local player, dist = QBCore.Functions.GetClosestPlayer()
-    if not player or player == -1 or dist > 5.0 then
-        QBCore.Functions.Notify('No customer nearby to bill', 'error')
-        cb('nocustomer') return
+    local serverId = tonumber(payload.target)
+    if not serverId or serverId <= 0 then
+        QBCore.Functions.Notify('Enter a valid player ID to bill', 'error')
+        cb('bad') return
     end
-    local serverId = GetPlayerServerId(player)
     TriggerServerEvent('qb-mechanicjob:server:billCustomer', serverId, math.floor(amount))
-    QBCore.Functions.Notify('Invoice sent to the customer', 'primary')
     cb('ok')
 end)
 
@@ -319,43 +339,46 @@ RegisterNUICallback('rmeOrderApply', function(payload, cb)
         cb('wrongveh') return
     end
     local item = payload.item or {}
-    working = true
-    SetVehicleModKit(veh, 0)
-    PlayWorkAnim(2000)
     local kind = item.kind
-    if kind == 'paint' then
-        local p, s = GetVehicleColours(veh)
-        if item.section == 'secondary' then
-            SetVehicleColours(veh, p, item.colorId)
-        else
-            SetVehicleColours(veh, item.colorId, s)
+    local skip = (item.off == true) or (item.index == -1)
+    withPart(kind, skip, function()
+        working = true
+        SetVehicleModKit(veh, 0)
+        PlayWorkAnim(2000)
+        if kind == 'paint' then
+            local p, s = GetVehicleColours(veh)
+            if item.section == 'secondary' then
+                SetVehicleColours(veh, p, item.colorId)
+            else
+                SetVehicleColours(veh, item.colorId, s)
+            end
+        elseif kind == 'wheel' then
+            SetVehicleWheelType(veh, item.wheelType)
+            SetVehicleMod(veh, 23, item.index, false)
+        elseif kind == 'neon' then
+            if item.off then
+                for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
+            else
+                for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
+                SetVehicleNeonLightsColour(veh, item.r, item.g, item.b)
+            end
+        elseif kind == 'smoke' then
+            if item.off then
+                ToggleVehicleMod(veh, 20, false)
+            else
+                ToggleVehicleMod(veh, 20, true)
+                SetVehicleTyreSmokeColor(veh, item.r, item.g, item.b)
+            end
+        elseif kind == 'tint' then
+            SetVehicleWindowTint(veh, item.id)
+        elseif kind == 'plate' then
+            SetVehicleNumberPlateTextIndex(veh, item.id)
         end
-    elseif kind == 'wheel' then
-        SetVehicleWheelType(veh, item.wheelType)
-        SetVehicleMod(veh, 23, item.index, false)
-    elseif kind == 'neon' then
-        if item.off then
-            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
-        else
-            for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, true) end
-            SetVehicleNeonLightsColour(veh, item.r, item.g, item.b)
-        end
-    elseif kind == 'smoke' then
-        if item.off then
-            ToggleVehicleMod(veh, 20, false)
-        else
-            ToggleVehicleMod(veh, 20, true)
-            SetVehicleTyreSmokeColor(veh, item.r, item.g, item.b)
-        end
-    elseif kind == 'tint' then
-        SetVehicleWindowTint(veh, item.id)
-    elseif kind == 'plate' then
-        SetVehicleNumberPlateTextIndex(veh, item.id)
-    end
-    SaveTabletVehicle()
-    TriggerServerEvent('qb-mechanicjob:server:completeOrderItem', tabletPlate, payload.index)
-    working = false
-    QBCore.Functions.Notify('Applied: ' .. (item.label or kind or 'item'), 'success')
+        SaveTabletVehicle()
+        TriggerServerEvent('qb-mechanicjob:server:completeOrderItem', tabletPlate, payload.index)
+        working = false
+        QBCore.Functions.Notify('Applied: ' .. (item.label or kind or 'item'), 'success')
+    end)
     cb('ok')
 end)
 
