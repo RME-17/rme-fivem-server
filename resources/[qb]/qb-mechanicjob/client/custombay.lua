@@ -1,10 +1,11 @@
 -- RME Redline Custom Bay - customer order builder + orbit drag camera
 -- Any player can pull a vehicle onto a bay pad and press E to open the Redline
 -- order builder. A frosted-glass NUI previews visual cosmetics live on the car
--- (paint, wheels, neon, tire smoke, window tint, plate). Nothing is applied for
--- real: on Submit the car reverts to stock and the chosen options are sent to
--- the Redline members as an order to fulfil from their tablet, one item at a
--- time, while the car is present.
+-- (paint, wheels, neon, tire smoke, window tint, plate, and now exterior /
+-- interior / performance upgrades). Nothing is applied for real: on Submit the
+-- car reverts to stock and the chosen options are sent to the Redline members
+-- as an order to fulfil from their tablet, one item at a time, while the car is
+-- present.
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -54,6 +55,26 @@ local function updateCam()
     local px = c.x + horiz * sind(angleZ)
     local py = c.y + horiz * cosd(angleZ)
     local pz = c.z + radius * sind(angleY) + 0.3
+    -- collidable camera: cast a ray from the car out to the desired camera spot.
+    -- if a wall / object / other vehicle is in the way, pull the camera in to
+    -- just before the hit so it never clips through walls. (flags 1+2+16 =
+    -- world + vehicles + objects; the bay car itself is ignored.)
+    local pivotZ = c.z + 0.3
+    local ray = StartShapeTestRay(c.x, c.y, pivotZ, px, py, pz, 19, bayVehicle, 4)
+    local _, hit, endCoords = GetShapeTestResult(ray)
+    if hit == 1 or hit == true then
+        local dx, dy, dz = endCoords.x - c.x, endCoords.y - c.y, endCoords.z - pivotZ
+        local hitDist = math.sqrt(dx * dx + dy * dy + dz * dz)
+        local wx, wy, wz = px - c.x, py - c.y, pz - pivotZ
+        local want = math.sqrt(wx * wx + wy * wy + wz * wz)
+        local pull = math.max(0.6, hitDist - 0.35)
+        if want > 0.0 and pull < want then
+            local f = pull / want
+            px = c.x + wx * f
+            py = c.y + wy * f
+            pz = pivotZ + wz * f
+        end
+    end
     SetCamCoord(cam, px, py, pz)
     -- camera right vector (horizontal) for the current orbit angle
     local rx = -cosd(angleZ)
@@ -78,6 +99,33 @@ local function vehName(veh)
 end
 
 local PAINT_GROUPS = { 'Metallic', 'Matte', 'Util', 'Worn', 'Misc', 'Chameleon' }
+
+-- performance upgrade categories (indexed mods). Turbo is added separately as a
+-- simple on/off toggle since it is not an indexed mod.
+local PERFORMANCE_CATEGORIES = {
+    { label = 'Engine',       id = 11 },
+    { label = 'Brakes',       id = 12 },
+    { label = 'Transmission', id = 13 },
+    { label = 'Suspension',   id = 15 },
+    { label = 'Armor',        id = 16 },
+}
+
+-- Build the option list for an indexed vehicle mod category (Stock + each style).
+local function buildModList(veh, modType, isHorn)
+    local list = { { label = 'Stock / None', index = -1 } }
+    for i = 0, GetNumVehicleMods(veh, modType) - 1 do
+        local txt
+        if isHorn then
+            txt = (Config.HornLabels and Config.HornLabels[i]) or ('Horn ' .. i)
+        else
+            local l = GetModTextLabel(veh, modType, i)
+            txt = (l and GetLabelText(l)) or (tostring(modType) .. ' #' .. i)
+            if txt == 'NULL' or txt == '' then txt = 'Style ' .. i end
+        end
+        list[#list + 1] = { label = txt, index = i }
+    end
+    return list
+end
 
 local function buildOrderCatalog(veh)
     SetVehicleModKit(veh, 0)
@@ -120,6 +168,31 @@ local function buildOrderCatalog(veh)
     for i = 1, #Config.PlateIndexes do
         cat.plateStyles[#cat.plateStyles + 1] = { label = Config.PlateIndexes[i].label, id = Config.PlateIndexes[i].id }
     end
+    -- exterior body mods (only categories the vehicle actually supports)
+    cat.exterior = {}
+    for i = 1, #Config.ExteriorCategories do
+        local ec = Config.ExteriorCategories[i]
+        if GetNumVehicleMods(veh, ec.id) > 0 then
+            cat.exterior[#cat.exterior + 1] = { label = ec.label, modType = ec.id, options = buildModList(veh, ec.id, false) }
+        end
+    end
+    -- interior mods (horns handled with their friendly labels)
+    cat.interior = {}
+    for i = 1, #Config.InteriorCategories do
+        local ic = Config.InteriorCategories[i]
+        if GetNumVehicleMods(veh, ic.id) > 0 then
+            cat.interior[#cat.interior + 1] = { label = ic.label, modType = ic.id, horn = (ic.id == 14), options = buildModList(veh, ic.id, ic.id == 14) }
+        end
+    end
+    -- performance upgrades (indexed) + a turbo on/off toggle
+    cat.performance = {}
+    for i = 1, #PERFORMANCE_CATEGORIES do
+        local pc = PERFORMANCE_CATEGORIES[i]
+        if GetNumVehicleMods(veh, pc.id) > 0 then
+            cat.performance[#cat.performance + 1] = { label = pc.label, modType = pc.id, options = buildModList(veh, pc.id, false) }
+        end
+    end
+    cat.performance[#cat.performance + 1] = { label = 'Turbo', modType = 18, toggle = true, options = { { label = 'Off', off = true }, { label = 'On', on = true } } }
     return cat
 end
 
@@ -136,6 +209,8 @@ local function closeBay()
     bayActive = false
     camRun = false
     inputX, inputY = 0.0, 0.0
+    -- bring the speedo + top-right info card (and any other HUD) back
+    TriggerEvent('rme:hud:setVisible', true)
     SetNuiFocus(false, false)
     RenderScriptCams(false, true, 500, true, true)
     if cam then DestroyCam(cam, false) cam = nil end
@@ -178,6 +253,9 @@ function OpenCustomBay()
     RenderScriptCams(true, true, 600, true, true)
     bayActive = true
     camRun = true
+    -- hide the speedo + top-right info card (and other HUD) so they don't bleed
+    -- through the order builder; restored in closeBay().
+    TriggerEvent('rme:hud:setVisible', false)
     CreateThread(function()
         while camRun do
             if not bayVehicle or not DoesEntityExist(bayVehicle) then closeBay() break end
@@ -204,15 +282,15 @@ end
 -- NUI callbacks -------------------------------------------------------------
 
 -- analog joystick from the order UI. x/y are -1..1. Controls are INVERTED per
--- request: drag right orbits left, drag up tilts down. The smoothing loop above
--- turns this into slow, eased motion.
+-- request: drag right orbits left, and drag down tilts down (both axes
+-- inverted). The smoothing loop above turns this into slow, eased motion.
 RegisterNUICallback('rmoCamAnalog', function(data, cb)
     local x = tonumber(data and data.x) or 0.0
     local y = tonumber(data and data.y) or 0.0
     if math.abs(x) < DEADZONE then x = 0.0 end
     if math.abs(y) < DEADZONE then y = 0.0 end
     inputX = -x   -- inverted horizontal
-    inputY = y    -- inverted vertical (screen y is down-positive)
+    inputY = -y   -- inverted vertical (drag down -> camera tilts down)
     cb('ok')
 end)
 
@@ -247,6 +325,14 @@ RegisterNUICallback('rmoPreview', function(payload, cb)
         SetVehicleWheelType(veh, payload.wheelType)
         SetVehicleMod(veh, 23, payload.index, false)
         recordSelection('wheel', { kind = 'wheel', wheelType = payload.wheelType, index = payload.index, label = payload.label })
+    elseif kind == 'mod' then
+        if payload.toggle then
+            ToggleVehicleMod(veh, payload.modType, payload.on == true)
+            recordSelection('mod_' .. payload.modType, { kind = 'mod', modType = payload.modType, toggle = true, on = payload.on == true, label = payload.label })
+        else
+            SetVehicleMod(veh, payload.modType, payload.index, false)
+            recordSelection('mod_' .. payload.modType, { kind = 'mod', modType = payload.modType, index = payload.index, horn = payload.horn == true, label = payload.label })
+        end
     elseif kind == 'neon' then
         if payload.off then
             for n = 0, 3 do SetVehicleNeonLightEnabled(veh, n, false) end
@@ -319,6 +405,7 @@ AddEventHandler('onResourceStop', function(res)
     if not bayActive then return end
     bayActive = false
     camRun = false
+    TriggerEvent('rme:hud:setVisible', true)
     SetNuiFocus(false, false)
     RenderScriptCams(false, false, 0, true, true)
     if cam then DestroyCam(cam, false) cam = nil end
