@@ -15,6 +15,10 @@ local function decodeRecipes(str)
     return {}
 end
 
+local function getLevel(xp)
+    return math.floor((xp or 0) / (Config.XP.perLevel or 100))
+end
+
 local function benchPayload(b)
     return {
         id = b.id, prop = b.prop, label = b.label,
@@ -41,7 +45,6 @@ CreateThread(function()
             PRIMARY KEY (`id`)
         )
     ]])
-    -- Upgrade a v1 table if it exists (MariaDB supports IF NOT EXISTS on columns).
     for _, clause in ipairs({
         "ADD COLUMN IF NOT EXISTS `prop` VARCHAR(64) NOT NULL DEFAULT 'gr_prop_gr_bench_04a'",
         "ADD COLUMN IF NOT EXISTS `label` VARCHAR(64) NOT NULL DEFAULT 'Workbench'",
@@ -86,9 +89,20 @@ RegisterNetEvent('rme-crafting:server:saveBench', function(data)
         b.accessValue = data.accessValue
         b.accessGrade = tonumber(data.accessGrade) or 0
         b.recipes = data.recipes or {}
-        MySQL.update.await('UPDATE rme_crafting_benches SET prop=?, label=?, access=?, access_value=?, access_grade=?, recipes=? WHERE id=?', {
-            b.prop, b.label, b.access, b.accessValue, b.accessGrade, recipesJson, b.id
-        })
+        local moved = false
+        if data.x and data.y and data.z then
+            b.x, b.y, b.z, b.heading = data.x, data.y, data.z, data.heading or b.heading
+            moved = true
+        end
+        if moved then
+            MySQL.update.await('UPDATE rme_crafting_benches SET prop=?, label=?, access=?, access_value=?, access_grade=?, recipes=?, x=?, y=?, z=?, heading=? WHERE id=?', {
+                b.prop, b.label, b.access, b.accessValue, b.accessGrade, recipesJson, b.x, b.y, b.z, b.heading, b.id
+            })
+        else
+            MySQL.update.await('UPDATE rme_crafting_benches SET prop=?, label=?, access=?, access_value=?, access_grade=?, recipes=? WHERE id=?', {
+                b.prop, b.label, b.access, b.accessValue, b.accessGrade, recipesJson, b.id
+            })
+        end
         TriggerClientEvent('rme-crafting:client:updateBench', -1, benchPayload(b))
         TriggerClientEvent('QBCore:Notify', src, 'Bench saved.', 'success')
     else
@@ -123,44 +137,82 @@ RegisterNetEvent('rme-crafting:server:deleteBench', function(id)
     TriggerClientEvent('QBCore:Notify', src, 'Bench removed.', 'success')
 end)
 
-RegisterNetEvent('rme-crafting:server:craft', function(benchId, recipeIndex)
+local function canAccess(Player, access, accessValue, accessGrade)
+    if not access or access == 'public' then return true end
+    if access == 'job' then
+        return Player.PlayerData.job.name == accessValue and (not accessGrade or Player.PlayerData.job.grade.level >= accessGrade)
+    elseif access == 'gang' then
+        return Player.PlayerData.gang and Player.PlayerData.gang.name == accessValue
+    end
+    return true
+end
+
+RegisterNetEvent('rme-crafting:server:craft', function(benchId, index, qty)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
     local b = Benches[tonumber(benchId)]
     if not b then return end
-    local recipe = b.recipes[tonumber(recipeIndex)]
+    local recipe = b.recipes[tonumber(index)]
     if not recipe then return end
+    qty = math.max(1, math.min(tonumber(qty) or 1, 20))
 
-    if b.access == 'job' then
-        if Player.PlayerData.job.name ~= b.accessValue or (b.accessGrade and Player.PlayerData.job.grade.level < b.accessGrade) then
-            TriggerClientEvent('QBCore:Notify', src, 'You cannot use this bench.', 'error'); return
+    -- access (per-recipe overrides bench; 'inherit'/nil = use bench)
+    local access, accessValue, accessGrade = recipe.access, recipe.accessValue, recipe.accessGrade
+    if not access or access == 'inherit' then
+        access, accessValue, accessGrade = b.access, b.accessValue, b.accessGrade
+    end
+    if not canAccess(Player, access, accessValue, accessGrade) then
+        TriggerClientEvent('QBCore:Notify', src, 'You cannot craft this.', 'error'); return
+    end
+
+    -- level
+    local xp = (Player.PlayerData.metadata and Player.PlayerData.metadata.craftingxp) or 0
+    if Config.XP.enabled and recipe.requiredLevel and recipe.requiredLevel > 0 and getLevel(xp) < recipe.requiredLevel then
+        TriggerClientEvent('QBCore:Notify', src, ('Requires crafting level %d.'):format(recipe.requiredLevel), 'error'); return
+    end
+
+    local made, failed, gained = 0, 0, 0
+    for _ = 1, qty do
+        local haveAll = true
+        for _, m in ipairs(recipe.materials or {}) do
+            local item = Player.Functions.GetItemByName(m.item)
+            if not item or item.amount < (m.amount or 1) then haveAll = false; break end
         end
-    elseif b.access == 'gang' then
-        if not Player.PlayerData.gang or Player.PlayerData.gang.name ~= b.accessValue then
-            TriggerClientEvent('QBCore:Notify', src, 'You cannot use this bench.', 'error'); return
+        if not haveAll then break end
+        for _, m in ipairs(recipe.materials or {}) do
+            Player.Functions.RemoveItem(m.item, m.amount or 1)
+            local d = QBCore.Shared.Items[m.item]; if d then TriggerClientEvent('qb-inventory:client:ItemBox', src, d, 'remove') end
+        end
+        local fail = recipe.failChance and recipe.failChance > 0 and (math.random(100) <= recipe.failChance)
+        if fail then
+            failed = failed + 1
+        else
+            local added = Player.Functions.AddItem(recipe.output, recipe.amount or 1)
+            if added then
+                local d = QBCore.Shared.Items[recipe.output]; if d then TriggerClientEvent('qb-inventory:client:ItemBox', src, d, 'add') end
+                made = made + 1
+                gained = gained + (recipe.xp or Config.XP.defaultGain or 5)
+            else
+                for _, m in ipairs(recipe.materials or {}) do Player.Functions.AddItem(m.item, m.amount or 1) end
+                break
+            end
         end
     end
 
-    for _, m in ipairs(recipe.materials or {}) do
-        local item = Player.Functions.GetItemByName(m.item)
-        if not item or item.amount < (m.amount or 1) then
-            TriggerClientEvent('QBCore:Notify', src, 'You do not have the required materials.', 'error'); return
-        end
-    end
-    for _, m in ipairs(recipe.materials or {}) do
-        Player.Functions.RemoveItem(m.item, m.amount or 1)
-        local d = QBCore.Shared.Items[m.item]
-        if d then TriggerClientEvent('qb-inventory:client:ItemBox', src, d, 'remove') end
+    if Config.XP.enabled and gained > 0 then
+        local cap = (Config.XP.maxLevel or 100) * (Config.XP.perLevel or 100)
+        Player.Functions.SetMetaData('craftingxp', math.min(xp + gained, cap))
     end
 
-    local added = Player.Functions.AddItem(recipe.output, recipe.amount or 1)
-    local outData = QBCore.Shared.Items[recipe.output]
-    if added and outData then
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, outData, 'add')
-        TriggerClientEvent('QBCore:Notify', src, ('Crafted %dx %s.'):format(recipe.amount or 1, outData.label or recipe.output), 'success')
+    if made > 0 then
+        local d = QBCore.Shared.Items[recipe.output]
+        local msg = ('Crafted %dx %s'):format(made * (recipe.amount or 1), (d and d.label) or recipe.output)
+        if failed > 0 then msg = msg .. (' (%d failed)'):format(failed) end
+        TriggerClientEvent('QBCore:Notify', src, msg, 'success')
+    elseif failed > 0 then
+        TriggerClientEvent('QBCore:Notify', src, 'Craft failed - materials lost.', 'error')
     else
-        for _, m in ipairs(recipe.materials or {}) do Player.Functions.AddItem(m.item, m.amount or 1) end
-        TriggerClientEvent('QBCore:Notify', src, 'Inventory full - craft cancelled.', 'error')
+        TriggerClientEvent('QBCore:Notify', src, 'You do not have the required materials.', 'error')
     end
 end)
