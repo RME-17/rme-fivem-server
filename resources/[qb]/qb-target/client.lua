@@ -504,6 +504,13 @@ RegisterNUICallback('selectTarget', function(option, cb)
 		end
 		if data.action then
 			data.action(data.entity)
+		elseif data.onSelect then
+			-- RME: ox_target-style callback support. Scripts like nex_crafting register
+			-- qb-target options with an ox-style onSelect(data) function instead of `action`.
+			data.onSelect(data)
+		elseif data.serverEvent then
+			-- RME: ox_target-style serverEvent support.
+			TriggerServerEvent(data.serverEvent, data)
 		elseif data.event then
 			if data.type == 'client' then
 				TriggerEvent(data.event, data)
