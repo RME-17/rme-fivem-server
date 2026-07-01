@@ -344,11 +344,11 @@
         var bodyEl = el('div', 'rmo-inv-body');
         bodyEl.appendChild(el('div', 'rmo-inv-title', 'Amount due'));
         bodyEl.appendChild(el('div', 'rmo-inv-amt', '<span>$' + (amount || 0) + '</span>'));
-        bodyEl.appendChild(el('div', 'rmo-inv-text', 'Redline Motorsport is invoicing you for vehicle work. Do you want to pay this invoice?'));
+        bodyEl.appendChild(el('div', 'rmo-inv-text', 'Redline Motorsport is invoicing you for vehicle work. Your vehicle is immobilized until this invoice is paid.'));
         var acts = el('div', 'rmo-inv-actions');
-        var decline = el('button', 'rmo-btn rmo-btn-ghost', 'Decline');
+        var decline = el('button', 'rmo-btn rmo-btn-ghost', 'Pay later');
         decline.addEventListener('click', function () { respondInvoice(false); });
-        var pay = el('button', 'rmo-btn rmo-btn-primary', 'Pay');
+        var pay = el('button', 'rmo-btn rmo-btn-primary', 'Pay now');
         pay.addEventListener('click', function () { respondInvoice(true); });
         acts.appendChild(decline);
         acts.appendChild(pay);
@@ -363,8 +363,9 @@
         return ov && !ov.classList.contains('rmo-hidden');
     }
 
-    // ESC closes the order builder (revert) or declines an open invoice, so a
-    // player can never get stuck with the mouse captured.
+    // ESC closes the order builder (revert) or dismisses an open invoice (the
+    // car stays locked until paid), so a player can never get stuck with the
+    // mouse captured.
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape' && e.keyCode !== 27) return;
         if (invoiceOpen()) { respondInvoice(false); return; }
