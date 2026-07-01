@@ -34,6 +34,8 @@
       <div class="editor-footer">
         <button id="saveBench" class="btn btn-accent">Save Changes</button>
         <button id="placeBench" class="btn btn-primary hidden">Place Bench</button>
+        <button id="moveBench" class="btn btn-primary hidden">Move</button>
+        <button id="dupBench" class="btn btn-ghost hidden">Duplicate</button>
         <button id="deleteBench" class="btn btn-danger hidden">Delete</button>
       </div>
     </div>
@@ -55,7 +57,16 @@
 
 <!-- ===== CRAFT ===== -->
 <div id="craft" class="panel-craft hidden">
-  <div class="craft-header"><span id="craftTitle">Workbench</span><button id="closeCraft" class="btn btn-ghost">Close</button></div>
+  <div class="craft-header">
+    <span id="craftTitle">Workbench</span>
+    <div class="craft-tools">
+      <span id="craftLevel" class="level-badge"></span>
+      <input id="craftSearch" class="craft-search" placeholder="Search..." />
+      <div class="qty-stepper"><button id="qtyMinus">-</button><span id="qtyVal">1</span><button id="qtyPlus">+</button></div>
+      <button id="closeCraft" class="btn btn-ghost">Close</button>
+    </div>
+  </div>
+  <div id="craftCats" class="craft-cats"></div>
   <div id="craftGrid" class="craft-grid"></div>
 </div>
 
