@@ -183,11 +183,11 @@
         }
     }
 
-    // ---- drag joystick camera -------------------------------------------
-    // A spring-loaded round knob. While the knob is held off-center the camera
-    // orbits in that direction; the further you drag, the faster it moves.
-    // Horizontal = orbit left/right, vertical = tilt up/down. Reuses the
-    // existing rmoCam callback (dir: left/right/up/down/in/out).
+    // ---- analog drag joystick camera ------------------------------------
+    // A spring-loaded round knob. While held off-center we stream the analog
+    // vector (x,y in -1..1) to the game every frame-ish; the Lua side eases the
+    // camera toward a target angle so the orbit is slow and smooth (never the
+    // old jumpy stepping). Controls are inverted in the Lua handler.
     function buildJoystick() {
         var cam = el('div', 'rmo-cam');
         var joy = el('div', 'rmo-joy');
@@ -196,18 +196,11 @@
         joy.appendChild(knob);
 
         var MAXR = 26;      // px radius the knob can travel
-        var DEAD = 0.12;    // deadzone (fraction) before it starts moving
-        var dragging = false, nx = 0, ny = 0, accX = 0, accY = 0, timer = null;
+        var dragging = false, nx = 0, ny = 0, timer = null;
 
         function place(x, y) { knob.style.transform = 'translate(' + x + 'px,' + y + 'px)'; }
+        function sendAnalog() { post('rmoCamAnalog', { x: nx, y: ny }); }
 
-        function tick() {
-            var ax = Math.abs(nx) > DEAD ? Math.abs(nx) : 0;
-            var ay = Math.abs(ny) > DEAD ? Math.abs(ny) : 0;
-            accX += ax; accY += ay;
-            if (accX >= 1) { accX -= 1; post('rmoCam', { dir: nx > 0 ? 'right' : 'left' }); }
-            if (accY >= 1) { accY -= 1; post('rmoCam', { dir: ny < 0 ? 'up' : 'down' }); }
-        }
         function move(e) {
             if (!dragging) return;
             var r = joy.getBoundingClientRect();
@@ -223,15 +216,16 @@
             joy.classList.add('dragging');
             try { joy.setPointerCapture(e.pointerId); } catch (err) {}
             move(e);
-            if (!timer) timer = setInterval(tick, 45);
+            if (!timer) timer = setInterval(sendAnalog, 60);
             e.preventDefault();
         }
         function end() {
             dragging = false;
             joy.classList.remove('dragging');
-            nx = 0; ny = 0; accX = 0; accY = 0;
+            nx = 0; ny = 0;
             place(0, 0);
             if (timer) { clearInterval(timer); timer = null; }
+            post('rmoCamAnalog', { x: 0, y: 0 });   // stop orbiting on release
         }
         joy.addEventListener('pointerdown', start);
         joy.addEventListener('pointermove', move);
@@ -319,7 +313,7 @@
     function hide() { root().classList.add('rmo-hidden'); }
     function isOpen() { var r = root(); return r && !r.classList.contains('rmo-hidden'); }
 
-    // ---- frosted invoice card (customer receives a Redline bill) ---------
+    // ---- invoice card (customer receives a Redline bill) ---------
     function invoiceOverlay() {
         var ov = document.getElementById('rmo-invoice');
         if (!ov) {

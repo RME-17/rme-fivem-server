@@ -26,8 +26,26 @@ local radiusMin, radiusMax = 3.0, 9.0
 -- removes the empty dark space next to the panel.
 local lateralShift = 1.3
 
+-- smooth orbit: the joystick feeds an analog input (inputX/inputY) that nudges a
+-- TARGET orbit angle; the live camera angles then EASE toward the target every
+-- frame, so motion is slow and buttery instead of big jumpy steps.
+local targetZ = 145.0
+local targetY = 22.0
+local targetRadius = 5.5
+local inputX = 0.0    -- -1..1 horizontal stick (already inverted + deadzoned)
+local inputY = 0.0    -- -1..1 vertical stick (already inverted + deadzoned)
+local DEADZONE = 0.12
+local ROT_SPEED = 50.0    -- deg/sec horizontal at full stick (slow & controlled)
+local TILT_SPEED = 30.0   -- deg/sec vertical at full stick
+local EASE = 6.0          -- how quickly the live camera chases the target
+
 local function cosd(d) return math.cos(math.rad(d)) end
 local function sind(d) return math.sin(math.rad(d)) end
+
+-- shortest signed angular distance a->b (handles the 360/0 wrap smoothly)
+local function angDiff(a, b)
+    return (b - a + 180.0) % 360.0 - 180.0
+end
 
 local function updateCam()
     if not cam or not bayVehicle or not DoesEntityExist(bayVehicle) then return end
@@ -117,6 +135,7 @@ end
 local function closeBay()
     bayActive = false
     camRun = false
+    inputX, inputY = 0.0, 0.0
     SetNuiFocus(false, false)
     RenderScriptCams(false, true, 500, true, true)
     if cam then DestroyCam(cam, false) cam = nil end
@@ -151,6 +170,8 @@ function OpenCustomBay()
     FreezeEntityPosition(vehicle, true)
     SetVehicleEngineOn(vehicle, false, true, true)
     angleZ, angleY, radius = 145.0, 22.0, 5.5
+    targetZ, targetY, targetRadius = 145.0, 22.0, 5.5
+    inputX, inputY = 0.0, 0.0
     cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
     SetCamActive(cam, true)
     updateCam()
@@ -160,8 +181,19 @@ function OpenCustomBay()
     CreateThread(function()
         while camRun do
             if not bayVehicle or not DoesEntityExist(bayVehicle) then closeBay() break end
+            local dt = GetFrameTime()
+            if dt <= 0.0 then dt = 0.016 end
+            -- advance the TARGET orbit from the analog joystick input
+            if inputX ~= 0.0 then targetZ = (targetZ + inputX * ROT_SPEED * dt) % 360.0 end
+            if inputY ~= 0.0 then targetY = math.max(2.0, math.min(80.0, targetY + inputY * TILT_SPEED * dt)) end
+            -- ease the live camera toward the target (frame-rate independent)
+            local k = EASE * dt
+            if k > 1.0 then k = 1.0 end
+            angleZ = (angleZ + angDiff(angleZ, targetZ) * k) % 360.0
+            angleY = angleY + (targetY - angleY) * k
+            radius = radius + (targetRadius - radius) * k
             updateCam()
-            Wait(200)
+            Wait(0)
         end
     end)
     local catalog = buildOrderCatalog(vehicle)
@@ -171,16 +203,30 @@ end
 
 -- NUI callbacks -------------------------------------------------------------
 
+-- analog joystick from the order UI. x/y are -1..1. Controls are INVERTED per
+-- request: drag right orbits left, drag up tilts down. The smoothing loop above
+-- turns this into slow, eased motion.
+RegisterNUICallback('rmoCamAnalog', function(data, cb)
+    local x = tonumber(data and data.x) or 0.0
+    local y = tonumber(data and data.y) or 0.0
+    if math.abs(x) < DEADZONE then x = 0.0 end
+    if math.abs(y) < DEADZONE then y = 0.0 end
+    inputX = -x   -- inverted horizontal
+    inputY = y    -- inverted vertical (screen y is down-positive)
+    cb('ok')
+end)
+
+-- discrete nudges (zoom buttons, and any legacy left/right/up/down). These now
+-- move the TARGET so they ease smoothly too.
 RegisterNUICallback('rmoCam', function(data, cb)
     local dir = data and data.dir
-    if dir == 'left' then angleZ = (angleZ - 12.0) % 360.0
-    elseif dir == 'right' then angleZ = (angleZ + 12.0) % 360.0
-    elseif dir == 'up' then angleY = math.min(80.0, angleY + 8.0)
-    elseif dir == 'down' then angleY = math.max(2.0, angleY - 8.0)
-    elseif dir == 'in' then radius = math.max(radiusMin, radius - 0.6)
-    elseif dir == 'out' then radius = math.min(radiusMax, radius + 0.6)
+    if dir == 'left' then targetZ = (targetZ - 8.0) % 360.0
+    elseif dir == 'right' then targetZ = (targetZ + 8.0) % 360.0
+    elseif dir == 'up' then targetY = math.min(80.0, targetY + 6.0)
+    elseif dir == 'down' then targetY = math.max(2.0, targetY - 6.0)
+    elseif dir == 'in' then targetRadius = math.max(radiusMin, targetRadius - 0.6)
+    elseif dir == 'out' then targetRadius = math.min(radiusMax, targetRadius + 0.6)
     end
-    updateCam()
     cb('ok')
 end)
 
