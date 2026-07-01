@@ -4,7 +4,7 @@ function post(name, data) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=UTF-8' },
     body: JSON.stringify(data || {})
-  }).catch(() => {});
+  }).catch(function(){});
 }
 
 let ITEMS = [], ITEM_MAP = {}, CATEGORIES = {}, JOBS = [], GANGS = [], PROPS = [], THEME = {};
@@ -12,7 +12,7 @@ let editing = null;      // bench being edited (deep copy)
 let pickerTarget = null; // callback for item picker
 let PICKER_CAT = 'All';
 
-function esc(s){ return String(s==null?'':s).replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]; }); }
+function esc(s){ s = String(s == null ? '' : s); return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 function applyTheme(t){
   if(!t) return;
