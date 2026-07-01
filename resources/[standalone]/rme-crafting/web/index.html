@@ -21,4 +21,44 @@
     <div id="editor" class="editor hidden">
       <div class="tabs">
         <div class="tab active" data-tab="basic">Basic</div>
-        <div class="tab" data-t
+        <div class="tab" data-tab="access">Access</div>
+        <div class="tab" data-tab="recipes">Recipes</div>
+        <div class="tab" data-tab="settings">Settings</div>
+      </div>
+      <div class="tab-body">
+        <div class="tab-pane active" data-pane="basic"></div>
+        <div class="tab-pane" data-pane="access"></div>
+        <div class="tab-pane" data-pane="recipes"></div>
+        <div class="tab-pane" data-pane="settings"></div>
+      </div>
+      <div class="editor-footer">
+        <button id="saveBench" class="btn btn-accent">Save Changes</button>
+        <button id="placeBench" class="btn btn-primary hidden">Place Bench</button>
+        <button id="deleteBench" class="btn btn-danger hidden">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ITEM PICKER ===== -->
+<div id="itemPicker" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>Select Item</span>
+      <input id="pickerSearch" placeholder="Search items..." />
+      <button id="pickerClose" class="btn btn-ghost">Close</button>
+    </div>
+    <div id="pickerCats" class="picker-cats"></div>
+    <div id="pickerGrid" class="picker-grid"></div>
+  </div>
+</div>
+
+<!-- ===== CRAFT ===== -->
+<div id="craft" class="panel-craft hidden">
+  <div class="craft-header"><span id="craftTitle">Workbench</span><button id="closeCraft" class="btn btn-ghost">Close</button></div>
+  <div id="craftGrid" class="craft-grid"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
