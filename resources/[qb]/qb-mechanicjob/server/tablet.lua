@@ -18,6 +18,28 @@ local function isMechanic(Player)
     return job.type == 'mechanic' or MechanicJobs[job.name] == true
 end
 
+-- Consume the physical part required to apply a cosmetic. The member tablet calls
+-- this BEFORE it applies any upgrade. Returns (ok, needLabel):
+--   ok = false, 'not_mechanic'  -> caller is not a mechanic
+--   ok = false, <label>         -> caller is missing that part
+--   ok = true                   -> a part was consumed (or none was required)
+-- 'skip' is passed true for OFF / Stock selections, which never consume a part.
+QBCore.Functions.CreateCallback('qb-mechanicjob:server:consumePart', function(source, cb, kind, skip)
+    local Player = exports['qb-core']:GetPlayer(source)
+    if not isMechanic(Player) then cb(false, 'not_mechanic') return end
+    if not Config.RequirePartItems then cb(true) return end
+    if skip then cb(true) return end
+    local map = Config.PartItems and Config.PartItems[kind]
+    if not map then cb(true) return end
+    local has = Player.Functions.GetItemByName(map.item)
+    if not has or (has.amount or 0) < 1 then cb(false, map.label) return end
+    Player.Functions.RemoveItem(map.item, 1)
+    pcall(function()
+        TriggerClientEvent('qb-inventory:client:ItemBox', source, QBCore.Shared.Items[map.item], 'remove', 1)
+    end)
+    cb(true)
+end)
+
 -- The generic 'tablet' item ships as useable = false; it is force-enabled inside
 -- qb-core (shared/rme_useable_overrides.lua) so the inventory 'Use' option works
 -- regardless of resource start order. This thread is a redundant safety net.
@@ -38,7 +60,7 @@ QBCore.Functions.CreateUseableItem('tablet', function(source)
 end)
 
 -- Customer billing -----------------------------------------------------------
--- A mechanic invoices the nearest customer; the customer accepts/declines; on
+-- A mechanic invoices a customer by server ID; the customer accepts/declines; on
 -- accept the money is pulled (bank first, then cash) and deposited into the
 -- mechanic shop's society account.
 
@@ -56,7 +78,7 @@ RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount
     if amount <= 0 then return end
     local Target = exports['qb-core']:GetPlayer(tonumber(targetId))
     if not Target then
-        TriggerClientEvent('QBCore:Notify', src, 'Customer not found', 'error')
+        TriggerClientEvent('QBCore:Notify', src, 'No player online with that ID', 'error')
         return
     end
     local tgt = Target.PlayerData.source
@@ -68,6 +90,7 @@ RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount
     }
     local mechName = ('%s %s'):format(Mechanic.PlayerData.charinfo.firstname, Mechanic.PlayerData.charinfo.lastname)
     TriggerClientEvent('qb-mechanicjob:client:billPrompt', tgt, mechName, amount)
+    TriggerClientEvent('QBCore:Notify', src, ('Invoice sent to %s %s (ID %s)'):format(Target.PlayerData.charinfo.firstname, Target.PlayerData.charinfo.lastname, tgt), 'primary')
 end)
 
 RegisterNetEvent('qb-mechanicjob:server:billResponse', function(accepted)
