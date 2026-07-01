@@ -1,9 +1,26 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- The generic 'tablet' item ships as useable = false. Flip it on at runtime so
--- it can act as the mechanic diagnostic tablet without rewriting qb-core items.
--- qb-mechanicjob and qb-inventory share the same live QBCore.Shared.Items table,
--- so mutating it here is enough for the inventory 'Use' action to fire.
+-- Accept any mechanic shop. We match by job TYPE ('mechanic') OR by NAME, so a
+-- character whose saved job object predates the type field (e.g. set to redline
+-- before redline had type = 'mechanic') is not wrongly locked out of the tablet,
+-- billing or the orders board.
+local MechanicJobs = {
+    mechanic = true,
+    mechanic2 = true,
+    mechanic3 = true,
+    beeker = true,
+    redline = true,
+}
+
+local function isMechanic(Player)
+    if not Player or not Player.PlayerData or not Player.PlayerData.job then return false end
+    local job = Player.PlayerData.job
+    return job.type == 'mechanic' or MechanicJobs[job.name] == true
+end
+
+-- The generic 'tablet' item ships as useable = false; it is force-enabled inside
+-- qb-core (shared/rme_useable_overrides.lua) so the inventory 'Use' option works
+-- regardless of resource start order. This thread is a redundant safety net.
 CreateThread(function()
     if QBCore.Shared and QBCore.Shared.Items and QBCore.Shared.Items['tablet'] then
         QBCore.Shared.Items['tablet'].useable = true
@@ -13,7 +30,7 @@ end)
 QBCore.Functions.CreateUseableItem('tablet', function(source)
     local Player = exports['qb-core']:GetPlayer(source)
     if not Player then return end
-    if Config.RequireJob and Player.PlayerData.job.type ~= 'mechanic' then
+    if Config.RequireJob and not isMechanic(Player) then
         TriggerClientEvent('QBCore:Notify', source, 'Only mechanics can connect this tablet to a vehicle', 'error')
         return
     end
@@ -31,7 +48,7 @@ RegisterNetEvent('qb-mechanicjob:server:billCustomer', function(targetId, amount
     local src = source
     local Mechanic = exports['qb-core']:GetPlayer(src)
     if not Mechanic then return end
-    if Mechanic.PlayerData.job.type ~= 'mechanic' then
+    if not isMechanic(Mechanic) then
         TriggerClientEvent('QBCore:Notify', src, 'Only mechanics can bill customers', 'error')
         return
     end
@@ -100,7 +117,7 @@ local function notifyMechanics(msg)
     local players = QBCore.Functions.GetQBPlayers()
     for _, Player in pairs(players) do
         if Player and Player.PlayerData and Player.PlayerData.job
-            and Player.PlayerData.job.type == 'mechanic' and Player.PlayerData.job.onduty then
+            and isMechanic(Player) and Player.PlayerData.job.onduty then
             TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, msg, 'primary')
         end
     end
@@ -127,7 +144,7 @@ end)
 
 QBCore.Functions.CreateCallback('qb-mechanicjob:server:getOrders', function(source, cb)
     local Player = exports['qb-core']:GetPlayer(source)
-    if not Player or Player.PlayerData.job.type ~= 'mechanic' then cb({}) return end
+    if not isMechanic(Player) then cb({}) return end
     local list = {}
     for _, o in pairs(orders) do
         list[#list + 1] = o
@@ -138,7 +155,7 @@ end)
 RegisterNetEvent('qb-mechanicjob:server:completeOrderItem', function(plate, index)
     local src = source
     local Player = exports['qb-core']:GetPlayer(src)
-    if not Player or Player.PlayerData.job.type ~= 'mechanic' then return end
+    if not isMechanic(Player) then return end
     local o = orders[plate]
     if not o then return end
     index = tonumber(index)
@@ -154,7 +171,7 @@ end)
 RegisterNetEvent('qb-mechanicjob:server:cancelOrder', function(plate)
     local src = source
     local Player = exports['qb-core']:GetPlayer(src)
-    if not Player or Player.PlayerData.job.type ~= 'mechanic' then return end
+    if not isMechanic(Player) then return end
     local o = orders[plate]
     if not o then return end
     orders[plate] = nil
