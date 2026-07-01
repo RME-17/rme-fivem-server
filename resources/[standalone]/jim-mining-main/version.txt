@@ -1,0 +1,6 @@
+3.0.12
+
+- Check if the "reward" items exist before giving them
+- Fix cracking process kicks if player has no drillbit (and added config option for it)
+
+https://github.com/jimathy/jim-mining/releases/latest
