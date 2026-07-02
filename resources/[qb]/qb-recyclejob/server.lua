@@ -1,180 +1,56 @@
 local QBCore = exports['qb-core']:GetCoreObject({ 'Functions' })
 local sharedItems = exports['qb-core']:GetShared('Items')
 
--- Boxes only yield raw recycling materials now (plastic, glass, steel, etc).
--- These feed the Redline part crafting recipes in qb-crafting.
-local Recieve = {
-    { item = 'metalscrap', min = 1, max = 5 },
-    { item = 'plastic',    min = 1, max = 5 },
-    { item = 'copper',     min = 1, max = 5 },
-    { item = 'rubber',     min = 1, max = 5 },
-    { item = 'iron',       min = 1, max = 5 },
-    { item = 'aluminum',   min = 1, max = 5 },
-    { item = 'steel',      min = 1, max = 5 },
-    { item = 'glass',      min = 1, max = 5 },
-}
-local maxRecieved = 5           -- Max items to be received
-local dropLocation = Config.DropLocation
-local uhohs = {}
-local Sales, Stock, salesLoc = {}, {}, Config.SellPed
+-- Materials a Scrap Box can contain when opened at the recycling bin.
+-- These feed the crafting / mechanic material economy.
+local Materials = { 'metalscrap', 'plastic', 'copper', 'rubber', 'iron', 'aluminum', 'steel', 'glass' }
 
-
-if Config.SellMaterials then
-    Sales = { -- key is item, value is price
-        metalscrap = 2,
-        plastic = 2,
-        copper = 2,
-        rubber = 2,
-        iron = 2,
-        aluminum = 2,
-        steel = 2,
-        glass = 2,
-    }
-end
-if Config.LimitedMaterials then
-    Stock = { -- key is item, value is stock at restart
-        metalscrap = 3000,
-        plastic = 3000,
-        copper = 3000,
-        rubber = 3000,
-        iron = 3000,
-        aluminum = 3000,
-        steel = 3000,
-        glass = 3000,
-    }
+local function distanceTo(src, loc)
+    local ped = GetPlayerPed(src)
+    if not ped or ped == 0 then return 9999.0 end
+    return #(GetEntityCoords(ped) - vector3(loc.x, loc.y, loc.z))
 end
 
-
-local function exploitBan(id, reason)
-    MySQL.insert('INSERT INTO bans (name, license, discord, ip, reason, expire, bannedby) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        {
-            GetPlayerName(id),
-            QBCore.Functions.GetIdentifier(id, 'license'),
-            QBCore.Functions.GetIdentifier(id, 'discord'),
-            QBCore.Functions.GetIdentifier(id, 'ip'),
-            reason,
-            2147483647,
-            'qb-recyclejob'
-        })
-    TriggerEvent('qb-log:server:CreateLog', 'recyclejob', 'Player Banned', 'red',
-        string.format('%s was banned by %s for %s', GetPlayerName(id), 'qb-recyclejob', reason), true)
-    DropPlayer(id, 'You were permanently banned by the server for: Exploiting')
-end
-
-local function isClose(source, loc)
-    local playerPed = GetPlayerPed(source)
-    local Player = exports['qb-core']:GetPlayer(source)
-    local cid = Player.PlayerData.citizenid
-    local playerCoords = GetEntityCoords(playerPed)
-    local distance = nil
-
-    if loc == 'turnIn' then
-        distance = #(playerCoords - vector3(dropLocation.x, dropLocation.y, dropLocation.z))
-    elseif loc == 'sell' then
-        distance = #(playerCoords - vector3(salesLoc.x, salesLoc.y, salesLoc.z))
-    else
-        return false
-    end
-
-    if distance < 5.0 then
-        return true
-    else
-        uhohs[cid] = uhohs[cid] + 1 or 0
-        if uhohs[cid] >= 3 then
-            exploitBan(source, 'Exploiting distance on qb-recyclejob')
-        end
-        return false
-    end
-end
-
-QBCore.Functions.CreateCallback('qb-recyclejob:server:getPriceList', function(source, cb)
+-- Player handed in a carried box at the armory crate -> receive 1-5 sealed Scrap Boxes.
+RegisterNetEvent('qb-recyclejob:server:getBoxes', function()
     local src = source
-    if not isClose(src, 'sell') then return false end
-    cb(Sales)
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    if distanceTo(src, Config.CrateLocation) > 6.0 then return end
+
+    local amount = math.random(Config.BoxesPerDrop.min, Config.BoxesPerDrop.max)
+    if Player.Functions.AddItem(Config.BoxItem, amount) then
+        TriggerClientEvent('qb-inventory:client:ItemBox', src, sharedItems[Config.BoxItem], 'add', amount)
+        TriggerClientEvent('QBCore:Notify', src, ('You packed %dx Scrap Box.'):format(amount), 'success')
+    else
+        TriggerClientEvent('QBCore:Notify', src, 'You cannot carry any more boxes.', 'error')
+    end
 end)
 
-local function adjustStock(item, change, amount)
-    if not Config.LimitedMaterials then return end
-    if change == 'add' then
-        Stock[item] = Stock[item] + amount
-    elseif change == 'remove' then
-        Stock[item] = Stock[item] - amount
-    end
-end
+-- Player opens a Scrap Box at the bin -> consume 1 box, get 3-10 random materials.
+RegisterNetEvent('qb-recyclejob:server:openBox', function()
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    if distanceTo(src, Config.BinLocation) > 6.0 then return end
 
-local function checkStock(source, item, amount)
-    if not Config.LimitedMaterials then return true end
-    if Stock[item] >= amount then
-        return true
-    else
-        TriggerClientEvent('QBCore:Notify', source, Lang:t('error.out_of_stock', { item = item }), 'error')
-        return false
-    end
-end
-
-local function sellMaterials(src, item, amount)
-    local Player = exports['qb-core']:GetPlayer(src)
-    local price = Sales[item] * amount
-    local has = Player.GetItemByName(item)
-    if has and has.amount < amount then
-        amount = has.amount
-        price = Sales[item] * amount
-    end
-    if Player.RemoveItem(item, amount) then
-        Player.AddMoney('cash', price)
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('success.sold', { amount = amount, item = sharedItems[item].label, price = price }), 'success')
-        adjustStock(item, 'add', amount)
-    else
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.nothing_to_sell'), 'error')
+    local box = Player.Functions.GetItemByName(Config.BoxItem)
+    if not box or box.amount < 1 then
+        TriggerClientEvent('QBCore:Notify', src, 'You have no Scrap Boxes to open.', 'error')
         return
     end
-end
+    if not Player.Functions.RemoveItem(Config.BoxItem, 1) then return end
+    TriggerClientEvent('qb-inventory:client:ItemBox', src, sharedItems[Config.BoxItem], 'remove', 1)
 
-local function getItem(source, item, amount)
-    local Player = exports['qb-core']:GetPlayer(source)
-    if Config.LimitedMaterials then
-        if not checkStock(source, item, amount) then return end
-        Player.AddItem(item, amount)
-        TriggerClientEvent('qb-inventory:client:ItemBox', source, sharedItems[item], 'add', amount)
-        adjustStock(item, 'remove', amount)
-    else
-        Player.AddItem(item, amount)
-        TriggerClientEvent('qb-inventory:client:ItemBox', source, sharedItems[item], 'add', amount)
+    local total = math.random(Config.MaterialsPerBox.min, Config.MaterialsPerBox.max)
+    local remaining = total
+    while remaining > 0 do
+        local mat = Materials[math.random(1, #Materials)]
+        local chunk = math.random(1, math.max(1, math.ceil(total / 2)))
+        if chunk > remaining then chunk = remaining end
+        Player.Functions.AddItem(mat, chunk)
+        if sharedItems[mat] then TriggerClientEvent('qb-inventory:client:ItemBox', src, sharedItems[mat], 'add', chunk) end
+        remaining = remaining - chunk
     end
-end
-
-RegisterNetEvent('qb-recyclejob:server:getItem', function()
-    local src = source
-    if not isClose(src, 'turnIn') then
-        if not uhohs[src] then
-            uhohs[src] = 1
-            return
-        end
-        uhohs[src] = uhohs[src] + 1 or 1
-        if uhohs[src] >= 3 then
-            exploitBan(src, 'Exploiting distance on qb-recyclejob')
-        end
-        return
-    end
-    local itemAmountRecieved = math.random(1, maxRecieved)
-
-    if not isClose(src, 'turnIn') then return end
-
-    repeat
-        Wait(1)
-        local item = Recieve[math.random(1, #Recieve)]
-        local itemAmount = math.random(item.min, item.max)
-        itemAmountRecieved = itemAmountRecieved - 1
-        getItem(src, item.item, itemAmount)
-    until itemAmountRecieved == 0
-end)
-
-RegisterNetEvent('qb-recyclejob:server:sellItem', function(item, amount)
-    local src = source
-    local Player = exports['qb-core']:GetPlayer(src)
-    if not isClose(src, 'sell') then return end
-    if not Sales[item] then return end
-    if Config.SellMaterials then
-        sellMaterials(src, item, amount)
-    end
+    TriggerClientEvent('QBCore:Notify', src, ('Opened a Scrap Box: %d materials.'):format(total), 'success')
 end)

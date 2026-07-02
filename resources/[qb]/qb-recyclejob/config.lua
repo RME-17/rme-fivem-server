@@ -1,15 +1,28 @@
 Config = {
-	UseTarget               = GetConvar('UseTarget', 'false') == 'true',
+	UseTarget               = GetConvar('UseTarget', 'true') == 'true',
+
 	OutsideLocation         = vector4(55.55, 6472.18, 31.43, 44.0),
 	InsideLocation          = vector4(1073.0, -3102.49, -39.0, 266.61),
 	DutyLocation            = vector4(1048.7, -3100.62, -38.2, 88.02),
-	DropLocation            = vector4(1048.224, -3097.071, -38.999, 274.810),
-	SellMaterials           = true, --  allow players to sell materials to a ped
-	LimitedMaterials        = true, -- limit the amount of materials that can be sold
-	SellPed                 = vector4(1049.84, -3094.08, -40.0, 178.84),
+
+	-- Armory crate: carry a picked-up box here and pack it into sealed Scrap Boxes.
+	-- (Replaces the old drop-off door. Highlighted while you are carrying a box.)
+	CrateLocation           = vector4(1049.81, -3096.8, -39.0, 14.35),
+	CrateModel              = 'prop_mil_crate_01',
+
+	-- Recycling bin: open Scrap Boxes here to get raw materials.
+	BinLocation             = vector4(1048.54, -3105.46, -39.0, 276.81),
+	BinModel                = 'prop_recyclebin_04_a',
+
+	-- Item + amounts
+	BoxItem                 = 'recycle_box',
+	BoxesPerDrop            = { min = 1, max = 5 },   -- Scrap Boxes gained per hand-in at the crate
+	MaterialsPerBox         = { min = 3, max = 10 },  -- total materials gained per box opened at the bin
+
 	DrawPackageLocationBlip = true,
 	PickupActionDuration    = math.random(4000, 6000),
 	DeliveryActionDuration  = 5000,
+	ExchangeActionDuration  = 4000,
 	PickupBoxModel          = 'prop_cs_cardbox_01',
 
 	PickupLocations         = {
