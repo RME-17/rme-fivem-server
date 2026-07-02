@@ -1,6 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- Награды за добычу
+-- Harvest rewards
 local rewards = {
     deer_carcass = {
         items = {
@@ -32,37 +32,39 @@ local rewards = {
     }
 }
 
--- Проверка лицензии на оружие
+-- Weapon license check
 QBCore.Functions.CreateCallback('hunting:checkWeaponLicense', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
+    if not Player then cb(false) return end
+
     local licenseTable = Player.PlayerData.metadata["licences"]
-    
-    if licenseTable.weapon then
+
+    if licenseTable and licenseTable.weapon then
         cb(true)
     else
         cb(false)
     end
 end)
 
--- Обработчик события сбора добычи
+-- Harvest event handler
 RegisterNetEvent('hunting:harvestAnimal')
 AddEventHandler('hunting:harvestAnimal', function(rewardType)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    
+
     if not Player then return end
-    
+
     local reward = rewards[rewardType]
     if not reward then return end
-    
-    -- Выдаем предметы
+
+    -- Give items
     for _, item in pairs(reward.items) do
         Player.Functions.AddItem(item.name, item.amount)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item.name], "add")
     end
-    
-    -- Выдаем деньги
+
+    -- Give money
     Player.Functions.AddMoney("cash", reward.money)
-    
-    TriggerClientEvent('QBCore:Notify', src, 'Вы получили добычу и $' .. reward.money, 'success')
+
+    TriggerClientEvent('QBCore:Notify', src, 'You collected your loot and earned $' .. reward.money, 'success')
 end)

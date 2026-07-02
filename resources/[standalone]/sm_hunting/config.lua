@@ -1,29 +1,29 @@
 Config = {}
 
-Config.Lang="ru" --eng/ru
+Config.Lang = "en" -- en/ru
 
--- Основные настройки охоты
-Config.HuntingZone = vector3(-1498.12, 4578.19, 35.36) -- Координаты зоны охоты
-Config.SpawnRadius = 750.0 -- Радиус спавна животных
-Config.ZoneCheckRadius = 800.0 -- Радиус проверки нахождения в зоне охоты
+-- Main hunting settings
+Config.HuntingZone = vector3(-1498.12, 4578.19, 35.36) -- Hunting zone center
+Config.SpawnRadius = 750.0 -- Animal spawn radius
+Config.ZoneCheckRadius = 800.0 -- Radius for checking the player is still inside the hunting zone
 
 
--- Метки на карте
+-- Map markers
 Config.Markers = {
-    Start = vector3(-1493.67, 4971.6, 63.91), -- Начало охоты
-    End = vector3(-1491.92, 4975.19, 63.73), -- Завершение охоты
+    Start = vector3(-1493.67, 4971.6, 63.91), -- Start hunting
+    End = vector3(-1491.92, 4975.19, 63.73), -- End hunting
 }
 
--- Настройки спавна животных
-Config.MaxAnimals = 10 -- Максимальное количество животных в зоне
-Config.SpawnChance = { -- Вероятность спавна каждого животного (в процентах)
+-- Animal spawn settings
+Config.MaxAnimals = 10 -- Maximum number of animals in the zone
+Config.SpawnChance = { -- Spawn chance per animal (percent)
     ["a_c_deer"] = 40,
     ["a_c_rabbit_01"] = 30,
     ["a_c_mtlion"] = 20,
     ["a_c_crow"] = 10,
 }
 
--- Список животных
+-- Animal list
 Config.Animals = {
     {
         name = "deer",

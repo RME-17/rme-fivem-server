@@ -43,6 +43,40 @@ local CustomItems = {
         shouldClose = true,
         description = 'A pair of diamond-studded silver earrings.'
     },
+    -- sm_hunting rewards
+    meat = {
+        name = 'meat',
+        label = 'Animal Meat',
+        weight = 500,
+        type = 'item',
+        image = 'meat.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Fresh meat from a hunted animal.'
+    },
+    leather = {
+        name = 'leather',
+        label = 'Animal Leather',
+        weight = 500,
+        type = 'item',
+        image = 'leather.png',
+        unique = false,
+        useable = false,
+        shouldClose = true,
+        description = 'Tough animal hide, ready for crafting.'
+    },
+    feathers = {
+        name = 'feathers',
+        label = 'Feathers',
+        weight = 100,
+        type = 'item',
+        image = 'feathers.png',
+        unique = false,
+        useable = false,
+        shouldClose = true,
+        description = 'A handful of bird feathers.'
+    },
 }
 
 CreateThread(function()
