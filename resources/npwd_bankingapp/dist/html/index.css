@@ -1,0 +1,30 @@
+/* src/index.css */
+:root {
+  --bhrp-bg: #1C1208;
+  --bhrp-surface: #2A1A0A;
+  --bhrp-border: #3D2510;
+  --bhrp-primary: #F07B1F;
+  --bhrp-amber: #F5A623;
+  --bhrp-text: #FFF5E6;
+  --bhrp-muted: #A87E52;
+  --bhrp-credit: #F5A623;
+  --bhrp-debit: #E03E2D;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3D2510 transparent;
+}
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #3D2510;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #5a3518;
+}
