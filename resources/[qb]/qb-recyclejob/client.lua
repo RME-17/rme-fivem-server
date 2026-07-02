@@ -5,14 +5,14 @@ local packageIndex = nil
 local onDuty = false
 local isBusy = false
 local props = {}
-local crateObj, binObj = nil, nil
+local crateObj, workerPed = nil, nil
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     for _, v in pairs(props) do if v and DoesEntityExist(v) then DeleteObject(v) end end
     if carryPackage and DoesEntityExist(carryPackage) then DeleteObject(carryPackage) end
     if crateObj and DoesEntityExist(crateObj) then DeleteObject(crateObj) end
-    if binObj and DoesEntityExist(binObj) then DeleteObject(binObj) end
+    if workerPed and DoesEntityExist(workerPed) then DeletePed(workerPed) end
 end)
 
 local function outline(ent, on, r, g, b)
@@ -20,6 +20,27 @@ local function outline(ent, on, r, g, b)
         SetEntityDrawOutline(ent, on)
         if on then SetEntityDrawOutlineColor(ent, r or 15, g or 20, b or 60) end
     end
+end
+
+-- Grounds a prop reliably: waits until the player is close (so collision is
+-- streamed in) then snaps it to the floor and freezes it.
+local function groundProp(obj, loc)
+    CreateThread(function()
+        local tries = 0
+        while obj and DoesEntityExist(obj) and tries < 900 do
+            if #(GetEntityCoords(PlayerPedId()) - vector3(loc.x, loc.y, loc.z)) < 25.0 then
+                RequestCollisionAtCoord(loc.x, loc.y, loc.z)
+                FreezeEntityPosition(obj, false)
+                Wait(400)
+                PlaceObjectOnGroundProperly(obj)
+                Wait(50)
+                FreezeEntityPosition(obj, true)
+                return
+            end
+            tries = tries + 1
+            Wait(1000)
+        end
+    end)
 end
 
 local function SetLocationBlip()
@@ -141,15 +162,16 @@ end
 CreateThread(function()
     Wait(500)
 
-    -- Armory crate (drop-off)
+    -- Armory crate (drop-off) - grounded once the player is near
     RequestModel(Config.CrateModel)
     local t = 0
     while not HasModelLoaded(Config.CrateModel) and t < 100 do Wait(10); t = t + 1 end
     if HasModelLoaded(Config.CrateModel) then
         crateObj = CreateObject(Config.CrateModel, Config.CrateLocation.x, Config.CrateLocation.y, Config.CrateLocation.z, false, false, false)
         SetEntityHeading(crateObj, Config.CrateLocation.w)
-        PlaceObjectOnGroundProperly(crateObj)
         FreezeEntityPosition(crateObj, true)
+        SetModelAsNoLongerNeeded(Config.CrateModel)
+        groundProp(crateObj, Config.CrateLocation)
         exports['qb-target']:AddTargetEntity(crateObj, {
             options = { {
                 icon = 'fas fa-box-open',
@@ -161,27 +183,29 @@ CreateThread(function()
         })
     end
 
-    -- Recycling bin (exchange boxes -> materials)
-    RequestModel(Config.BinModel)
+    -- Recycling worker (ped) - open Scrap Boxes for materials
+    local pedHash = GetHashKey(Config.PedModel)
+    RequestModel(pedHash)
     t = 0
-    while not HasModelLoaded(Config.BinModel) and t < 100 do Wait(10); t = t + 1 end
-    if HasModelLoaded(Config.BinModel) then
-        binObj = CreateObject(Config.BinModel, Config.BinLocation.x, Config.BinLocation.y, Config.BinLocation.z, false, false, false)
-        SetEntityHeading(binObj, Config.BinLocation.w)
-        PlaceObjectOnGroundProperly(binObj)
-        FreezeEntityPosition(binObj, true)
+    while not HasModelLoaded(pedHash) and t < 100 do Wait(10); t = t + 1 end
+    if HasModelLoaded(pedHash) then
+        local p = Config.PedLocation
+        workerPed = CreatePed(4, pedHash, p.x, p.y, p.z, p.w, false, false)
+        SetEntityHeading(workerPed, p.w)
+        FreezeEntityPosition(workerPed, true)
+        SetEntityInvincible(workerPed, true)
+        SetBlockingOfNonTemporaryEvents(workerPed, true)
+        SetModelAsNoLongerNeeded(pedHash)
+        exports['qb-target']:AddTargetEntity(workerPed, {
+            options = { {
+                icon = 'fas fa-recycle',
+                label = 'Open boxes',
+                action = function() openBox() end,
+                canInteract = function() return QBCore.Functions.HasItem(Config.BoxItem) end,
+            } },
+            distance = 2.5
+        })
     end
-    exports['qb-target']:AddBoxZone('recycle_bin', vector3(Config.BinLocation.x, Config.BinLocation.y, Config.BinLocation.z), 2.0, 2.0, {
-        name = 'recycle_bin', heading = Config.BinLocation.w, minZ = Config.BinLocation.z - 1.5, maxZ = Config.BinLocation.z + 1.5, debugPoly = false
-    }, {
-        options = { {
-            icon = 'fas fa-recycle',
-            label = 'Open boxes',
-            action = function() openBox() end,
-            canInteract = function() return QBCore.Functions.HasItem(Config.BoxItem) end,
-        } },
-        distance = 2.0
-    })
 
     -- Enter / Exit / Duty
     exports['qb-target']:AddBoxZone('recycle_enter', vector3(Config.OutsideLocation.x, Config.OutsideLocation.y, Config.OutsideLocation.z), 3.0, 2.0, {
