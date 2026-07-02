@@ -6,6 +6,7 @@ local back = 1
 local opacity = 1
 local scaleType = nil
 local scaleString = ""
+local savedOutfit = nil
 
 CreateThread(function()
     AddTextEntry("ParaTattoos", "Tattoo Shop")
@@ -34,18 +35,6 @@ RegisterNetEvent('Apply:Tattoo', function(tats)
         end
     end)
 end)
-
---[[RegisterNetEvent('Apply:PedTattoo', function(tats, hash)
-	print('recebendo o npc')
-	QBCore.Functions.TriggerCallback('SmallTattoos:GetPlayerTattoos', function(tattooList)
-		if tattooList then
-			for k, v in pairs(tattooList) do
-				SetPedDecoration(hash, v.collection, v.nameHash)
-			end
-			currentTattoos = tattooList
-		end
-	end)
-end)]]
 
 CreateThread(function()
     while true do
@@ -86,36 +75,65 @@ function DrawTattoo(collection, name)
     end
 end
 
-function GetNaked()
-    TriggerEvent('skinchanger:getSkin', function()
-        if GetEntityModel(PlayerPedId()) == 'mp_m_freemode_01' then
-            TriggerEvent('skinchanger:loadSkin', {
-                sex = 0,
-                tshirt_1 = 15,
-                tshirt_2 = 0,
-                arms = 15,
-                torso_1 = 91,
-                torso_2 = 0,
-                pants_1 = 14,
-                pants_2 = 0,
-                shoes_1 = 5,
-                glasses_1 = 0
-            })
-        else
-            TriggerEvent('skinchanger:loadSkin', {
-                sex = 1,
-                tshirt_1 = 34,
-                tshirt_2 = 0,
-                arms = 15,
-                torso_1 = 101,
-                torso_2 = 1,
-                pants_1 = 16,
-                pants_2 = 0,
-                shoes_1 = 5,
-                glasses_1 = 5
-            })
+-- Save the player's current outfit, then strip down to underwear so tattoos
+-- are fully visible while browsing. The outfit is restored on menu close.
+function StripToUnderwear()
+    local ped = PlayerPedId()
+
+    if not savedOutfit then
+        savedOutfit = { components = {}, props = {} }
+        for _, comp in ipairs({1, 3, 4, 5, 6, 7, 8, 9, 10, 11}) do
+            savedOutfit.components[comp] = {
+                GetPedDrawableVariation(ped, comp),
+                GetPedTextureVariation(ped, comp),
+                GetPedPaletteVariation(ped, comp)
+            }
         end
-    end)
+        for _, prop in ipairs({0, 1, 2, 6, 7}) do
+            savedOutfit.props[prop] = {
+                GetPedPropIndex(ped, prop),
+                GetPedPropTextureIndex(ped, prop)
+            }
+        end
+    end
+
+    SetPedComponentVariation(ped, 1, 0, 0, 0)   -- mask off
+    SetPedComponentVariation(ped, 5, 0, 0, 0)   -- bag off
+    SetPedComponentVariation(ped, 7, 0, 0, 0)   -- neck accessory off
+    SetPedComponentVariation(ped, 9, 0, 0, 0)   -- body armor off
+    SetPedComponentVariation(ped, 10, 0, 0, 0)  -- decals off
+    SetPedComponentVariation(ped, 3, 15, 0, 0)  -- bare arms
+
+    if GetEntityModel(ped) == GetHashKey('mp_m_freemode_01') then
+        SetPedComponentVariation(ped, 8, 15, 0, 0)   -- no undershirt
+        SetPedComponentVariation(ped, 11, 15, 0, 0)  -- bare chest
+        SetPedComponentVariation(ped, 4, 14, 0, 0)   -- underpants
+        SetPedComponentVariation(ped, 6, 34, 0, 0)   -- barefoot
+    else
+        SetPedComponentVariation(ped, 8, 34, 0, 0)   -- no undershirt
+        SetPedComponentVariation(ped, 11, 101, 1, 0) -- bare top
+        SetPedComponentVariation(ped, 4, 16, 0, 0)   -- underwear
+        SetPedComponentVariation(ped, 6, 35, 0, 0)   -- barefoot
+    end
+
+    ClearAllPedProps(ped)
+end
+
+-- Put the player's saved outfit back exactly as it was.
+function RestoreOutfit()
+    local ped = PlayerPedId()
+    if not savedOutfit then return end
+    for comp, v in pairs(savedOutfit.components) do
+        SetPedComponentVariation(ped, comp, v[1], v[2], v[3])
+    end
+    for prop, v in pairs(savedOutfit.props) do
+        if v[1] == -1 then
+            ClearPedProp(ped, prop)
+        else
+            SetPedPropIndex(ped, prop, v[1], v[2], true)
+        end
+    end
+    savedOutfit = nil
 end
 
 function ResetSkin()
@@ -139,6 +157,7 @@ function ReqTexts(text, slot)
 end
 
 function OpenTattooShop()
+    StripToUnderwear()
     JayMenu.OpenMenu("tattoo")
     FreezeEntityPosition(PlayerPedId(), true)
     ReqTexts("TAT_MNU", 9)
@@ -146,6 +165,7 @@ end
 
 function CloseTattooShop()
     ClearAdditionalText(9, 1)
+    RestoreOutfit()
     FreezeEntityPosition(PlayerPedId(), false)
     EnableAllControlActions(0)
     back = 1
@@ -168,10 +188,6 @@ function BuyTattoo(collection, name, label, price)
         end
     end, currentTattoos, price, {collection = collection, nameHash = name, Count = opacity}, GetLabelText(label))
 end
-
-RegisterCommand('a', function(source)
-    TriggerServerEvent('Select:Tattoos')
-end)
 
 function RemoveTattoo(name, label)
     for k, v in pairs(currentTattoos) do
@@ -291,7 +307,7 @@ CreateThread(function()
                 end
                 for _, tattoo in pairs(Config.AllTattooList) do
                     if tattoo.Zone == v[1] then
-                        if GetEntityModel(PlayerPedId()) == 'mp_m_freemode_01' then
+                        if GetEntityModel(PlayerPedId()) == GetHashKey('mp_m_freemode_01') then
                             if tattoo.HashNameMale ~= '' then
                                 local found = false
                                 for k, v in pairs(currentTattoos) do
@@ -435,54 +451,6 @@ function setupScaleform(scaleform, message, button)
     
     return scaleform
 end
-
-function DrawText3Ds(x, y, z, text)
-    SetTextScale(0.35, 0.35)
-    SetTextFont(4)
-    SetTextProportional(1)
-    SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
-    SetTextCentre(true)
-    AddTextComponentString(text)
-    SetDrawOrigin(x, y, z, 0)
-    DrawText(0.0, 0.0)
-    local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
-    ClearDrawOrigin()
-end
-
-CreateThread(function()
-    while true do
-        Wait(0)
-        
-        for i = 1, #Config.Shops, 1 do
-            local player = PlayerPedId()
-            local playerloc = GetEntityCoords(player, 0)
-            local coordinates = Config.Shops[i]
-            local dist = GetDistanceBetweenCoords(coordinates['x'], coordinates['y'], coordinates['z'], playerloc['x'], playerloc['y'], playerloc['z'], true)
-            if dist <= 8 then
-                DrawText3Ds(coordinates.x, coordinates.y, coordinates.z + 0.10, "/removealltattoo to remove all tattoos.")
-            end
-        end
-    end
-end)
-
-
-RegisterCommand('removealltattoo', function(source, args, rawCommand)
-    for i = 1, #Config.Shops, 1 do
-        local player = PlayerPedId()
-        local playerloc = GetEntityCoords(player, 0)
-        local coordinates = Config.Shops[i]
-        local dist = GetDistanceBetweenCoords(coordinates['x'], coordinates['y'], coordinates['z'], playerloc['x'], playerloc['y'], playerloc['z'], true)
-        
-        if dist <= 3 then
-            TriggerServerEvent('remover:all')
-            ClearPedDecorationsLeaveScars(player)
-        else
-            print('you need to be at a tattoo shop to use this command!!!')
-        end
-    end
-end)
 
 RegisterNetEvent('remover:tudo', function()
     local ped = PlayerPedId()
