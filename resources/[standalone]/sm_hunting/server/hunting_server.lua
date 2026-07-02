@@ -33,17 +33,26 @@ local rewards = {
 }
 
 -- Weapon license check
+-- Passes if EITHER:
+--   1) the character's metadata licences.weapon flag is true (granted via city hall / police), OR
+--   2) the player is carrying a weapon license card item ("weaponlicense")
 QBCore.Functions.CreateCallback('hunting:checkWeaponLicense', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then cb(false) return end
 
     local licenseTable = Player.PlayerData.metadata["licences"]
-
     if licenseTable and licenseTable.weapon then
         cb(true)
-    else
-        cb(false)
+        return
     end
+
+    local licenseItem = Player.Functions.GetItemByName("weaponlicense")
+    if licenseItem and (licenseItem.amount or 0) > 0 then
+        cb(true)
+        return
+    end
+
+    cb(false)
 end)
 
 -- Harvest event handler
