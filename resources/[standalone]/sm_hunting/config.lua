@@ -14,6 +14,16 @@ Config.Markers = {
     End = vector3(-1491.92, 4975.19, 63.73), -- End hunting
 }
 
+-- Permanent map blip at the hunting start point
+Config.Blip = {
+    enable = true,
+    coords = vector3(-1493.67, 4971.6, 63.91),
+    sprite = 141, -- hunting/rifle icon
+    color = 25, -- dark green
+    scale = 0.8,
+    label = "Hunting"
+}
+
 -- Animal spawn settings
 Config.MaxAnimals = 10 -- Maximum number of animals in the zone
 Config.SpawnChance = { -- Spawn chance per animal (percent)

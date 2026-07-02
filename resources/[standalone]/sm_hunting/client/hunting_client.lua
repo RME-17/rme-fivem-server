@@ -1,12 +1,12 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- Переменные для отслеживания
+-- Tracking variables
 local spawnedAnimals = {}
 local deadAnimals = {}
 local isHunting = false
 local huntingZoneBlip = nil
 
--- Вспомогательная функция для отображения 3D текста
+-- Helper to draw 3D text
 local function DrawText3D(x, y, z, text)
     local onScreen, _x, _y = World3dToScreen2d(x, y, z)
     local px, py, pz = table.unpack(GetGameplayCamCoords())
@@ -21,15 +21,29 @@ local function DrawText3D(x, y, z, text)
     DrawText(_x, _y)
 end
 
--- Функция создания блипа зоны охоты
+-- Permanent map blip at the hunting start point
+CreateThread(function()
+    if not Config.Blip or not Config.Blip.enable then return end
+    local blip = AddBlipForCoord(Config.Blip.coords.x, Config.Blip.coords.y, Config.Blip.coords.z)
+    SetBlipSprite(blip, Config.Blip.sprite)
+    SetBlipDisplay(blip, 4)
+    SetBlipScale(blip, Config.Blip.scale)
+    SetBlipColour(blip, Config.Blip.color)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(Config.Blip.label)
+    EndTextCommandSetBlipName(blip)
+end)
+
+-- Create the hunting zone radius blip (visible while hunting)
 local function CreateHuntingZoneBlip()
     huntingZoneBlip = AddBlipForRadius(Config.HuntingZone.x, Config.HuntingZone.y, Config.HuntingZone.z, Config.SpawnRadius)
     SetBlipRotation(huntingZoneBlip, 0)
-    SetBlipColour(huntingZoneBlip, 69) -- Светло-зеленый цвет
+    SetBlipColour(huntingZoneBlip, 69) -- Light green
     SetBlipAlpha(huntingZoneBlip, 100)
 end
 
--- Функция удаления блипа зоны охоты
+-- Remove the hunting zone radius blip
 local function RemoveHuntingZoneBlip()
     if huntingZoneBlip then
         RemoveBlip(huntingZoneBlip)
@@ -37,11 +51,11 @@ local function RemoveHuntingZoneBlip()
     end
 end
 
--- Функция спавна случайного животного
+-- Spawn a random animal
 local function SpawnRandomAnimal()
     if not isHunting then return end
     
-    -- Выбор животного на основе вероятности
+    -- Pick an animal based on spawn chance
     local rand = math.random(100)
     local currentProb = 0
     local selectedAnimal = nil
@@ -63,21 +77,21 @@ local function SpawnRandomAnimal()
     local spawnY = Config.HuntingZone.y + math.sin(randomAngle) * randomRadius
     local spawnZ = Config.HuntingZone.z
     
-    -- Загрузка модели
+    -- Load the model
     RequestModel(GetHashKey(selectedAnimal.model))
     while not HasModelLoaded(GetHashKey(selectedAnimal.model)) do
         Wait(1)
     end
     
-    -- Создание животного
+    -- Create the animal
     local ped = CreatePed(28, GetHashKey(selectedAnimal.model), spawnX, spawnY, spawnZ, 0.0, true, false)
     SetEntityAsMissionEntity(ped, true, true)
     
-    -- Настройка поведения
+    -- Behaviour setup
     TaskWanderStandard(ped, 10.0, 10)
     SetPedFleeAttributes(ped, 0, false)
     
-    -- Добавление в таблицу отслеживания
+    -- Track it
     table.insert(spawnedAnimals, {
         entity = ped,
         model = selectedAnimal.model,
@@ -87,7 +101,7 @@ local function SpawnRandomAnimal()
     SetModelAsNoLongerNeeded(GetHashKey(selectedAnimal.model))
 end
 
--- Функция сбора добычи
+-- Harvest a carcass
 local function HarvestAnimal(entity, reward)
     if deadAnimals[entity] then
         QBCore.Functions.Progressbar("harvest_animal", Lang:t("info.harvesting"), 5000, false, true, {
@@ -116,7 +130,7 @@ local function HarvestAnimal(entity, reward)
     end
 end
 
--- Создание метки сбора добычи
+-- Harvest prompt above a carcass
 local function CreateHarvestPrompt(entity, reward)
     local coords = GetEntityCoords(entity)
     
@@ -139,7 +153,7 @@ local function CreateHarvestPrompt(entity, reward)
     end)
 end
 
--- Функция для проверки мертвых животных
+-- Check for dead animals
 local function CheckDeadAnimals()
     if not isHunting then return end
     
@@ -153,7 +167,7 @@ end
 
 
 
--- Функция очистки охоты
+-- Cleanup hunting session
 local function CleanupHunting()
     for _, animal in pairs(spawnedAnimals) do
         if DoesEntityExist(animal.entity) then
@@ -166,20 +180,20 @@ local function CleanupHunting()
     RemoveHuntingZoneBlip()
 end
 
--- Проверка лицензии на оружие
+-- Weapon license check
 local function CheckWeaponLicense(cb)
     QBCore.Functions.TriggerCallback('hunting:checkWeaponLicense', function(hasLicense)
         cb(hasLicense)
     end)
 end
 
--- Основной цикл
+-- Main loop
 CreateThread(function()
     while true do
         local sleep = 1000
         local playerCoords = GetEntityCoords(PlayerPedId())
         
-        -- Метка начала охоты
+        -- Start hunting marker
         local distToStart = #(playerCoords - Config.Markers.Start)
         if distToStart < 10.0 then
             sleep = 0
@@ -205,7 +219,7 @@ CreateThread(function()
             end
         end
         
-        -- Метка завершения охоты
+        -- End hunting marker
         local distToEnd = #(playerCoords - Config.Markers.End)
         if distToEnd < 10.0 then
             sleep = 0
@@ -224,7 +238,7 @@ CreateThread(function()
             end
         end
         
-        -- Спавн и проверка животных
+        -- Animal spawning and checks
         if isHunting then
             local distToHuntingZone = #(playerCoords - Config.HuntingZone)
             if distToHuntingZone < Config.ZoneCheckRadius then
