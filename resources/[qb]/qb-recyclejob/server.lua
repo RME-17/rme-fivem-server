@@ -1,8 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject({ 'Functions' })
 local sharedItems = exports['qb-core']:GetShared('Items')
 
--- Materials a Scrap Box can contain when opened at the recycling bin.
--- These feed the crafting / mechanic material economy.
+-- Materials a Scrap Box can contain when opened with the recycling worker.
 local Materials = { 'metalscrap', 'plastic', 'copper', 'rubber', 'iron', 'aluminum', 'steel', 'glass' }
 
 local function distanceTo(src, loc)
@@ -27,12 +26,12 @@ RegisterNetEvent('qb-recyclejob:server:getBoxes', function()
     end
 end)
 
--- Player opens a Scrap Box at the bin -> consume 1 box, get 3-10 random materials.
+-- Player opens a Scrap Box with the worker -> consume 1 box, get 3-10 random materials.
 RegisterNetEvent('qb-recyclejob:server:openBox', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
-    if distanceTo(src, Config.BinLocation) > 6.0 then return end
+    if distanceTo(src, Config.PedLocation) > 6.0 then return end
 
     local box = Player.Functions.GetItemByName(Config.BoxItem)
     if not box or box.amount < 1 then
